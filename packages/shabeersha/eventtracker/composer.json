@@ -1,0 +1,18 @@
+{
+    "name": "shabeersha/eventtracker",
+    "description": "Event Tracker for FB and Google",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Shabeersha\\Eventtracker\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Shabeersha Salim"
+        }
+    ],
+    "require": {
+        "facebook/php-business-sdk": "^18.0"
+    }
+}
