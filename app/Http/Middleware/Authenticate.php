@@ -15,11 +15,19 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response([
+                'error' => 'unauthorized',
+                'error_description' => 'Failed authentication.',
+                'data' => [],
+            ], 401);
+        }
+
         $route_name = Route::currentRouteName();
         $route_name = explode('.', $route_name);
         if ($route_name[0] == env('ADMIN_PREFIX')) {
             return route('admin.login');
         }
-        return route('user.login');
+        return route('admin.login');
     }
 }

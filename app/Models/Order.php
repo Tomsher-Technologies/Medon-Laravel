@@ -29,6 +29,9 @@ class Order extends Model
         'combined_order_id',
         'code',
         'billing_address',
+        'delivery_note',
+        'delivery_image',
+        'delivery_completed_date',
     ];
 
     public function orderDetails()

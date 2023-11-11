@@ -17,237 +17,237 @@
                     <i class="la la-refresh fs-24"></i>
                 </a>
             </div>
-            
-            
-            
+
+
+
             <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-1">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/team.png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Customer</div>
-                                                    <div class="text-muted mb-1 fs-12 count-n "> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                                             {{ $counts['totalUsersCount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-1">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/team.png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Customer</div>
+                                <div class="text-muted mb-1 fs-12 count-n "> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['totalUsersCount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-            
-            
-            
-                <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-2">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/Products.png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Products</div>
-                                                    <div class="text-muted mb-1 fs-12 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom ">
-                                                             {{ $counts['totalProductsCount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-2">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/Products.png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Products</div>
+                                <div class="text-muted mb-1 fs-12 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom ">
+                                        {{ $counts['totalProductsCount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-            
-                  
-                <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-3">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/application.png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Product category</div>
-                                                    <div class="text-muted mb-1 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                                             {{ $counts['categoryCount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-3">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/application.png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Product category</div>
+                                <div class="text-muted mb-1 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['categoryCount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-            
-            
-                     <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-4">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/badge.png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Product brand</div>
-                                                    <div class="text-muted mb-1 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                                        {{ $counts['brandCount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-4">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/badge.png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Product brand</div>
+                                <div class="text-muted mb-1 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['brandCount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-            
-            
-                        <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-5">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/sale (2).png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Sales Amount </div>
-                                                    <div class="text-muted mb-1 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                                       {{ $counts['salesAmount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-5">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/sale (2).png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Sales Amount </div>
+                                <div class="text-muted mb-1 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['salesAmount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                
-                
-                
-                <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-6">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/box (3).png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Orders </div>
-                                                    <div class="text-muted mb-1 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                               {{ $counts['orderCount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-6">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/box (3).png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Orders </div>
+                                <div class="text-muted mb-1 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['orderCount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                
-                
-                
-                      <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-7">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/shopping-bag (5).png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Completed Orders </div>
-                                                    <div class="text-muted mb-1 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                                    {{ $counts['orderCompletedCount'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-7">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/shopping-bag (5).png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Completed Orders </div>
+                                <div class="text-muted mb-1 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['orderCompletedCount'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-            
-            
-            
-            
-                     <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
-                
-                   <div class="card custom-card ">
-                                        <div class="card-body bg-8">
-                                            <div class="row">
-                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0"> 
-                                                <span class="">
-                                                         <img width="50" src="{{ static_asset('assets/img/sign.png') }}">
-                                                        </span> 
-                                                 </div>
-                                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0"
-                                                >
-                                                    <div class="mb-2 fs-15 count-t">Total Products Sold </div>
-                                                    <div class="text-muted mb-1 count-n"> <span
-                                                            class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
-                                           {{ $counts['productsSold'] }}
-                                                            </span> </div>
-                                              
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                
+
+            </div>
+
+
+
+
+
+            <div class="col-lg-3 col-sm-6 col-md-3 col-xl-3">
+
+                <div class="card custom-card ">
+                    <div class="card-body bg-8">
+                        <div class="row">
+                            <div
+                                class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4 d-flex align-items-center justify-content-center ecommerce-icon secondary  px-0">
+                                <span class="">
+                                    <img width="50" src="{{ static_asset('assets/img/sign.png') }}">
+                                </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
+                                <div class="mb-2 fs-15 count-t">Total Products Sold </div>
+                                <div class="text-muted mb-1 count-n"> <span
+                                        class="text-dark fw-semibold fs-35 lh-1 vertical-bottom">
+                                        {{ $counts['productsSold'] }}
+                                    </span> </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+
+            </div>
+
+
+
+
+
+
+
+
+
+
             <!--<div class="col-lg-12">-->
             <!--    <div class="row gutters-10">-->
             <!--        <div class="col-3">-->
@@ -318,8 +318,8 @@
             <!--        </div>-->
             <!--    </div>-->
             <!--</div>-->
-           
-           
+
+
             <!--<div class="col-lg-12">-->
             <!--    <div class="row gutters-10">-->
             <!--        <div class="col-3">-->
@@ -523,13 +523,10 @@
                         <div
                             class="aiz-card-box border border-light rounded shadow-sm hov-shadow-md mb-2 has-transition bg-white">
                             <div class="position-relative">
-                                <a href="{{ route('product', $product->slug) }}" class="d-block">
-                                    <img class="img-fit lazyload mx-auto h-210px"
-                                        src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                        data-src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                        alt="{{ $product->name }}"
-                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                </a>
+                                <img class="img-fit lazyload mx-auto h-210px"
+                                    src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                                    data-src="{{ uploaded_asset($product->thumbnail_img) }}" alt="{{ $product->name }}"
+                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                             </div>
                             <div class="p-md-3 p-2 text-left">
                                 <div class="fs-15">
@@ -539,7 +536,7 @@
                                     <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
                                 </div>
                                 <h3 class="fw-600 fs-14 text-truncate-2 lh-1-4 mb-0">
-                                    <a href="{{ route('product', $product->slug) }}"
+                                    <a href="javascript:void(0)"
                                         class="d-block text-reset">{{ $product->name }}</a>
                                 </h3>
                                 <div class="fs-13">
