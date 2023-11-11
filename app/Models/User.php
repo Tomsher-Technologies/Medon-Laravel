@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Cart;
+use App\Models\Delivery\DeliveryBoy;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\PasswordReset;
-use Auth;
 
 class User extends Authenticatable
 {
@@ -57,6 +56,16 @@ class User extends Authenticatable
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function scopeRider($query)
+    {
+        return $query->where('user_type', 'delivery_boy')->with('delivery_boy');
+    }
+
+    public function delivery_boy()
+    {
+        return $this->hasOne(DeliveryBoy::class);
     }
 
     public function customer()

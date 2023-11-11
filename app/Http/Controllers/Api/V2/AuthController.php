@@ -45,13 +45,12 @@ class AuthController extends Controller
         if ($request->register_by == 'email') {
             if (BusinessSetting::where('type', 'email_verification')->first()->value != 1) {
                 $user->email_verified_at = date('Y-m-d H:m:s');
-            } else{
+            } else {
                 try {
                     $user->notify(new AppEmailVerificationNotification());
                 } catch (\Exception $e) {
-                    
                 }
-            } 
+            }
         } else {
             $otpController = new OTPVerificationController();
             $otpController->send_code($user);
@@ -115,12 +114,6 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        /*$request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-            'remember_me' => 'boolean'
-        ]);*/
-
         $delivery_boy_condition = $request->has('user_type') && $request->user_type == 'delivery_boy';
 
         if ($delivery_boy_condition) {
@@ -129,19 +122,8 @@ class AuthController extends Controller
             $user = User::whereIn('user_type', ['customer', 'seller'])->where('email', $request->email)->orWhere('phone', $request->email)->first();
         }
 
-        if (!$delivery_boy_condition) {
-            if (\App\Utility\PayhereUtility::create_wallet_reference($request->identity_matrix) == false) {
-                return response()->json(['result' => false, 'message' => 'Identity matrix error', 'user' => null], 401);
-            }
-        }
-
-
         if ($user != null) {
             if (Hash::check($request->password, $user->password)) {
-
-                if ($user->email_verified_at == null) {
-                    return response()->json(['message' => translate('Please verify your account'), 'user' => null], 401);
-                }
                 return $this->loginSuccess($user);
             } else {
                 return response()->json(['result' => false, 'message' => translate('Unauthorized'), 'user' => null], 401);
@@ -168,7 +150,7 @@ class AuthController extends Controller
 
     public function socialLogin(Request $request)
     {
-        if(!$request->provider){
+        if (!$request->provider) {
             return response()->json([
                 'result' => false,
                 'message' => translate('User not found'),

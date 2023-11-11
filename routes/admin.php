@@ -11,9 +11,9 @@
   |
  */
 
-use App\Http\Controllers\AddonController;
 use App\Http\Controllers\Admin\AbandonedCartController;
 use App\Http\Controllers\Admin\Auth\LoginController as AuthLoginController;
+use App\Http\Controllers\Admin\Delivery\DeliveryBoyController;
 use App\Http\Controllers\Admin\Frontend\Bannercontroller;
 use App\Http\Controllers\Admin\Products\EnquiriesController;
 use App\Http\Controllers\AdminController;
@@ -336,4 +336,16 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
 
     // Cache
     Route::get('/cache-cache/{type?}', [AdminController::class, 'clearCache'])->name('cache.clear');
+
+
+    // Delivery Boy
+    Route::resource('delivery_boy', DeliveryBoyController::class)->except('show');
+
+
+    Route::resource('orders', OrderController::class);
+    Route::get('/orders/destroy/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::post('/orders/details', [OrderController::class, 'order_details'])->name('orders.details');
+    Route::post('/orders/update_delivery_status', [OrderController::class, 'update_delivery_status'])->name('orders.update_delivery_status');
+    Route::post('/orders/update_payment_status', [OrderController::class, 'update_payment_status'])->name('orders.update_payment_status');
+    Route::post('/orders/update_tracking_code', [OrderController::class, 'update_tracking_code'])->name('orders.update_tracking_code');
 });

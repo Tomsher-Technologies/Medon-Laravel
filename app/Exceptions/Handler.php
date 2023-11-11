@@ -2,8 +2,11 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use \Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -27,6 +30,28 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+
+    public function render($request, Throwable $e)
+    {
+        if ($request->expectsJson()) {
+            if ($e instanceof ModelNotFoundException) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Record not found.',
+                ], 404);
+            }
+
+            if ($e instanceof MethodNotAllowedHttpException) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Method not supported',
+                ], 405);
+            }
+        }
+
+        return parent::render($request, $e);
+    }
+
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -36,6 +61,15 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthenticated.'
+                ], 401);
+            }
         });
     }
 }
