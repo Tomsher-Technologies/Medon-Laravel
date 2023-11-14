@@ -32,7 +32,7 @@ class DeliveryBoyController extends Controller
         return response()->json([
             'status' => true,
             'completed_delivery' => $orders->where('delivery_status', 'delivered')->count(),
-            'assigned_delivery' => $orders->where('delivery_status', 'confirmed')->count()
+            'assigned_delivery' => $orders->where('delivery_status', 'picked_up')->count()
         ]);
     }
 
@@ -40,7 +40,7 @@ class DeliveryBoyController extends Controller
     {
         $orders = Order::where([
             'assign_delivery_boy' => $request->user()->id,
-            'delivery_status' => 'confirmed'
+            'delivery_status' => 'picked_up'
         ])->latest()->get();
         return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
     }
