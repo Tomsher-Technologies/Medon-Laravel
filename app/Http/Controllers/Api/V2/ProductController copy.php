@@ -14,78 +14,22 @@ use Illuminate\Http\Request;
 use App\Utility\CategoryUtility;
 use App\Utility\SearchUtility;
 use Cache;
-use DB;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        return response()->json([
+            'result' => true,
+            'message' => $request->all()
+        ]);
         $limit = $request->limit ?? 10;
-        $category = $request->category ? explode(',', $request->category)  : false;
-        $brand = $request->brand ? explode(',', $request->brand)  : false;
-
-        $product_query  = Product::wherePublished(1);
-
-        if ($category) {
-            $product_query->whereIn('category_id', $category);
-        }
-        if ($brand) {
-            $product_query->whereIn('brand_id', $brand);
-        }
-
-        if ($request->order_by) {
-            switch ($request->order_by) {
-                case 'latest':
-                    $product_query->latest();
-                    break;
-                case 'oldest':
-                    $product_query->oldest();
-                    break;
-                case 'name_asc':
-                    $product_query->orderBy('name', 'asc');
-                    break;
-                case 'name_desc':
-                    $product_query->orderBy('name', 'desc');
-                    break;
-                case 'price_high':
-                    $product_query->select('*', DB::raw("(SELECT MAX(price) from product_stocks WHERE product_id = products.id) as sort_price"));
-                    $product_query->orderBy('sort_price', 'desc');
-                    break;
-                case 'price_low':
-                    $product_query->select('*', DB::raw("(SELECT MIN(price) from product_stocks WHERE product_id = products.id) as sort_price"));
-                    $product_query->orderBy('sort_price', 'asc');
-                    break;
-                default:
-                    # code...
-                    break;
-            }
-        }
-
-        if ($request->search) {
-            $sort_search = $request->search;
-            $products = $product_query
-                ->where('name', 'like', '%' . $sort_search . '%')
-                ->orWhereHas('stocks', function ($q) use ($sort_search) {
-                    $q->where('sku', 'like', '%' . $sort_search . '%');
-                });
-
-            SearchUtility::store($sort_search, $request);
-        }
-
-        $products = $product_query->paginate($limit);
-
-        return new ProductMiniCollection($products);
+        return new ProductMiniCollection(Product::latest()->paginate($limit));
     }
 
-    public function show(Request $request)
+    public function show($id)
     {
-        $product = Product::with('tabs')->findOrFail($request->product_id);
-
-        // return response()->json([
-        //     'product_id' => $product,
-        // ]);
-
-        return new ProductDetailCollection($product);
+        return new ProductDetailCollection(Product::where('id', $id)->get());
     }
 
     public function admin()

@@ -9,15 +9,18 @@ class WishlistCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'data' => $this->collection->map(function($data) {
+            'data' => $this->collection->map(function ($data) {
                 return [
-                    'id' => (integer) $data->id,
+                    'id' => (int) $data->id,
                     'product' => [
                         'id' => $data->product->id,
                         'name' => $data->product->name,
-                        'thumbnail_image' => api_asset($data->product->thumbnail_img),
-                        'base_price' => format_price(home_base_price($data->product, false)) ,
-                        'rating' => (double) $data->product->rating,
+                        'slug' => $data->product->slug,
+                        'thumbnail_image' => $data->product->thumbnail_img,
+                        'has_discount' => home_base_price($data->product, false) != home_discounted_base_price($data->product, false),
+                        'stroked_price' => home_base_price($data->product),
+                        'main_price' => home_discounted_base_price($data->product),
+                        'price_high_low' => (float)explode('-', home_discounted_base_price($data->product, false))[0] == (float)explode('-', home_discounted_price($data->product, false))[1] ? format_price((float)explode('-', home_discounted_price($data->product, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($data->product, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($data->product, false))[1]),
                     ]
                 ];
             })

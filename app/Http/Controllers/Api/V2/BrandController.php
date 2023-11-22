@@ -13,17 +13,18 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         $brand_query = Brand::query();
-        if($request->name != "" || $request->name != null){
-            $brand_query->where('name', 'like', '%'.$request->name.'%');
-            SearchUtility::store($request->name);
-        }
-        return new BrandCollection($brand_query->paginate(10));
+        $limit = $request->limit ?? 10;
+        return new BrandCollection($brand_query->paginate($limit));
     }
 
     public function top()
     {
-        return Cache::remember('app.top_brands', 86400, function(){
-            return new BrandCollection(Brand::where('top', 1)->get());
+        $brands = Cache::rememberForever('home_brands', function () {
+            $brand_ids = get_setting('top10_brands');
+            if ($brand_ids) {
+                return Brand::whereIn('id', json_decode($brand_ids))->with('logoImage')->get();
+            }
         });
+        return new BrandCollection($brands);
     }
 }

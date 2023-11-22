@@ -12,10 +12,11 @@
  */
 
 use App\Http\Controllers\Admin\AbandonedCartController;
+use App\Http\Controllers\Admin\App\AppBannerController;
+use App\Http\Controllers\Admin\App\SplashScreenController;
 use App\Http\Controllers\Admin\Auth\LoginController as AuthLoginController;
 use App\Http\Controllers\Admin\Delivery\DeliveryBoyController;
 use App\Http\Controllers\Admin\Frontend\Bannercontroller;
-use App\Http\Controllers\Admin\Products\EnquiriesController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AttributeController;
@@ -216,6 +217,15 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
         Route::get('/home-slider/delete/{id}', [HomeSliderController::class, 'destroy'])->name('home-slider.delete');
         Route::resource('home-slider', HomeSliderController::class);
 
+
+        Route::post('/app-banner/update-status', [AppBannerController::class, 'updateStatus'])->name('app-banner.update-status');
+        Route::get('/app-banner/delete/{id}', [AppBannerController::class, 'destroy'])->name('app-banner.delete');
+        Route::resource('app-banner', AppBannerController::class);
+
+        Route::post('/splash_screen/update-status', [SplashScreenController::class, 'updateStatus'])->name('splash-screen.update-status');
+        Route::get('/splash_screen/delete/{id}', [SplashScreenController::class, 'destroy'])->name('splash-screen.delete');
+        Route::resource('splash_screen', SplashScreenController::class)->except('show');
+
         Route::resource('custom-pages', PageController::class);
         Route::get('/custom-pages/edit/{id}', [PageController::class, 'edit'])->name('custom-pages.edit');
         Route::get('/custom-pages/destroy/{id}', [PageController::class, 'destroy'])->name('custom-pages.destroy');
@@ -236,9 +246,6 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/all_orders/{id}/show', [OrderController::class, 'all_orders_show'])->name('all_orders.show');
 
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
-
-    Route::get('/enquiries/{id}/delete', [EnquiriesController::class, 'destroy'])->name('enquiries.destroy');
-    Route::resource('enquiries', EnquiriesController::class)->only('index', 'show');
 
     Route::post('/bulk-order-status', [OrderController::class, 'bulk_order_status'])->name('bulk-order-status');
 

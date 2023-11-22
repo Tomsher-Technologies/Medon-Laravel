@@ -87,18 +87,30 @@ class Category extends Model
             Cache::forget('categories');
             Cache::forget('categoriesTree');
             Cache::forget('trending_categories');
+            Cache::forget('app.featured_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.top_categories');
         });
 
         static::updating(function ($model) {
             Cache::forget('categories');
             Cache::forget('categoriesTree');
             Cache::forget('trending_categories');
+            Cache::forget('app.featured_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.top_categories');
         });
 
         static::deleting(function ($model) {
             Cache::forget('categories');
             Cache::forget('categoriesTree');
             Cache::forget('trending_categories');
+            Cache::forget('app.featured_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.top_categories');
         });
 
         parent::boot();

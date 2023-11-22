@@ -4,8 +4,14 @@ namespace App\Http\Resources\V2;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class BrandCollection extends ResourceCollection
+class SplashScreenCollection extends ResourceCollection
 {
+    /**
+     * Transform the resource collection into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
     public function toArray($request)
     {
         return [
@@ -13,8 +19,9 @@ class BrandCollection extends ResourceCollection
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
-                    'logo' => api_asset($data->logo),
-                    'is_top' => (bool)$data->top
+                    'description' => $data->description,
+                    'image' => api_asset($data->image),
+                    'sort_order' => $data->sort_order,
                 ];
             })
         ];

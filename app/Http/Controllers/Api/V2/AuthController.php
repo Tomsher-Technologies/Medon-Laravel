@@ -5,6 +5,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\OTPVerificationController;
+use App\Http\Requests\Api\SignupRequest;
 use App\Models\BusinessSetting;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -16,61 +17,97 @@ use Hash;
 
 class AuthController extends Controller
 {
-    public function signup(Request $request)
+    public function signup(SignupRequest $request)
     {
-        if (User::where('email', $request->email_or_phone)->orWhere('phone', $request->email_or_phone)->first() != null) {
-            return response()->json([
-                'result' => false,
-                'message' => translate('User already exists.'),
-                'user_id' => 0
-            ], 201);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'user_type' => 'customer',
+        ]);
+
+        $otpController = new OTPVerificationController();
+        $otpController->send_code($user);
+
+        Customer::create([
+            'user_id' => $user->id
+        ]);
+
+        $result = [
+            'status' => true,
+            'message' => 'Registration Successful. OPT has been sent to your phone, please verify and log in to your account.',
+            'user_id' => $user->id
+        ];
+
+        if (env('APP_DEBUG') == true) {
+            $result['otp'] = $user->verification_code;
         }
 
-        if ($request->register_by == 'email') {
-            $user = new User([
-                'name' => $request->name,
-                'email' => $request->email_or_phone,
-                'password' => bcrypt($request->password),
-                'verification_code' => rand(100000, 999999)
-            ]);
-        } else {
-            $user = new User([
-                'name' => $request->name,
-                'phone' => $request->email_or_phone,
-                'password' => bcrypt($request->password),
-                'verification_code' => rand(100000, 999999)
-            ]);
-        }
+        return response()->json($result, 201);
+    }
 
-        if ($request->register_by == 'email') {
-            if (BusinessSetting::where('type', 'email_verification')->first()->value != 1) {
-                $user->email_verified_at = date('Y-m-d H:m:s');
-            } else {
-                try {
-                    $user->notify(new AppEmailVerificationNotification());
-                } catch (\Exception $e) {
-                }
-            }
-        } else {
+    public function resend_otp(Request $request)
+    {
+        if ($request->user_id) {
+            $user = User::findOrFail($request->user_id);
             $otpController = new OTPVerificationController();
             $otpController->send_code($user);
+
+            $result = [
+                'status' => true,
+                'message' => 'OTP resend',
+            ];
+
+            if (env('APP_DEBUG') == true) {
+                $result['otp'] = $user->verification_code;
+            }
+
+            return response()->json($result, 200);
         }
 
-        $user->save();
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid data, please provide a user id',
+        ], 200);
+    }
 
-        $customer = new Customer;
-        $customer->user_id = $user->id;
-        $customer->save();
+    public function verify_otp(Request $request)
+    {
+        if ($request->user_id && $request->otp) {
+            $user = User::findOrFail($request->user_id);
 
-        //create token
-        $user->createToken('tokens')->plainTextToken;
+            if (Carbon::now()->gt($user->verification_code_expiry)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP exprired, please try again',
+                ], 200);
+            } else if ($user->verification_code !== $request->otp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP, please try again',
+                ], 200);
+            }
+
+            if ($user->phone_verified == 0) {
+                $user->phone_verified = 1;
+            }
+
+            $user->verification_code_expiry = null;
+            $user->verification_code = null;
+
+            $user->save();
+
+            return $this->loginSuccess($user);
+        }
 
         return response()->json([
-            'result' => true,
-            'message' => translate('Registration Successful. Please verify and log in to your account.'),
-            'user_id' => $user->id
-        ], 201);
+            'status' => false,
+            'message' => 'Invalid data, please provide a user id and otp',
+        ], 200);
     }
+
+
 
     public function resendCode(Request $request)
     {
@@ -195,6 +232,61 @@ class AuthController extends Controller
                 'avatar_original' => api_asset($user->avatar_original),
                 'phone' => $user->phone
             ]
-        ]);
+        ], 200);
+    }
+
+
+    public function signup2(Request $request)
+    {
+        if (User::where('email', $request->email_or_phone)->orWhere('phone', $request->email_or_phone)->first() != null) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('User already exists.'),
+                'user_id' => 0
+            ], 201);
+        }
+
+        if ($request->register_by == 'email') {
+            $user = new User([
+                'name' => $request->name,
+                'email' => $request->email_or_phone,
+                'password' => Hash::make($request->password),
+                'verification_code' => rand(100000, 999999)
+            ]);
+        } else {
+            $user = new User([
+                'name' => $request->name,
+                'phone' => $request->email_or_phone,
+                'password' => Hash::make($request->password),
+                'verification_code' => rand(100000, 999999)
+            ]);
+        }
+
+        if ($request->register_by == 'email') {
+            if (BusinessSetting::where('type', 'email_verification')->first()->value != 1) {
+                $user->email_verified_at = date('Y-m-d H:m:s');
+            } else {
+                try {
+                    $user->notify(new AppEmailVerificationNotification());
+                } catch (\Exception $e) {
+                }
+            }
+        } else {
+        }
+
+        $user->save();
+
+        $customer = new Customer;
+        $customer->user_id = $user->id;
+        $customer->save();
+
+        //create token
+        $user->createToken('tokens')->plainTextToken;
+
+        return response()->json([
+            'result' => true,
+            'message' => translate('Registration Successful. Please verify and log in to your account.'),
+            'user_id' => $user->id
+        ], 201);
     }
 }

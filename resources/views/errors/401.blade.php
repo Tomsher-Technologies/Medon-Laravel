@@ -1,4 +1,4 @@
-@extends('backend.layouts.layout')
+@extends('backend.layouts.app')
 
 @section('content')
     <div class="ps-section--shopping ps-shopping-cart">

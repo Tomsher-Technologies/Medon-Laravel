@@ -9,11 +9,12 @@ class BannerCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'data' => $this->collection->map(function($data) {
+            'data' => $this->collection->map(function ($data) {
                 return [
-                    'photo' => api_asset($data),
-                    'url' => route('home'),
-                    'position' => 1
+                    'image' => $data->mainImage->file_name,
+                    'mobile_image' => $data->mobileImage->file_name,
+                    'url' => $data->a_link,
+                    'position' => $data->sort_order
                 ];
             })
         ];

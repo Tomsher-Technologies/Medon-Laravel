@@ -110,14 +110,6 @@
                                     </a>
                                 </li>
                             @endif
-                            @if (userHasPermision(28))
-                                <li class="aiz-side-nav-item">
-                                    <a href="{{ route('enquiries.index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['enquiries.index', 'enquiries.show']) }}">
-                                        <span class="aiz-side-nav-text">Product Enquiry</span>
-                                    </a>
-                                </li>
-                            @endif
                         </ul>
                     </li>
                 @endif
@@ -201,10 +193,10 @@
                 @endif
 
                 <li class="aiz-side-nav-item">
-                    <a href="{{ route('career.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['career.index']) }}">
-                        <i class="las la-graduation-cap aiz-side-nav-icon"></i>
-                        <span class="aiz-side-nav-text">Careers</span>
+                    <a href="{{ route('delivery_boy.index') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['delivery_boy.index','delivery_boy.create','delivery_boy.edit']) }}">
+                        <i class="las la-motorcycle aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">Delivery Boys</span>
                     </a>
                 </li>
 
