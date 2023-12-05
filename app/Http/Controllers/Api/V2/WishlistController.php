@@ -52,6 +52,7 @@ class WishlistController extends Controller
             'wishlist_count' => $this->getWishlistCount($request->user()->id),
         ], 200);
     }
+    
     public function getWishlistCount($user)
     {
         return Wishlist::where([

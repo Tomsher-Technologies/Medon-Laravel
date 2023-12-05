@@ -56,7 +56,7 @@ class ProductDetailCollection extends JsonResource
             'id' => (int)$this->id,
             'name' => $this->name,
             'photos' => $photos,
-            'thumbnail_image' => api_asset($this->thumbnail_img),
+            'thumbnail_image' => $this->thumbnail_img,
             'tags' => explode(',', $this->tags),
             'price_high_low' => (float)explode('-', home_discounted_base_price($this, false))[0] == (float)explode('-', home_discounted_price($this, false))[1] ? format_price((float)explode('-', home_discounted_price($this, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($this, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($this, false))[1]),
             'choice_options' => $this->convertToChoiceOptions(json_decode($this->choice_options)),
@@ -65,7 +65,6 @@ class ProductDetailCollection extends JsonResource
             'main_price' => home_discounted_base_price($this),
             'calculable_price' => $calculable_price,
             'currency_symbol' => currency_symbol(),
-            'current_stock' => (int)$this->stocks->first()->qty,
             'unit' => $this->unit,
             'rating' => (float)$this->rating,
             'rating_count' => (int)Review::where(['product_id' => $this->id])->count(),
@@ -137,7 +136,7 @@ class ProductDetailCollection extends JsonResource
         $result = array();
         //        if($data) {
         foreach ($data as $key => $choice) {
-            $item['name'] = $choice->attribute_id;
+            $item['id'] = (int)$choice->attribute_id;
             $item['title'] = Attribute::find($choice->attribute_id)->name;
             $item['options'] = $choice->values;
             array_push($result, $item);

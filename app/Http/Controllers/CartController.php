@@ -160,7 +160,7 @@ class CartController extends Controller
         } else {
             return response()->json([
                 'message' => "",
-            ], 40);
+            ], 404);
         }
     }
 

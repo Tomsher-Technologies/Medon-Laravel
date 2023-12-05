@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V2\AuthController;
 use App\Http\Controllers\Api\V2\BannerController;
 use App\Http\Controllers\Api\V2\BrandController;
 use App\Http\Controllers\Api\V2\BusinessSettingController;
+use App\Http\Controllers\Api\V2\CartController;
 use App\Http\Controllers\Api\V2\CategoryController;
 use App\Http\Controllers\Api\V2\CommonController;
 use App\Http\Controllers\Api\V2\DeliveryBoyController;
@@ -19,6 +20,7 @@ Route::group(['prefix' => 'v2/auth'], function () {
     Route::post('signup', [AuthController::class, 'signup']);
     Route::post('verify-opt', [AuthController::class, 'verify_otp']);
     Route::post('resend-opt', [AuthController::class, 'resend_otp']);
+    Route::post('check-user-exist', [AuthController::class, 'check_user_exist']);
 
     // Route::post('password/forget_request', 'Api\V2\PasswordResetController@forgetRequest');
     // Route::post('password/confirm_reset', 'Api\V2\PasswordResetController@confirmReset');
@@ -32,20 +34,18 @@ Route::group(['prefix' => 'v2/auth'], function () {
 
 Route::group(['prefix' => 'v2'], function () {
     Route::apiResource('banners', BannerController::class)->only('index');
-    Route::apiResource('app-banners', AppBannerController::class)->only('index');
-
-
-    // Customer
-    Route::group(['prefix' => 'profile', 'middleware' => ['auth:sanctum']], function () {
-        Route::get('counters', [ProfileController::class, 'counters']);
-        // Route::post('update', [ProfileController::class, 'update']);
-
-        Route::apiResource('address', AddressController::class);
-        Route::post('address/make_default', [AddressController::class, 'makeShippingAddressDefault']);
-    });
+    
 
     // Wishlist
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        // Customer
+        Route::group(['prefix' => 'profile'], function () {
+            Route::get('counters', [ProfileController::class, 'counters']);
+            // Route::post('update', [ProfileController::class, 'update']);
+            Route::apiResource('address', AddressController::class);
+            Route::post('address/make_default', [AddressController::class, 'makeShippingAddressDefault']);
+        });
+
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
     });
@@ -58,12 +58,27 @@ Route::group(['prefix' => 'v2'], function () {
     Route::get('products', [ProductController::class, 'index']);
     Route::get('product', [ProductController::class, 'show']);
 
+    // Cart
+    Route::get('cart/count', [CartController::class, 'getCount']);
+    Route::post('cart/change_quantity', [CartController::class, 'changeQuantity']);
+    Route::apiResource('cart', CartController::class)->only('index', 'store', 'destroy');
+
     // Common
     Route::apiResource('business-settings', BusinessSettingController::class)->only('index');
     // Route::get('cities', [AddressController::class, 'getCities']);
     // Route::get('states', [AddressController::class, 'getStates']);
     Route::get('countries', [AddressController::class, 'getCountries']);
     Route::get('states-by-country',  [AddressController::class, 'getStatesByCountry']);
+
+    // Home
+    Route::group(['prefix' => 'app'], function () {
+        Route::apiResource('app-banners', AppBannerController::class)->only('index');
+        Route::get('top_categories', [CommonController::class, 'homeTopCategory']);
+        Route::get('top_brands', [CommonController::class, 'homeTopBrand']);
+        Route::get('top_brands', [CommonController::class, 'homeTopBrand']);
+        Route::get('ad_banners', [CommonController::class, 'homeAdBanners']);
+    });
+
 
 
     // Footer newsletter
@@ -132,12 +147,12 @@ Route::group(['prefix' => 'v2'], function () {
     // Route::get('products/home', 'Api\V2\ProductController@home');
     // Route::apiResource('products', 'Api\V2\ProductController')->except(['store', 'update', 'destroy']);
 
-    Route::get('cart-summary', 'Api\V2\CartController@summary')->middleware('auth:sanctum');
-    Route::post('carts/process', 'Api\V2\CartController@process')->middleware('auth:sanctum');
-    Route::post('carts/add', 'Api\V2\CartController@add')->middleware('auth:sanctum');
-    Route::post('carts/change-quantity', 'Api\V2\CartController@changeQuantity')->middleware('auth:sanctum');
-    Route::apiResource('carts', 'Api\V2\CartController')->only('destroy')->middleware('auth:sanctum');
-    Route::post('carts', 'Api\V2\CartController@getList')->middleware('auth:sanctum');
+    // Route::get('cart-summary', 'Api\V2\CartController@summary')->middleware('auth:sanctum');
+    // Route::post('carts/process', 'Api\V2\CartController@process')->middleware('auth:sanctum');
+    // Route::post('carts/add', 'Api\V2\CartController@add')->middleware('auth:sanctum');
+    // Route::post('carts/change-quantity', 'Api\V2\CartController@changeQuantity')->middleware('auth:sanctum');
+    // Route::apiResource('carts', 'Api\V2\CartController')->only('destroy')->middleware('auth:sanctum');
+    // Route::post('carts', 'Api\V2\CartController@getList')->middleware('auth:sanctum');
 
 
     Route::post('coupon-apply', 'Api\V2\CheckoutController@apply_coupon_code')->middleware('auth:sanctum');

@@ -13,6 +13,7 @@
 
 use App\Http\Controllers\Admin\AbandonedCartController;
 use App\Http\Controllers\Admin\App\AppBannerController;
+use App\Http\Controllers\Admin\App\AppHomeController;
 use App\Http\Controllers\Admin\App\SplashScreenController;
 use App\Http\Controllers\Admin\Auth\LoginController as AuthLoginController;
 use App\Http\Controllers\Admin\Delivery\DeliveryBoyController;
@@ -49,6 +50,7 @@ use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WebsiteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Frontend\HomeSliderController;
+use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\TempImageController;
 use App\Http\Controllers\CareersController;
 use App\Http\Controllers\InvoiceController;
@@ -202,6 +204,19 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/languages/app-translations/key_value_store', [LanguageController::class, 'storeAppTranlsation'])->name('app-translations.store');
     Route::get('/languages/app-translations/export/{id}', [LanguageController::class, 'exportARBFile'])->name('app-translations.export');
 
+    // App setting
+    Route::group(['prefix' => 'app'], function () {
+        Route::post('/app-banner/update-status', [AppBannerController::class, 'updateStatus'])->name('app-banner.update-status');
+        Route::get('/app-banner/delete/{id}', [AppBannerController::class, 'destroy'])->name('app-banner.delete');
+        Route::resource('app-banner', AppBannerController::class);
+
+        Route::post('/app-banners', [AppHomeController::class, 'updateBanners'])->name('app-banners.update');
+        Route::get('/app-home', [AppHomeController::class, 'index'])->name('app.home');
+    });
+    
+    Route::resource('offers', OfferController::class);
+    Route::post('/offers/get-form', [OfferController::class, 'get_form'])->name('offers.get_form');
+
     // website setting
     Route::group(['prefix' => 'website'], function () {
         Route::get('/footer', [WebsiteController::class, 'footer'])->name('website.footer');
@@ -216,11 +231,6 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
         Route::post('/home-slider/update-status', [HomeSliderController::class, 'updateStatus'])->name('home-slider.update-status');
         Route::get('/home-slider/delete/{id}', [HomeSliderController::class, 'destroy'])->name('home-slider.delete');
         Route::resource('home-slider', HomeSliderController::class);
-
-
-        Route::post('/app-banner/update-status', [AppBannerController::class, 'updateStatus'])->name('app-banner.update-status');
-        Route::get('/app-banner/delete/{id}', [AppBannerController::class, 'destroy'])->name('app-banner.delete');
-        Route::resource('app-banner', AppBannerController::class);
 
         Route::post('/splash_screen/update-status', [SplashScreenController::class, 'updateStatus'])->name('splash-screen.update-status');
         Route::get('/splash_screen/delete/{id}', [SplashScreenController::class, 'destroy'])->name('splash-screen.delete');

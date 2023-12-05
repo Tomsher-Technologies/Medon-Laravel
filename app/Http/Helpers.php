@@ -280,7 +280,7 @@ if (!function_exists('home_discounted_price')) {
     {
         $lowest_price = $product->stocks->min('price');
         $highest_price = $product->stocks->max('price');
-        
+
         // if ($product->variant_product) {
         //     foreach ($product->stocks as $key => $stock) {
         //         if ($lowest_price > $stock->price) {
@@ -1257,4 +1257,27 @@ function whishlistHasProduct($product_id)
         }
     }
     return false;
+}
+
+function getUser()
+{
+
+    $user = array(
+        'users_id_type' => 'temp_user_id',
+        'users_id' => null
+    );
+
+    if (auth('sanctum')->user()) {
+        $user = array(
+            'users_id_type' => 'user_id',
+            'users_id' => auth('sanctum')->user()->id
+        );
+    } else {
+        $user = array(
+            'users_id_type' => 'temp_user_id',
+            'users_id' => request()->header('UserToken')
+        );
+    }
+
+    return $user;
 }

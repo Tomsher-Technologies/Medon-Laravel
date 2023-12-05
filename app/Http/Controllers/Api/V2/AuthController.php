@@ -156,7 +156,7 @@ class AuthController extends Controller
         if ($delivery_boy_condition) {
             $user = User::whereIn('user_type', ['delivery_boy'])->where('email', $request->email)->orWhere('phone', $request->email)->first();
         } else {
-            $user = User::whereIn('user_type', ['customer', 'seller'])->where('email', $request->email)->orWhere('phone', $request->email)->first();
+            // $user = User::whereIn('user_type', ['customer', 'seller'])->where('email', $request->email)->orWhere('phone', $request->email)->first();
         }
 
         if ($user != null) {
@@ -180,38 +180,9 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
 
         return response()->json([
-            'result' => true,
+            'status' => true,
             'message' => translate('Successfully logged out')
         ]);
-    }
-
-    public function socialLogin(Request $request)
-    {
-        if (!$request->provider) {
-            return response()->json([
-                'result' => false,
-                'message' => translate('User not found'),
-                'user' => null
-            ]);
-        }
-
-        $existingUserByProviderId = User::where('provider_id', $request->provider)->first();
-
-        if ($existingUserByProviderId) {
-            return $this->loginSuccess($existingUserByProviderId);
-        } else {
-            $user = new User([
-                'name' => $request->name,
-                'email' => $request->email,
-                'provider_id' => $request->provider,
-                'email_verified_at' => Carbon::now()
-            ]);
-            $user->save();
-            $customer = new Customer;
-            $customer->user_id = $user->id;
-            $customer->save();
-        }
-        return $this->loginSuccess($user);
     }
 
     protected function loginSuccess($user)
@@ -288,5 +259,43 @@ class AuthController extends Controller
             'message' => translate('Registration Successful. Please verify and log in to your account.'),
             'user_id' => $user->id
         ], 201);
+    }
+
+    public function check_user_exist(Request $request)
+    {
+        $request->validate([
+            'email_or_phone' => 'required'
+        ]);
+
+        $user = User::whereEmail($request->email_or_phone)->orWhere('phone', $request->email_or_phone)->firstOrFail();
+
+        if ($this->isEmail($request->email_or_phone)) {
+            return response()->json([
+                'status' => true,
+                'is_password' => true,
+                'is_otp' => false,
+                'message' => "User exists"
+            ]);
+        } else {
+            $otpController = new OTPVerificationController();
+            $otpController->send_code($user);
+
+            $result = [
+                'status' => true,
+                'is_password' => false,
+                'is_otp' =>  true,
+            ];
+
+            if (env('APP_DEBUG') == true) {
+                $result['otp'] = $user->verification_code;
+            }
+
+            return response()->json($result, 201);
+        }
+    }
+
+    public function isEmail($value)
+    {
+        return filter_var($value, FILTER_VALIDATE_EMAIL);
     }
 }
