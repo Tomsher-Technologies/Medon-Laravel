@@ -27,6 +27,10 @@ use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Livewire\Frontend\Cart;
 use App\Http\Livewire\Frontend\Checkout;
+use App\Models\State;
+use App\Models\User;
+use App\Utility\SendSMSUtility;
+use Carbon\Carbon;
 
 // Route::get('/demo/cron_1', [DemoController::class, 'cron_1']);
 // Route::get('/demo/cron_2', [DemoController::class, 'cron_2']);
@@ -54,7 +58,21 @@ Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 // Route::post('/signin/cart', [HomeController::class, 'cart_login'])->name('cart.login.submit');
 
 // //Home Page
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', function () {
+
+    dd("Hi");
+
+    // $user = User::find(9);
+
+
+    // $user->verification_code = rand(100000, 999999);
+    // $user->verification_code_expiry = Carbon::now()->addMinutes(5);
+    // $user->save();
+    // $message = "Hi $user->name, Greetings from Farook! Your OTP: $user->verification_code Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.";
+
+    // $status = SendSMSUtility::sendSMS('971507428638', $message);
+    // dd($status);
+})->name('home');
 // Route::post('/home/section/brands', [HomeController::class, 'load_brands_section'])->name('home.section.brands');
 // Route::post('/home/section/large_banner', [HomeController::class, 'load_large_banner_section'])->name('home.section.large_banner');
 // Route::post('/category/nav-element-list', [HomeController::class, 'get_category_items'])->name('category.elements');

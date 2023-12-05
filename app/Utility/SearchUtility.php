@@ -6,21 +6,24 @@ use App\Models\Search;
 
 class SearchUtility
 {
-    public static function store($query)
+    public static function store($query, $request)
     {
         if ($query != null && $query != "") {
+            $users_id = null;
+            $users_id_type = 'user_id';
 
-            $search = Search::where('query', $query)->first();
-            if ($search != null) {
-                $search->count = $search->count + 1;
-                $search->save();
+            if (auth('sanctum')->user()) {
+                $users_id = auth('sanctum')->user()->id;
             } else {
-                $search = new Search;
-                $search->query = $query;
-                $search->count = 1;
-                $search->save();
+                $users_id_type = 'temp_user_id';
+                $users_id = $request->header('UserToken');
             }
 
+            Search::create([
+                $users_id_type => $users_id,
+                'query' => $query,
+                'ip_address' => $request->ip()
+            ]);
         }
     }
 }

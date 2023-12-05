@@ -9,14 +9,12 @@ class BrandCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'data' => $this->collection->map(function($data) {
+            'data' => $this->collection->map(function ($data) {
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
                     'logo' => api_asset($data->logo),
-                    'links' => [
-                        'products' => route('api.products.brand', $data->id)
-                    ]
+                    'is_top' => (bool)$data->top
                 ];
             })
         ];

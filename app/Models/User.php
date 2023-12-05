@@ -41,7 +41,8 @@ class User extends Authenticatable
         'country',
         'provider_id',
         'email_verified_at',
-        'verification_code'
+        'verification_code',
+        'phone_verified'
     ];
 
     /**

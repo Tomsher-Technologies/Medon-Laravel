@@ -278,19 +278,19 @@ if (!function_exists('home_price')) {
 if (!function_exists('home_discounted_price')) {
     function home_discounted_price($product, $formatted = true)
     {
-        $lowest_price = $product->unit_price;
-        $highest_price = $product->unit_price;
+        $lowest_price = $product->stocks->min('price');
+        $highest_price = $product->stocks->max('price');
 
-        if ($product->variant_product) {
-            foreach ($product->stocks as $key => $stock) {
-                if ($lowest_price > $stock->price) {
-                    $lowest_price = $stock->price;
-                }
-                if ($highest_price < $stock->price) {
-                    $highest_price = $stock->price;
-                }
-            }
-        }
+        // if ($product->variant_product) {
+        //     foreach ($product->stocks as $key => $stock) {
+        //         if ($lowest_price > $stock->price) {
+        //             $lowest_price = $stock->price;
+        //         }
+        //         if ($highest_price < $stock->price) {
+        //             $highest_price = $stock->price;
+        //         }
+        //     }
+        // }
 
         $discount_applicable = false;
 
@@ -357,7 +357,7 @@ if (!function_exists('home_base_price_by_stock_id')) {
 if (!function_exists('home_base_price')) {
     function home_base_price($product, $formatted = true)
     {
-        $price = $product->unit_price;
+        $price = $product->stocks->min('price');
         return $formatted ? format_price(convert_price($price)) : $price;
     }
 }
@@ -407,7 +407,7 @@ if (!function_exists('home_discounted_base_price_by_stock_id')) {
 if (!function_exists('home_discounted_base_price')) {
     function home_discounted_base_price($product, $formatted = true)
     {
-        $price = $product->unit_price;
+        $price = $product->stocks->min('price');
         $tax = 0;
 
         $discount_applicable = false;
@@ -580,8 +580,8 @@ if (!function_exists('app_timezone')) {
 if (!function_exists('api_asset')) {
     function api_asset($id)
     {
-        if (($asset = \App\Models\Upload::find($id)) != null) {
-            return $asset->file_name;
+        if (($asset = Upload::find($id)) != null) {
+            return 'storage/' . $asset->file_name;
         }
         return "";
     }
@@ -731,7 +731,6 @@ if (!function_exists('get_setting')) {
     {
         $settings = Cache::remember('business_settings', 86400, function () {
             return BusinessSetting::select(['type', 'value'])->get()->keyBy('type')->toArray();
-            // return BusinessSetting::select(['type', 'value'])->get()->toArray();
         });
 
         if (isset($settings[$key])) {
@@ -739,8 +738,6 @@ if (!function_exists('get_setting')) {
         }
 
         return $default;
-        // $setting = $settings->where('type', $key)->first();
-        // return $setting == null ? $default : $setting->value;
     }
 }
 
@@ -1260,4 +1257,27 @@ function whishlistHasProduct($product_id)
         }
     }
     return false;
+}
+
+function getUser()
+{
+
+    $user = array(
+        'users_id_type' => 'temp_user_id',
+        'users_id' => null
+    );
+
+    if (auth('sanctum')->user()) {
+        $user = array(
+            'users_id_type' => 'user_id',
+            'users_id' => auth('sanctum')->user()->id
+        );
+    } else {
+        $user = array(
+            'users_id_type' => 'temp_user_id',
+            'users_id' => request()->header('UserToken')
+        );
+    }
+
+    return $user;
 }

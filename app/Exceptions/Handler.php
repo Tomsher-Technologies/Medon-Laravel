@@ -6,6 +6,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use \Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class Handler extends ExceptionHandler
@@ -46,6 +47,13 @@ class Handler extends ExceptionHandler
                     'status' => false,
                     'message' => 'Method not supported',
                 ], 405);
+            }
+            if ($e instanceof ValidationException) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Form Has Error',
+                    'errors' => $e->errors(),
+                ], 422);
             }
         }
 
