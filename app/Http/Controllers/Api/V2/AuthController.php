@@ -267,30 +267,38 @@ class AuthController extends Controller
             'email_or_phone' => 'required'
         ]);
 
-        $user = User::whereEmail($request->email_or_phone)->orWhere('phone', $request->email_or_phone)->firstOrFail();
+        $user = User::whereEmail($request->email_or_phone)->orWhere('phone', $request->email_or_phone)->first();
 
-        if ($this->isEmail($request->email_or_phone)) {
+        if ($user) {
+            if ($this->isEmail($request->email_or_phone)) {
+                return response()->json([
+                    'status' => true,
+                    'is_password' => true,
+                    'is_otp' => false,
+                    'message' => "User exists"
+                ]);
+            } else {
+                $otpController = new OTPVerificationController();
+                $otpController->send_code($user);
+
+                $result = [
+                    'status' => true,
+                    'is_password' => false,
+                    'is_otp' =>  true,
+                ];
+
+                if (env('APP_DEBUG') == true) {
+                    $result['otp'] = $user->verification_code;
+                }
+
+                return response()->json($result, 201);
+            }
+        } else {
             return response()->json([
                 'status' => true,
-                'is_password' => true,
-                'is_otp' => false,
-                'message' => "User exists"
-            ]);
-        } else {
-            $otpController = new OTPVerificationController();
-            $otpController->send_code($user);
-
-            $result = [
-                'status' => true,
-                'is_password' => false,
-                'is_otp' =>  true,
-            ];
-
-            if (env('APP_DEBUG') == true) {
-                $result['otp'] = $user->verification_code;
-            }
-
-            return response()->json($result, 201);
+                'user_exist' => false,
+                'message' => 'The user does not exist.'
+            ], 201);
         }
     }
 
