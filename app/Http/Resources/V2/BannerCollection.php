@@ -11,8 +11,8 @@ class BannerCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($data) {
                 return [
-                    'image' => $data->mainImage->file_name,
-                    'mobile_image' => $data->mobileImage->file_name,
+                    'image' => storage_asset($data->mainImage->file_name),
+                    'mobile_image' => storage_asset($data->mobileImage->file_name),
                     'url' => $data->a_link,
                     'position' => $data->sort_order
                 ];
