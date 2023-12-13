@@ -304,6 +304,12 @@
                     </a>
                     <ul class="aiz-side-nav-list level-2">
                         <li class="aiz-side-nav-item">
+                            <a href="{{ route('splash_screen.index') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['splash_screen.index']) }}">
+                                <span class="aiz-side-nav-text">Splash Sliders</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
                             <a href="{{ route('app-banner.index') }}"
                                 class="aiz-side-nav-link {{ areActiveRoutes(['app-banner.index', 'app-banner.create', 'app-banner.edit']) }}">
                                 <span class="aiz-side-nav-text">Home Sliders</span>

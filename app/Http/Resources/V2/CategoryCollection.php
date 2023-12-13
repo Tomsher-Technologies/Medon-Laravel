@@ -14,8 +14,8 @@ class CategoryCollection extends ResourceCollection
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
-                    'banner' => api_asset($data->banner),
-                    'icon' => api_asset($data->icon),
+                    'banner' => api_upload_asset($data->banner),
+                    'icon' => api_upload_asset($data->icon),
                     'number_of_children' => CategoryUtility::get_immediate_children_count($data->id),
                     // 'links' => [
                     //     'products' => route('api.products.category', $data->id),
