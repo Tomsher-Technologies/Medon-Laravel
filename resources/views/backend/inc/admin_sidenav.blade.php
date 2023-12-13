@@ -309,6 +309,12 @@
                                 <span class="aiz-side-nav-text">Home Sliders</span>
                             </a>
                         </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('app.home') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['app.home']) }}">
+                                <span class="aiz-side-nav-text">Home Page</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

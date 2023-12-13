@@ -91,9 +91,10 @@ class CommonController extends Controller
             $temp = array();
             $temp['id'] = $category->id;
             $temp['name'] = $category->name;
-            if ($category->banner) {
-                $temp['banner'] = api_asset($category->banner);
-            }
+            // if ($category->banner) {
+            //     $temp['banner'] = api_asset($category->banner);
+            // }
+            $temp['banner'] = api_upload_asset($category->banner);
             $res_category[] = $temp;
         }
 
@@ -107,7 +108,7 @@ class CommonController extends Controller
         $brands_id = get_setting('app_top_brands');
 
         if ($brands_id) {
-            $brands =  Brand::whereIn('id', json_decode($brands_id))->get();
+            $brands =  Brand::with(['logoImage'])->whereIn('id', json_decode($brands_id))->get();
         }
 
         $res_category = array();
@@ -116,9 +117,11 @@ class CommonController extends Controller
             $temp = array();
             $temp['id'] = $brand->id;
             $temp['name'] = $brand->name;
-            if ($brand->logo) {
-                $temp['logo'] = api_asset($brand->logo);
-            }
+            // if ($brand->logo) {
+            //     $temp['logo'] = api_asset($brand->logo);
+            // }
+
+            $temp['logo'] = storage_asset($brand->logoImage->file_name);
             $res_category[] = $temp;
         }
 
@@ -130,7 +133,7 @@ class CommonController extends Controller
 
     public function homeAdBanners()
     {
-        $all_banners = Banner::where('status', true)->get();
+        $all_banners = Banner::with(['mainImage'])->where('status', true)->get();
 
         $banner_id = BusinessSetting::whereIn('type', [
             'app_banner_1',
@@ -152,7 +155,7 @@ class CommonController extends Controller
                         // 'image1' => $c_banner,
                         'link_type' => $c_banner->link_type,
                         'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
-                        'image' => api_asset($c_banner->image)
+                        'image' => storage_asset($c_banner->mainImage->file_name)
                     );
                 }
             }

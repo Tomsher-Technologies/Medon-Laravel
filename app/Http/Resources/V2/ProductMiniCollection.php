@@ -14,7 +14,7 @@ class ProductMiniCollection extends ResourceCollection
                     'id' => $data->id,
                     'name' => $data->name,
                     'sku' => $data->sku,
-                    'thumbnail_image' => $data->thumbnail_img,
+                    'thumbnail_image' => app('url')->asset($data->thumbnail_img),
                     'has_discount' => home_base_price($data, false) != home_discounted_base_price($data, false),
                     'stroked_price' => home_base_price($data),
                     'main_price' => home_discounted_base_price($data),

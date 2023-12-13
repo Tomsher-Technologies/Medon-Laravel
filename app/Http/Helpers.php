@@ -587,6 +587,16 @@ if (!function_exists('api_asset')) {
     }
 }
 
+if (!function_exists('api_upload_asset')) {
+    function api_upload_asset($id)
+    {
+        if (($asset = Upload::find($id)) != null) {
+            return app('url')->asset('storage/' . $asset->file_name);
+        }
+        return "";
+    }
+}
+
 //return file uploaded via uploader
 if (!function_exists('uploaded_asset')) {
     function uploaded_asset($id)
