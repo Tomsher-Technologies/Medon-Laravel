@@ -203,6 +203,20 @@ if (!function_exists('format_price')) {
     }
 }
 
+//formats currency
+if (!function_exists('format_price_wo_currency')) {
+    function format_price_wo_currency($price)
+    {
+        if (get_setting('decimal_separator') == 1) {
+            $fomated_price = number_format($price, get_setting('no_of_decimals'));
+        } else {
+            $fomated_price = number_format($price, get_setting('no_of_decimals'), ',', ' ');
+        }
+
+        return $fomated_price;
+    }
+}
+
 //formats price to home default price with convertion
 if (!function_exists('single_price')) {
     function single_price($price)
@@ -362,6 +376,14 @@ if (!function_exists('home_base_price')) {
     }
 }
 
+if (!function_exists('home_base_price_wo_currency')) {
+    function home_base_price_wo_currency($product, $formatted = true)
+    {
+        $price = $product->stocks->min('price');
+        return $formatted ? format_price_wo_currency(convert_price($price)) : $price;
+    }
+}
+
 //Shows Base Price with discount
 if (!function_exists('home_discounted_base_price_by_stock_id')) {
     function home_discounted_base_price_by_stock_id($id)
@@ -402,6 +424,46 @@ if (!function_exists('home_discounted_base_price_by_stock_id')) {
         return format_price(convert_price($price));
     }
 }
+
+//Shows Base Price with discount
+if (!function_exists('home_discounted_base_price_wo_currency')) {
+    function home_discounted_base_price_wo_currency($product, $formatted = true)
+    {
+        $price = $product->stocks->min('price');
+        $tax = 0;
+
+        $discount_applicable = false;
+
+        if ($product->discount_start_date == null) {
+            $discount_applicable = true;
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
+            $discount_applicable = true;
+        }
+
+        if ($discount_applicable) {
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
+                $price -= $product->discount;
+            }
+        }
+
+        // foreach ($product->taxes as $product_tax) {
+        //     if ($product_tax->tax_type == 'percent') {
+        //         $tax += ($price * $product_tax->tax) / 100;
+        //     } elseif ($product_tax->tax_type == 'amount') {
+        //         $tax += $product_tax->tax;
+        //     }
+        // }
+        // $price += $tax;
+
+        return $formatted ? format_price_wo_currency(convert_price($price)) : $price;
+    }
+}
+
 
 //Shows Base Price with discount
 if (!function_exists('home_discounted_base_price')) {
