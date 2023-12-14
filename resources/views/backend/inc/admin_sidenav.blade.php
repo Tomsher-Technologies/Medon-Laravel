@@ -237,6 +237,12 @@
                                     <span class="aiz-side-nav-text">Coupon</span>
                                 </a>
                             </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('offers.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['offers.index', 'offers.create', 'offers.edit']) }}">
+                                    <span class="aiz-side-nav-text">Offers</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 @endif

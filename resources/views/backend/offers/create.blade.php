@@ -21,7 +21,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                        {{-- <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">
                                 Image
                             </label>
@@ -64,7 +64,7 @@
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label">Link Type</label>
@@ -103,7 +103,7 @@
                                         Percentage</option>
                                     <option {{ old('offer_type') == 'amount_off' ? 'selected' : '' }} value="amount_off">
                                         Amount Off</option>
-                                    <option {{ old('buy_x_get_y') == 'buy_x_get_y' ? 'selected' : '' }}
+                                    <option {{ old('offer_type') == 'buy_x_get_y' ? 'selected' : '' }}
                                         value="buy_x_get_y">
                                         Buy X get Y</option>
                                 </select>

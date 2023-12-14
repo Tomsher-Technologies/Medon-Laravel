@@ -10,18 +10,7 @@ class Offers extends Model
     use HasFactory;
 
     protected $fillable = [
-        "name",
-        "link_type",
-        "link_id",
-        "image",
-        "mobile_image",
-        "offer_type",
-        "offer_amount",
-        "start_date",
-        "end_date",
-        "status",
-        "buy_amount",
-        "get_amount",
+        'name', 'link_type', 'link_id', 'image', 'mobile_image', 'offer_type', 'percentage', 'offer_amount', 'buy_amount', 'get_amount', 'start_date', 'end_date', 'status'
     ];
 
     protected $casts = [
