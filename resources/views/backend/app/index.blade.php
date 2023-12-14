@@ -2,11 +2,11 @@
 @section('content')
     <div class="row">
         <div class="col-xl-10 mx-auto">
-            <h6 class="fw-600">Home Page Settings</h6>
+            <h4 class="fw-600">Home Page Settings</h4>
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Top Categories</h6>
+                    <h5 class="mb-0">Top Categories</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -35,10 +35,55 @@
                 </div>
             </div>
 
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Offers</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <h6 class="mb-2">Offer Section 1</h6>
+                            </div>
+                            <div class="col-md-12">
+                                <input type="hidden" name="types[]" value="app_offer_section_1">
+                                <select name="app_offer_section_1[]" class="form-control aiz-selectpicker" multiple
+                                    data-live-search="true" data-max-options="10"
+                                    data-selected="{{ get_setting('app_offer_section_1') }}">
+                                    @foreach ($offers as $off)
+                                        <option value="{{ $off->id }}">{{ $off->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <h6 class="mb-2">Offer Section 2</h6>
+                            </div>  
+                            <div class="col-md-12">
+                                <input type="hidden" name="types[]" value="app_offer_section_2">
+                                <select name="app_offer_section_2[]" class="form-control aiz-selectpicker" multiple
+                                    data-live-search="true" data-max-options="10"
+                                    data-selected="{{ get_setting('app_offer_section_2') }}">
+                                    @foreach ($offers as $off)
+                                        <option value="{{ $off->id }}">{{ $off->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Banner Section 1</h6>
+                    <h5 class="mb-0">Banner Section 1</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -103,7 +148,7 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Banner Section 2</h6>
+                    <h5 class="mb-0">Banner Section 2</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -169,7 +214,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Banner Section 3</h6>
+                    <h5 class="mb-0">Banner Section 3</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -237,7 +282,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Top Brands</h6>
+                    <h5 class="mb-0">Top Brands</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -263,7 +308,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Banner Section 4</h6>
+                    <h5 class="mb-0">Banner Section 4</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -328,7 +373,7 @@
     
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Banner Section 5</h6>
+                    <h5 class="mb-0">Banner Section 5</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -393,7 +438,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Banner Section 6</h6>
+                    <h5 class="mb-0">Banner Section 6</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">

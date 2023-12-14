@@ -8,6 +8,8 @@ use App\Models\App\SplashScreens;
 use App\Models\Brand;
 use App\Models\BusinessSetting;
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\Offers;
 use App\Models\Frontend\Banner;
 use App\Models\Subscriber;
 use Illuminate\Http\Request;
@@ -132,6 +134,170 @@ class CommonController extends Controller
         ]);
     }
 
+    public function homeOffers(Request $request)
+    {
+        $limit = $request->has('limit') ? $request->limit : '';
+        $sectionOne = get_setting('app_offer_section_1');
+        $sectionTwo = get_setting('app_offer_section_2');
+
+        $today = date('Y-m-d H:i:s');
+        $details = [];
+        
+        $sectionOne = ($sectionOne != NULL) ? json_decode($sectionOne) : [];
+        $sectionTwo = ($sectionTwo != NULL) ? json_decode($sectionTwo) : '';
+        
+        $offersId = array_merge($sectionOne,$sectionTwo);
+        
+        if($offersId){
+            $secOneOffers = Offers::whereIn('id', $offersId)->where('status',1)->get();
+            foreach ($secOneOffers as $secOne) {
+                if(strtotime($today) >= strtotime($secOne->start_date) && (strtotime($today) < strtotime($secOne->end_date))){
+                    $temp = array();
+                    $temp['id'] = $secOne->id;
+                    $temp['name'] = $secOne->name;
+                    $temp['type'] = $secOne->link_type;
+
+                    if ($secOne->link_type == 'product') {
+                        $result = array();
+                        $product_query  = Product::whereIn('id', json_decode($secOne->link_id))->wherePublished(1);
+                        if($limit != ''){
+                            $product_query->skip(0)->take($limit);
+                        }
+                        $products = $product_query->get();
+
+                        foreach ($products as $prod) {
+                            $tempProducts = array();
+                            $tempProducts['id'] = $prod->id;
+                            $tempProducts['name'] = $prod->name;
+                            $tempProducts['image'] = app('url')->asset($prod->thumbnail_img);
+                            $tempProducts['sku'] = $prod->sku;
+                            $tempProducts['main_price'] = home_discounted_base_price_wo_currency($prod);
+                            $result[] = $tempProducts;
+                        }
+
+                    }elseif ($secOne->link_type == 'brand') {
+                        $brandQuery =  Brand::with(['logoImage'])->whereIn('id', json_decode($secOne->link_id));
+                        if($limit != ''){
+                            $brandQuery->skip(0)->take($limit);
+                        }
+                        $brands = $brandQuery->get();
+                        
+                        $result = array();
+
+                        foreach ($brands as $brand) {
+                            $tempBrands = array();
+                            $tempBrands['id'] = $brand->id;
+                            $tempBrands['name'] = $brand->name;
+                            $tempBrands['image'] = storage_asset($brand->logoImage->file_name);
+                            $result[] = $tempBrands;
+                        }
+                    }elseif ($secOne->link_type == 'category') {
+                        $categoriesQuery =  Category::whereIn('id', json_decode($secOne->link_id));
+
+                        if($limit != ''){
+                            $categoriesQuery->skip(0)->take($limit);
+                        }
+                        $categories = $categoriesQuery->get();
+                        $result = array();
+
+                        foreach ($categories as $category) {
+                            $tempCats = array();
+                            $tempCats['id'] = $category->id;
+                            $tempCats['name'] = $category->name;
+                            $tempCats['image'] = api_upload_asset($category->icon);
+                            $result[] = $tempCats;
+                        }
+                    }
+                    $temp['data'] = $result;
+                    if(in_array($secOne->id, $sectionOne) ){
+                        $details['offer_section_1'][] = $temp;
+                    }elseif (in_array($secOne->id, $sectionTwo)) {
+                        $details['offer_section_2'][] = $temp;
+                    }
+                }
+               
+            }
+        }
+
+        return response()->json([
+            "success" => true,
+            "status" => 200,
+            "data" => $details
+        ]);
+    }
+
+    public function offerDetails(Request $request){
+        $offerid = $request->offer_id;
+        $limit = $request->has('limit') ? $request->limit : '';
+        $offset = $request->has('offset') ? $request->offset : 0;
+        if($offerid != ''){
+            $Offer = Offers::where('status',1)->find($offerid);
+            if(!$Offer){
+                return response()->json(['success' => false,"message"=>"No Data Found!","data" => []],400);
+            }else {
+                $temp = array();
+                $temp['id'] = $Offer->id;
+                $temp['name'] = $Offer->name;
+                $temp['type'] = $Offer->link_type;
+    
+                if ($Offer->link_type == 'product') {
+                    $result = array();
+                    $product_query  = Product::whereIn('id', json_decode($Offer->link_id))->wherePublished(1);
+                    if($limit != ''){
+                        $product_query->skip($offset)->take($limit);
+                    }
+                    $products = $product_query->get();
+
+                    foreach ($products as $prod) {
+                        $tempProducts = array();
+                        $tempProducts['id'] = $prod->id;
+                        $tempProducts['name'] = $prod->name;
+                        $tempProducts['image'] = app('url')->asset($prod->thumbnail_img);
+                        $tempProducts['sku'] = $prod->sku;
+                        $tempProducts['main_price'] = home_discounted_base_price_wo_currency($prod);
+                        $tempProducts['min_qty'] = $prod->min_qty;
+                        $tempProducts['slug'] = $prod->slug;
+                        
+                        $result[] = $tempProducts;
+                    }
+                }elseif ($Offer->link_type == 'brand') {
+                    $brandQuery =  Brand::with(['logoImage'])->whereIn('id', json_decode($Offer->link_id));
+                    if($limit != ''){
+                        $brandQuery->skip($offset)->take($limit);
+                    }
+                    $brands = $brandQuery->get();
+                    $result = array();
+                    foreach ($brands as $brand) {
+                        $tempBrands = array();
+                        $tempBrands['id'] = $brand->id;
+                        $tempBrands['name'] = $brand->name;
+                        $tempBrands['image'] = storage_asset($brand->logoImage->file_name);
+                        $result[] = $tempBrands;
+                    }
+                }elseif ($Offer->link_type == 'category') {
+                    $categoriesQuery =  Category::whereIn('id', json_decode($Offer->link_id));
+                    if($limit != ''){
+                        $categoriesQuery->skip($offset)->take($limit);
+                    }
+                    $categories = $categoriesQuery->get();
+                    $result = array();
+                    foreach ($categories as $category) {
+                        $tempCats = array();
+                        $tempCats['id'] = $category->id;
+                        $tempCats['name'] = $category->name;
+                        $tempCats['image'] = api_upload_asset($category->icon);
+                        $result[] = $tempCats;
+                    }
+                }
+                $temp['list'] = $result;
+                $temp['next_offset'] = $offset + $limit;
+                return response()->json(['success' => true,"message"=>"Data fetched successfully!","data" => $temp],200);
+            }
+        }else{
+            return response()->json(['success' => false,"message"=>"No Data Found!","data" => []],400);
+        }
+    }
+
     public function homeAdBanners()
     {
         $all_banners = Banner::with(['mainImage'])->where('status', true)->get();
@@ -154,7 +320,7 @@ class CommonController extends Controller
                     $c_banner = $all_banners->where('id', $id)->first();
                     $banners[$banner->type][] = array(
                         // 'image1' => $c_banner,
-                        'link_type' => $c_banner->link_type,
+                        'link_type' => $c_banner->link_type ?? '',
                         'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
                         'image' => storage_asset($c_banner->mainImage->file_name)
                     );
