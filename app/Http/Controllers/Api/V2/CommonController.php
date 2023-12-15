@@ -144,7 +144,7 @@ class CommonController extends Controller
         $details = [];
         
         $sectionOne = ($sectionOne != NULL) ? json_decode($sectionOne) : [];
-        $sectionTwo = ($sectionTwo != NULL) ? json_decode($sectionTwo) : '';
+        $sectionTwo = ($sectionTwo != NULL) ? json_decode($sectionTwo) : [];
         
         $offersId = array_merge($sectionOne,$sectionTwo);
         
