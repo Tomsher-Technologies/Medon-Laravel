@@ -175,6 +175,8 @@ class CategoryController extends Controller
 
         $previous_level = $category->level;
 
+        $old_category = $category->parent_id;
+
         if ($request->parent_id != "0") {
             $category->parent_id = $request->parent_id;
 
@@ -205,6 +207,14 @@ class CategoryController extends Controller
         $category->save();
 
         $category->attributes()->sync($request->filtering_attributes);
+
+        if($old_category != $request->parent_id){
+            $main_category = $category->id;
+            if($category->parent_id != 0){
+                $main_category = $category->getMainCategory();
+            }
+            Product::where('category_id',$category->id)->update(['main_category' => $main_category]);
+        }
 
         Cache::forget('featured_categories');
         flash(translate('Category has been updated successfully'))->success();

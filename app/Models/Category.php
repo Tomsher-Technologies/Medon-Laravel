@@ -80,6 +80,15 @@ class Category extends Model
     {
         return $this->hasOne(Upload::class, 'id', 'icon');
     }
+   
+    public function getMainCategory()
+    {
+        $parent = $this->parentCategory;
+        while($parent->parent_id != 0) {
+            $parent = $parent->parentCategory;
+        }
+        return $parent->id;
+    }
 
     public static function boot()
     {

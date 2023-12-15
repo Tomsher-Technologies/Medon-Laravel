@@ -69,7 +69,7 @@
                             <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @if ($item->child)
                                 @foreach ($item->child as $cat)
-                                    @include('frontend.product.categories.menu_child_category', [
+                                    @include('backend.product.categories.menu_child_category', [
                                         'category' => $cat,
                                         'selected_id' => 0,
                                     ])

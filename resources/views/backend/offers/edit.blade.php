@@ -80,8 +80,6 @@
                                     </option>
                                     <option {{ old('link_type',$offer->link_type) == 'category' ? 'selected' : '' }} value="category">Category
                                     </option>
-                                    <option {{ old('link_type',$offer->link_type) == 'brand' ? 'selected' : '' }} value="brand">Brand
-                                    </option>
                                 </select>
                                 @error('link_type')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -182,7 +180,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                        <div class="form-group row d-none">
                             <label class="col-md-3 col-form-label">Status</label>
                             <div class="col-md-9">
                                 <select class="form-control aiz-selectpicker" name="status" id="status" required>
@@ -237,6 +235,19 @@
                 offerId : offerId
             }, function(data) {
                 $('#banner_form').html(data);
+            });
+        }
+
+        function brands_form(){
+            var main_category = $('#main_category').val();
+            
+            $.post('{{ route('offers.get_brands') }}', {
+                _token: '{{ csrf_token() }}',
+                main_category: main_category,
+            }, function(data) {
+                console.log(data);
+                $('#link_ref_id').html(data);
+                $('#link_ref_id').selectpicker('refresh');
             });
         }
     </script>
