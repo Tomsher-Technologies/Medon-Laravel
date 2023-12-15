@@ -67,15 +67,13 @@
                         </div> --}}
 
                         <div class="form-group row">
-                            <label class="col-md-3 col-form-label">Link Type</label>
+                            <label class="col-md-3 col-form-label">Type</label>
                             <div class="col-md-9">
                                 <select onchange="banner_form()" class="form-control aiz-selectpicker" name="link_type"
                                     id="link_type" data-live-search="true" required>
                                     <option {{ old('link_type') == 'product' ? 'selected' : '' }} value="product">Product
                                     </option>
                                     <option {{ old('link_type') == 'category' ? 'selected' : '' }} value="category">Category
-                                    </option>
-                                    <option {{ old('link_type') == 'brand' ? 'selected' : '' }} value="brand">Brand
                                     </option>
                                 </select>
                                 @error('link_type')
@@ -165,14 +163,14 @@
                             <div class="col-md-9">
                                 <input type="text" class="form-control aiz-date-range" id="date_range"
                                     name="date_range" placeholder="Select Date" data-time-picker="true"
-                                    data-format="DD-MM-Y HH:mm:ss" data-separator=" to " autocomplete="off">
+                                    data-format="DD-MM-Y HH:mm:ss" data-separator=" to " autocomplete="off" required>
                                 @error('date_range')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                        <div class="form-group row d-none">
                             <label class="col-md-3 col-form-label">Status</label>
                             <div class="col-md-9">
                                 <select class="form-control aiz-selectpicker" name="status" id="status" required>
@@ -224,6 +222,19 @@
                 link_type: link_type,
             }, function(data) {
                 $('#banner_form').html(data);
+            });
+        }
+
+        function brands_form(){
+            var main_category = $('#main_category').val();
+            
+            $.post('{{ route('offers.get_brands') }}', {
+                _token: '{{ csrf_token() }}',
+                main_category: main_category,
+            }, function(data) {
+                console.log(data);
+                $('#link_ref_id').html(data);
+                $('#link_ref_id').selectpicker('refresh');
             });
         }
     </script>

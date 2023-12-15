@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Rules\DateRange;
 use Illuminate\Http\Request;
 use Cache;
+use DB;
 
 class OfferController extends Controller
 {
@@ -20,7 +21,7 @@ class OfferController extends Controller
      */
     public function index()
     {
-        $offers = Offers::paginate(15);
+        $offers = Offers::orderBy('id','desc')->paginate(15);
         return view('backend.offers.index', compact('offers'));
     }
 
@@ -50,7 +51,6 @@ class OfferController extends Controller
             // "mobile_image" => 'required',
             "offer_type" => 'required',
             // "mobile_image" => 'required',
-            "status" => 'required',
             'percentage' => 'required_if:offer_type,percentage',
             'amount' => 'required_if:offer_type,amount_off',
             'buy_amount' => 'required_if:offer_type,buy_x_get_y',
@@ -67,6 +67,7 @@ class OfferController extends Controller
         $offer = Offers::create([
             'name' => $request->name ?? '',
             'link_type' => $request->link_type ?? NULL,
+            'category_id' => $request->main_category ?? NULL,
             'link_id' => json_encode($request->link_ref_id) ?? NULL,
             'offer_type' => $request->offer_type ?? NULL,
             'percentage' => $request->percentage ?? NULL,
@@ -123,7 +124,6 @@ class OfferController extends Controller
             // "mobile_image" => 'required',
             "offer_type" => 'required',
             // "mobile_image" => 'required',
-            "status" => 'required',
             'percentage' => 'required_if:offer_type,percentage',
             'amount' => 'required_if:offer_type,amount_off',
             'buy_amount' => 'required_if:offer_type,buy_x_get_y',
@@ -153,6 +153,7 @@ class OfferController extends Controller
         $data_range = explode(' to ', $request->date_range);
 
         $offer->name            =  $request->name ?? NULL;
+        $offer->category_id     =  $request->main_category ?? NULL;
         $offer->link_type       =  $request->link_type ?? NULL;
         $offer->link_id         =  $request->link_ref_id ?? NULL;
         $offer->offer_type      =  $request->offer_type ?? NULL;
@@ -178,34 +179,125 @@ class OfferController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $offer = Offers::findOrFail($id);
+        $offer->delete();
+        flash(translate('Successfully deleted'))->success();
+        return back();
     }
 
     public function get_form(Request $request)
     {
-        $oldArray = [];
+        $oldArray = $brandsData = $selectedBrands = $catArrays = [];
+
+        $offers = Offers::get();
+        $oldCategories = $oldProducts = $oldBrands = [];
+        if($offers){
+            foreach($offers as $off){
+                $link_type = $off->link_type;
+                if($link_type == 'category'){
+                    $oldBrands[] = json_decode($off->link_id);
+
+                    $prods = Product::where('main_category', $off->category_id)->whereIn('brand_id', json_decode($off->link_id))
+                                        ->pluck('id')->toArray();
+
+                    $oldProducts[] = $prods;
+
+                }elseif($link_type == 'product'){
+                    $oldProducts[] = json_decode($off->link_id);
+                }    
+                
+                if($off->category_id != null){
+                    $catArrays[] = json_decode($off->link_id);
+                }
+            }
+        }
+        
+        // $oldProducts = (!empty($oldProducts)) ? array_unique(array_merge(...$oldProducts)) : [];
+        $catArrays = (!empty($catArrays)) ? array_unique(array_merge(...$catArrays)) : [];
+        // // print_r($catArrays);
+        // print_r($oldProducts);
+        // die;
+        $oldProductsEdit = [];
         $offerId = $request->has('offerId') ?  $request->offerId : null;
         if($offerId != null){
             $offerData = Offers::find($offerId);
             if ($request->link_type == $offerData->link_type) {
-                $oldArray = json_decode($offerData->link_id);
+                if($offerData->link_type == 'category'){
+                    $oldArray = $offerData->category_id;
+                    $selectedBrands = json_decode($offerData->link_id);
+
+                    $brands = [];
+
+                    $nonBrands = array_diff($catArrays, $selectedBrands);
+                    // print_r($selectedBrands);
+                    // print_r($nonBrands);
+                    // die;
+                    $bIdsQuery = Product::where('main_category', $offerData->category_id);
+                    if(!empty($nonBrands)){
+                        $bIdsQuery->whereNotIn('brand_id', $nonBrands);
+                    }
+                    
+                    $bIds = $bIdsQuery->groupBy('brand_id')->pluck('brand_id')->toArray();
+                    if(!empty($bIds)){
+                        $brandsData = Brand::select(['id', 'name'])->whereIn('id', $bIds)->get();
+                    }
+                }else{
+                    $oldArray = json_decode($offerData->link_id);
+                    $oldProductsEdit = json_decode($offerData->link_id);
+                }
             }
         }
-        
+
+        // echo '<pre>';
+        // print_r($oldProducts);
+       
+        $oldProducts = array_unique(array_merge(...$oldProducts));
+        $oldProducts = array_diff($oldProducts,$oldProductsEdit);
+
+        // print_r($oldProducts);
+        // die;
         if ($request->link_type == "product") {
-            $products = Product::select(['id', 'name'])->get();
+            $products = Product::select(['id', 'name'])
+                                ->whereNotIn('id', $oldProducts)
+                                ->get();
             return view('partials.offers.banner_form_product', compact('products', 'oldArray'));
         } elseif ($request->link_type == "category") {
             $categories = Category::where('parent_id', 0)
-                ->with('childrenCategories')
-                ->get();
-            return view('partials.offers.banner_form_category', compact('categories', 'oldArray'));
-        } elseif ($request->link_type == "brand") {
-            $brands = Brand::select(['id', 'name'])->get();
-           
-            return view('partials.offers.banner_form_brand', compact('oldArray', 'brands'));
-        } else {
-            // return view('partials.offers.banner_form', compact('old_data'));
+                                    ->with('childrenCategories')
+                                    ->get();
+            return view('partials.offers.banner_form_category', compact('categories', 'oldArray','brandsData','selectedBrands'));
+        } 
+    }
+
+    public function get_brands(Request $request)
+    {
+        $main_category = $request->input("main_category");
+        $oldBrands = [];
+        $oldCats = Offers::where('category_id', $main_category)->get();
+        if($oldCats){
+            foreach($oldCats as $oc){
+                $oldBrands[] = json_decode($oc->link_id);
+            }
         }
+        $oldBrands = array_unique(array_merge(...$oldBrands));
+
+        $brands = [];
+       
+        $bIdsQuery = Product::where('main_category', $main_category);
+        if(!empty($oldBrands)){
+            $bIdsQuery->whereNotIn('brand_id', $oldBrands);
+        }
+        
+        $bIds = $bIdsQuery->groupBy('brand_id')->pluck('brand_id')->toArray();
+       
+        if(!empty($bIds)){
+            $brands = Brand::select(['id', 'name'])->whereIn('id', $bIds)->get();
+        }
+
+        $html = '';
+        foreach($brands as $br){
+            $html .= "<option value='".$br->id."'>".$br->name."</option>";
+        }
+        return $html;
     }
 }

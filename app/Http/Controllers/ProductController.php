@@ -109,8 +109,16 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         // dd($request);
+
+        $category = Category::find($request->category_id);
+        $main_category = $category->id;
+        if($category->parent_id != 0){
+            $main_category = $category->getMainCategory();
+        }
+
         $product = new Product;
         $product->name = $request->name;
+        $product->main_category = $main_category;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
 
@@ -519,7 +527,14 @@ class ProductController extends Controller
             $gallery = $this->downloadAndResizeImage($request->file('thumbnail_image'), $product->sku, true);
             $product->thumbnail_img = $gallery;
         }
-
+        if($product->category_id != $request->category_id){
+            $category = Category::find($request->category_id);
+            $main_category = $category->id;
+            if($category->parent_id != 0){
+                $main_category = $category->getMainCategory();
+            }
+            $product->main_category       = $main_category;
+        }
 
         $product->category_id       = $request->category_id;
         $product->brand_id          = $request->brand_id;

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-lg-10 mx-auto">
+        <div class="col-lg-12 mx-auto">
 
             <div class="aiz-titlebar text-left mt-2 mb-3">
                 <div class="row align-items-center">
@@ -25,10 +25,11 @@
                             <thead>
                                 <tr>
                                     <th data-breakpoints="lg">Name</th>
+                                    <th data-breakpoints="lg">Link Type</th>
                                     <th data-breakpoints="lg">Offer Type</th>
                                     <th data-breakpoints="lg">Start Date</th>
                                     <th data-breakpoints="lg">End Date</th>
-                                    <th data-breakpoints="lg">Status</th>
+                                    {{-- <th data-breakpoints="lg">Status</th> --}}
                                     <th class="text-center">Options</th>
                                 </tr>
                             </thead>
@@ -38,7 +39,9 @@
                                         <td>
                                             {{ $offer->name }}
                                         </td>
-                                        
+                                        <td>
+                                            {{ ucfirst($offer->link_type) }}
+                                        </td>
                                         <td>
                                             <span class="text-capitalize">{{ str_replace('_', ' ', $offer->offer_type) }}
                                             </span>
@@ -54,7 +57,7 @@
                                             </span>
                                         </td>
 
-                                        <td>
+                                        {{-- <td>
                                             @if ($offer->status)
                                                 <span
                                                     class="badge badge-inline badge-success text-capitalize">Enabled</span>
@@ -62,7 +65,7 @@
                                                 <span
                                                     class="badge badge-inline badge-danger text-capitalize">Disabled</span>
                                             @endif
-                                        </td>
+                                        </td> --}}
                                         <td class="text-center">
                                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                                 href="{{ route('offers.edit', $offer->id) }}" title="Edit">
@@ -73,6 +76,7 @@
                                                 data-href="{{ route('offers.destroy', $offer->id) }}" title="Delete">
                                                 <i class="las la-trash"></i>
                                             </a>
+                                            
                                         </td>
                                     </tr>
                                 @endforeach
