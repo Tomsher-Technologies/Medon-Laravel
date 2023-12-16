@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Frontend\Banner;
 use App\Models\Product;
+use App\Models\Offers;
 use Cache;
 use Illuminate\Http\Request;
 
@@ -159,6 +160,9 @@ class Bannercontroller extends Controller
         } elseif ($request->link_type == "brand") {
             $brands = Brand::select(['id', 'name'])->get();
             return view('partials.banners.banner_form_brand', compact('old_data', 'brands'));
+        } elseif ($request->link_type == "offer") {
+            $offers = Offers::select(['id', 'name'])->get();
+            return view('partials.banners.banner_form_offer', compact('old_data', 'offers'));
         } else {
             return view('partials.banners.banner_form', compact('old_data'));
         }

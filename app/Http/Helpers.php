@@ -15,6 +15,7 @@ use App\Utility\CategoryUtility;
 use App\Models\Wallet;
 use App\Models\CombinedOrder;
 use App\Models\User;
+use App\Models\Offers;
 use App\Models\Addon;
 use App\Models\Attribute;
 use App\Models\Brand;
@@ -34,6 +35,7 @@ use Artesaos\SEOTools\Facades\TwitterCard;
 use Artesaos\SEOTools\Facades\JsonLd;
 use Artesaos\SEOTools\Facades\JsonLdMulti;
 use Carbon\Carbon;
+// use DB;
 
 use Harimayco\Menu\Facades\Menu;
 
@@ -1352,4 +1354,28 @@ function getUser()
     }
 
     return $user;
+}
+
+
+function checkProductOffer($product){
+    // echo '<pre>';
+    // print_r($product);
+    // die;
+    // DB::enableQueryLog();
+    $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
+    // print_r($prodOffer);
+    if(empty($prodOffer[0])){
+        // echo 'no product offer';
+        $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('category_id', $product->main_category)
+                        ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
+    }else{
+        // echo 'product offer';
+    }
+
+    // die;
+    // dd(DB::getQueryLog());
 }

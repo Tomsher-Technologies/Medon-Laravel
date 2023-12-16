@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V2\DeliveryBoyController;
 use App\Http\Controllers\Api\V2\ProductController;
 use App\Http\Controllers\Api\V2\ProfileController;
 use App\Http\Controllers\Api\V2\WishlistController;
+use App\Http\Controllers\Api\V2\WebsiteController;
 
 
 Route::group(['prefix' => 'v2/auth'], function () {
@@ -81,6 +82,11 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('offer-details', [CommonController::class, 'offerDetails']);
     });
 
+
+    Route::group(['prefix' => 'website'], function () {
+        Route::get('header', [WebsiteController::class, 'websiteHeader']);
+        Route::get('home', [WebsiteController::class, 'websiteHome']);
+    });
 
 
     // Footer newsletter
