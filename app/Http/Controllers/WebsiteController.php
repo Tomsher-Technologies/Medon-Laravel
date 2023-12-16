@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\Brand;
+use App\Models\Frontend\HomeSlider;
 use Cache;
 use Harimayco\Menu\Models\MenuItems;
 use Illuminate\Http\Request;
@@ -11,7 +14,9 @@ class WebsiteController extends Controller
 {
 	public function header(Request $request)
 	{
-		return view('backend.website_settings.header');
+		$categories = Category::select('id','name')->where('parent_id',0)->orderBy('name', 'ASC')->get();
+		$brands =  Brand::select('id','name')->orderBy('name','asc')->get();
+		return view('backend.website_settings.web_header',compact('categories','brands'));
 	}
 	public function footer(Request $request)
 	{

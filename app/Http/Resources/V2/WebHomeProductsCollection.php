@@ -3,13 +3,13 @@
 namespace App\Http\Resources\V2;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use App\Utility\CategoryUtility;
 
-class ProductMiniCollection extends ResourceCollection
+class WebHomeProductsCollection extends ResourceCollection
 {
     public function toArray($request)
     {
-        return [
-            'data' => $this->collection->map(function ($data) {
+        return $this->collection->map(function($data) {
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
@@ -21,17 +21,15 @@ class ProductMiniCollection extends ResourceCollection
                     'price_high_low' => (float)explode('-', home_discounted_base_price($data, false))[0] == (float)explode('-', home_discounted_price($data, false))[1] ? format_price((float)explode('-', home_discounted_price($data, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($data, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($data, false))[1]),
                     'min_qty' => $data->min_qty,
                     'slug' => $data->slug,
-                    // 'product_offer' => checkProductOffer($data)
                 ];
-            })
-        ];
+            });
     }
 
-    public function with($request)
-    {
-        return [
-            'success' => true,
-            'status' => 200
-        ];
-    }
+    // public function with($request)
+    // {
+    //     return [
+    //         'success' => true,
+    //         'status' => 200
+    //     ];
+    // }
 }
