@@ -526,7 +526,11 @@
             </div> --}}
         </div>
     </div>
-
+    <style>
+        .bootstrap-select .dropdown-menu li, .bootstrap-select .dropdown-toggle .filter-option-inner-inner {
+            white-space: normal !important;
+        }
+    </style>
 @endsection
 
 @section('script')

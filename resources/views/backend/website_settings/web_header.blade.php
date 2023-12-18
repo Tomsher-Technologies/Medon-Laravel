@@ -10,47 +10,139 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-md-8 mx-auto">
+	<div class="col-md-12 mx-auto">
 		<div class="card">
 			<div class="card-header">
-				<h6 class="mb-0">Header Setting</h6>
+				<h6 class="mb-0">Header Category Menu Setting</h6>
 			</div>
 			<div class="card-body">
-				<form class="repeater" action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+				<form action="{{ route('store.header') }}" method="POST" enctype="multipart/form-data">
 					@csrf
-					<div data-repeater-list="menu">
-						<div data-repeater-item>
-							<div class="form-group row">
-								<label class="col-md-3 col-from-label">Category</label>
-								<div class="col-md-9">
-									<select name="category" id="category" class="form-control" data-live-search="true" data-max-options="10" data-selected="">
-										@foreach ($categories as $key => $cat)
-											<option value="{{ $cat->id }}">{{ $cat->name }}</option>
-										@endforeach
-									</select>
-								</div>
-							</div>
-
-							<div class="form-group row">
-								<label class="col-md-3 col-from-label">Brands</label>
-								<div class="col-md-9">
-									<select name="brands" id="brands" class="form-control aiz-selectpicker" data-live-search="true" data-max-options="10" data-selected="" multiple>
-										@foreach ($brands as $key => $brand)
-											<option value="{{ $brand->id }}">{{ $brand->name }}</option>
-										@endforeach
-									</select>
-								</div>
-							</div>
-							<div class="text-right col-md-12">
-								<input data-repeater-delete type="button" class="btn btn-danger action-btn my-2"
-								value="Delete" />
-							</div>
-						</div>
+					<div class="form-group">
 						
+						<div class="header-target">
+							
+							@if (!empty($menus))
+								@foreach ($menus as $key => $value)
+									<div class="row gutters-5 mt-4">
+										<div class="col-sm-10">
+											<div class="col-sm-12">
+												<div class="form-group">
+													<label>Category</label>
+													<select class="form-control aiz-selectpicker" name="category[{{$key}}]"
+														data-live-search="true" data-selected={{ $value->category_id }}
+														required>
+														@foreach ($categories as $cat)
+															<option value="{{ $cat->id }}">{{ $cat->name }}</option>
+														@endforeach
+													</select>
+												</div>
+											</div>
+											
+											<div class="col-sm-12">
+												<div class="form-group">
+													<label>Brands</label>
+													<select class="form-control aiz-selectpicker" name="brands[{{$key}}][]"
+														data-live-search="true" data-selected={{ $value->brands }} multiple
+														required>
+														@foreach ($brands as $brand)
+															<option value="{{ $brand->id }}">{{ $brand->name }}</option>
+														@endforeach
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="col-sm-2" style="margin:auto;">
+											<div class="col-sm-12 text-center" >
+												<button type="button"
+													class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+													data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>
+									</div>
+									
+								@endforeach
+							@endif
+						</div>
+						<button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more-menu" data-max="7"
+							data-content=''
+							data-target=".header-target">
+							Add New
+						</button>
 					</div>
-					<input data-repeater-create type="button" class="btn btn-success action-btn my-1"
-                                value="Add" />
-                   
+					<div class="text-right">
+						<button type="submit" class="btn btn-primary">Update</button>
+					</div>
+				</form>
+
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header">
+				<h6 class="mb-0">Header Brands</h6>
+			</div>
+			<div class="card-body">
+				<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+					@csrf
+					<div class="form-group">
+						<label>Brands</label>
+						<div class="header-brands-target">
+							<input type="hidden" name="types[]" value="header_brands">
+							@if (get_setting('header_brands') != null)
+								@foreach (json_decode(get_setting('header_brands'), true) as $keyb => $valueb)
+									<div class="row gutters-5">
+										<div class="col">
+											<div class="form-group">
+												<select class="form-control aiz-selectpicker" name="header_brands[]"
+													data-live-search="true" data-selected={{ $valueb }}
+													required>
+													@foreach ($brands as $keys => $bnd)
+														<option value="{{ $bnd->id }}">{{ $bnd->name }}
+														</option>
+													@endforeach
+												</select>
+											</div>
+										</div>
+										<div class="col-auto">
+											<button type="button"
+												class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+												data-toggle="remove-parent" data-parent=".row">
+												<i class="las la-times"></i>
+											</button>
+										</div>
+									</div>
+								@endforeach
+							@endif
+						</div>
+						<button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more" data-max="20"
+							data-content='<div class="row gutters-5">
+								<div class="col">
+									<div class="form-group">
+										<select class="form-control aiz-selectpicker" name="header_brands[]"
+											data-live-search="true" data-selected=""
+											required>
+											@foreach ($brands as $keys => $bnd)
+												<option value="{{ $bnd->id }}">{{ $bnd->name }}
+												</option>
+											@endforeach
+										</select>
+									</div>
+								</div>
+								<div class="col-auto">
+									<button type="button"
+										class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+										data-toggle="remove-parent" data-parent=".row">
+										<i class="las la-times"></i>
+									</button>
+								</div>
+							</div>'
+							data-target=".header-brands-target">
+							Add New
+						</button>
+					</div>
 					<div class="text-right">
 						<button type="submit" class="btn btn-primary">Update</button>
 					</div>
@@ -63,36 +155,66 @@
 @endsection
 
 @section('script')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.repeater/1.2.1/jquery.repeater.min.js"
-        integrity="sha512-foIijUdV0fR0Zew7vmw98E6mOWd9gkGWQBWaoA1EOFAx+pY+N8FmmtIYAVj64R98KeD2wzZh1aHK0JSpKmRH8w=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script>
-		$('#category').selectpicker();
-		$('#brands').selectpicker();
+		
+		var childs = $('.header-target').children().length;
 
-		var repItems = $("div[data-repeater-item]");
-        var repCount = repItems.length;
-        let count = parseInt(repCount) ;
+		AIZ.extra = {
+			addMoreNew: function () {
+				$('[data-toggle="add-more-menu"]').each(function () {
+					var $this = $(this);
+					var content = $this.data("content");
+					var target = $this.data("target");
+					var max = $this.data("max") ?? 100;
+					$this.on("click", function (e) {
+						e.preventDefault();
+						if ($(target).children().length <= max) {
+							$(target).append('<div class="row gutters-5 mt-4">\
+								<div class="col-sm-10">\
+									<div class="col-sm-12">\
+										<div class="form-group">\
+											<label>Category</label>\
+											<select class="form-control aiz-selectpicker category" name="category['+childs+']"\
+												data-live-search="true" data-selected={{ $value }}\
+												required>\
+												@foreach ($categories as $key => $cat)\
+													<option value="{{ $cat->id }}">{{ $cat->name }}</option>\
+												@endforeach\
+											</select>\
+										</div>\
+									</div>\
+									<div class="col-sm-12">\
+										<div class="form-group">\
+											<label>Brands</label>\
+											<select class="form-control aiz-selectpicker brand" name="brands['+childs+'][]"\
+												data-live-search="true" data-selected={{ $value }} multiple\
+												required>\
+												@foreach ($brands as $key => $brand)\
+													<option value="{{ $brand->id }}">{{ $brand->name }}</option>\
+												@endforeach\
+											</select>\
+										</div>\
+									</div>\
+								</div>\
+								<div class="col-sm-2" style="margin:auto;">\
+									<div class="col-sm-12 text-center" >\
+										<button type="button"\
+											class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"\
+											data-toggle="remove-parent" data-parent=".row">\
+											<i class="las la-times"></i>\
+										</button>\
+									</div>\
+								</div>\
+							</div>');
+							AIZ.plugins.bootstrapSelect();
+							childs = childs+1;
+						}
+					});
+				});
+			},
+		};
 
-		$('.repeater').repeater({
-			initEmpty: false,
-			show: function() {
-				$(this).slideDown();
-				var repeaterItems = $("div[data-repeater-item]");
-                var repeatCount = repeaterItems.length;
-                var cnt = parseInt(repeatCount) - 1;
-                $('[name="menu['+cnt+'][category]"]').attr("id","category"+count);
-				$('[name="menu['+cnt+'][brands]"]').attr("id","brands"+count);
-				$('#category'+count).selectpicker('refresh');
-				$('#brands'+count).selectpicker('refresh');
-			},
-			hide: function(deleteElement) {
-				if (confirm('Are you sure you want to delete this element?')) {
-					$(this).slideUp(deleteElement);
-				}
-			},
-			isFirstItemUndeletable: false
-		});
+		AIZ.extra.addMoreNew();
 	</script>
 		
 @endsection		

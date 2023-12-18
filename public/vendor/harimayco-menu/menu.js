@@ -329,9 +329,9 @@ function insertParam(key, value) {
   document.location.search = kvp.join('&');
 }
 
-wpNavMenu.registerChange = function () {
-  getmenus();
-};
+// wpNavMenu.registerChange = function () {
+//   getmenus();
+// };
 
 
 // $('.img_1_link').on('change', function (e) {
