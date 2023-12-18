@@ -89,11 +89,26 @@ class WebsiteController extends Controller
 
         $home_banners = BusinessSetting::whereIn('type', array('home_banner_1', 'home_banner_2', 'home_banner_3'))->get()->keyBy('type');
         $banners = [];
+        $all_banners = Banner::with(['mainImage'])->where('status', true)->get();
         foreach($home_banners as $key => $hb){
-            $banners[$key] = json_decode($hb->value);
+            $bannerid = json_decode($hb->value);
+            if(!empty($bannerid)){
+                $bannerid = $bannerid[0];
+            }
+            $bannerData = $all_banners->where('id', $bannerid)->first();
+            if(!empty($bannerData)){
+                $banners[$key] = array(
+                    'type' => $bannerData->link_type ?? '',
+                    'link' => $bannerData->link_type == 'external' ? $bannerData->link : $bannerData->getBannerLink(),
+                    'type_id' => $bannerData->link_ref_id,
+                    'image' => storage_asset($bannerData->mainImage->file_name)
+                );
+            }else{
+                $banners[$key] = array();
+            }
         }
-
-        // $data['banners'] = $banners;
+       
+        $data['banners'] = $banners;
 
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     }
