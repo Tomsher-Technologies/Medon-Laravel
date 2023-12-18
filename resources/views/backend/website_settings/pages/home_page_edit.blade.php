@@ -156,7 +156,7 @@
             {{-- Home categories --}}
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Top Categories</h6>
+                    <h6 class="mb-0">Top Categories (Max 10)</h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -279,7 +279,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Top Brands</h6>
+                    <h6 class="mb-0">Top Brands (Max 10)</h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -386,7 +386,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Best Selling Products</h6>
+                    <h6 class="mb-0">Best Selling Products (Max 10)</h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -401,6 +401,47 @@
                                         <option value="{{ $prod->id }}">{{ $prod->name }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Home Banner 3</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="types[]" value="home_banner">
+                        <input type="hidden" name="name" value="home_banner_3">
+
+                        @error('home_banner_3')
+                            <div class="alert alert-danger" role="alert">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                        @php
+                            $home_banner_3 = json_decode($current_banners['home_banner_3']->value);
+                        @endphp
+
+                        <div class="form-group">
+                            <label>Banner</label>
+                            <div class="home-banner1-target">
+                                @if ($banners)
+                                    <select class="form-control aiz-selectpicker" name="banner[]"
+                                        data-live-search="true">
+                                        @foreach ($banners as $banner)
+                                            <option value="{{ $banner->id }}"
+                                                {{ isset($home_banner_3[0]) && $banner->id == $home_banner_3[0] ? 'selected' : '' }}>{{ $banner->name }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </div>
                         </div>
                         <div class="text-right">

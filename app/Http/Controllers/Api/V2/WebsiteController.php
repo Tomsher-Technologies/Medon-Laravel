@@ -79,7 +79,7 @@ class WebsiteController extends Controller
 
         $current_banners = BusinessSetting::whereIn('type', array('home_banner_1', 'home_banner_2', 'home_large_banner'))->get()->keyBy('type');
 
-        return response()->json(['success' => true,"message"=>"Success","data" => $data],400);
+        return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     }
 
     public function footer()
