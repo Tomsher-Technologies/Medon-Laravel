@@ -86,7 +86,7 @@ class PageController extends Controller
         if ($page != null) {
             if ($page_name == 'home') {
                 $banners = Banner::where('status', 1)->get();
-                $current_banners = BusinessSetting::whereIn('type', array('home_banner_1','home_banner_2','home_banner', 'home_ads_banner', 'home_large_banner'))->get()->keyBy('type');
+                $current_banners = BusinessSetting::whereIn('type', array('home_banner_1','home_banner_2','home_banner_3','home_banner', 'home_ads_banner', 'home_large_banner'))->get()->keyBy('type');
 
                 $categories = Cache::rememberForever('categories', function () {
                     return Category::where('parent_id', 0)->with('childrenCategories')->get();
