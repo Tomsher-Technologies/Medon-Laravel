@@ -175,7 +175,7 @@
 										<div class="form-group">\
 											<label>Category</label>\
 											<select class="form-control aiz-selectpicker category" name="category['+childs+']"\
-												data-live-search="true" data-selected={{ $value }}\
+												data-live-search="true" data-selected=""\
 												required>\
 												@foreach ($categories as $key => $cat)\
 													<option value="{{ $cat->id }}">{{ $cat->name }}</option>\
@@ -187,7 +187,7 @@
 										<div class="form-group">\
 											<label>Brands</label>\
 											<select class="form-control aiz-selectpicker brand" name="brands['+childs+'][]"\
-												data-live-search="true" data-selected={{ $value }} multiple\
+												data-live-search="true" data-selected="" multiple\
 												required>\
 												@foreach ($brands as $key => $brand)\
 													<option value="{{ $brand->id }}">{{ $brand->name }}</option>\
