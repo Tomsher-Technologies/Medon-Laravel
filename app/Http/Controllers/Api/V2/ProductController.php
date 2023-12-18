@@ -74,7 +74,7 @@ class ProductController extends Controller
 
         $products = $product_query->paginate($limit);
 
-        return new ProductMiniCollection($products);
+        return (new ProductMiniCollection($products))->response()->setStatusCode(200);
     }
 
     public function show(Request $request)
