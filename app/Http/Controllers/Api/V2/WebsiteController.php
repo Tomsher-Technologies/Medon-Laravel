@@ -13,6 +13,7 @@ use App\Models\Offers;
 use App\Models\Frontend\Banner;
 use App\Models\Frontend\HomeSlider;
 use App\Models\Subscriber;
+use App\Models\HeaderMenus;
 use App\Http\Resources\V2\WebHomeCategoryCollection;
 use App\Http\Resources\V2\WebHomeBrandCollection;
 use App\Http\Resources\V2\WebHomeOffersCollection;
@@ -24,12 +25,29 @@ class WebsiteController extends Controller
 {
     public function websiteHeader(){
         $data = [];
-        $data['brands'] = Brand::select('id','name','logo','slug')->orderBy('name','asc')->get();
-        $data['categories'] = Category::with(['childrenCategories'])->select('id','name','slug')->where('parent_id',0)->orderBy('name', 'ASC')->get();
-            // dd($data);
-            
-        return response()->json($data, 200);
-
+        $data['menus'] =  Cache::remember('header_menus', 3600, function () {
+                            $menus = HeaderMenus::with(['category'])->orderBy('id','asc')->get();
+                            $data['menus'] = $menus;
+                            $details = [];
+                            if(!empty($menus[0])){
+                                foreach($menus as $mn){
+                                    $details[] = [
+                                        'id' => $mn->category_id,
+                                        'name'=>$mn['category']->name,
+                                        'slug'=>$mn['category']->slug,
+                                        'sub_categories' => getImmediateSubCategories($mn->category_id),
+                                        'brands' =>getHeaderCategoryBrands($mn->brands)
+                                    ];
+                                }
+                            }
+                            return $details;
+                        });
+        $data['brands'] =  Cache::remember('header_brands', 3600, function () { 
+            $header_brands = get_setting('header_brands');
+            $brands = Brand::whereIn('id', json_decode($header_brands))->get();
+            return new WebHomeBrandCollection($brands);
+        });
+        return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     } 
 
     public function websiteHome(){

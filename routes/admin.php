@@ -226,6 +226,7 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
         Route::post('/menu', [WebsiteController::class, 'menuUpdate']);
 
         Route::get('/header', [WebsiteController::class, 'header'])->name('website.header');
+        Route::post('/store-header', [WebsiteController::class, 'storeHeader'])->name('store.header');
         Route::get('/appearance', [WebsiteController::class, 'appearance'])->name('website.appearance');
         Route::get('/pages', [WebsiteController::class, 'pages'])->name('website.pages');
 

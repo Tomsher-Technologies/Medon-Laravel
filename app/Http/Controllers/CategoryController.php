@@ -108,7 +108,6 @@ class CategoryController extends Controller
         $category->save();
 
         $category->attributes()->sync($request->filtering_attributes);
-
         flash(translate('Category has been inserted successfully'))->success();
         return redirect()->route('categories.index');
     }
@@ -217,6 +216,7 @@ class CategoryController extends Controller
         }
 
         Cache::forget('featured_categories');
+        Cache::forget('header_submenus');
         flash(translate('Category has been updated successfully'))->success();
         return back();
     }

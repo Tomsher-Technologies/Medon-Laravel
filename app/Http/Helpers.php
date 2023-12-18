@@ -20,6 +20,7 @@ use App\Models\Addon;
 use App\Models\Attribute;
 use App\Models\Brand;
 use App\Models\Cart;
+use App\Models\Category;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Products\ProductEnquiries;
@@ -28,7 +29,7 @@ use App\Models\Shop;
 use App\Models\Wishlist;
 use App\Utility\SendSMSUtility;
 use App\Utility\NotificationUtility;
-
+use App\Http\Resources\V2\WebHomeBrandCollection;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
@@ -1378,4 +1379,14 @@ function checkProductOffer($product){
 
     // die;
     // dd(DB::getQueryLog());
+}
+
+function getImmediateSubCategories($id){
+    // Cache::forget('header_submenus');
+    return Category::select('id','name','slug')->where('parent_id', $id)->get();
+}
+
+function getHeaderCategoryBrands($ids){
+    $brands = Brand::whereIn('id', json_decode($ids))->get();
+    return new WebHomeBrandCollection($brands);
 }
