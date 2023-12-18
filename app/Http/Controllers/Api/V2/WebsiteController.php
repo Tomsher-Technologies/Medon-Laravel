@@ -93,7 +93,7 @@ class WebsiteController extends Controller
             $banners[$key] = json_decode($hb->value);
         }
 
-        $data['banners'] = $banners;
+        // $data['banners'] = $banners;
 
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     }

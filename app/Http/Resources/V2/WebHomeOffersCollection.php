@@ -13,6 +13,7 @@ class WebHomeOffersCollection extends ResourceCollection
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
+                    'slug' => $data->slug,
                     'image' => api_upload_asset($data->image),
                 ];
             });
