@@ -5,7 +5,7 @@ namespace App\Http\Resources\V2;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use App\Utility\CategoryUtility;
 
-class WebHomeBrandCollection extends ResourceCollection
+class WebHomeOffersCollection extends ResourceCollection
 {
     public function toArray($request)
     {
@@ -14,7 +14,7 @@ class WebHomeBrandCollection extends ResourceCollection
                     'id' => $data->id,
                     'name' => $data->name,
                     'slug' => $data->slug,
-                    'icon' => api_upload_asset($data->logo),
+                    'image' => api_upload_asset($data->image),
                 ];
             });
     }

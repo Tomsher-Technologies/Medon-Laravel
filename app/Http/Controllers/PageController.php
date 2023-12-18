@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\Product;
+use App\Models\Offers;
 use Cache;
 use Str;
 
@@ -94,8 +95,9 @@ class PageController extends Controller
 
                 $products = Product::select('id', 'name')->get();
                 $brands = Brand::all();
+                $offers = Offers::select('id', 'name')->where('end_date','>',now())->get();
 
-                return view('backend.website_settings.pages.home_page_edit', compact('page', 'banners', 'current_banners', 'categories', 'brands', 'products'));
+                return view('backend.website_settings.pages.home_page_edit', compact('page', 'banners', 'current_banners', 'categories', 'brands', 'products','offers'));
             } else {
                 return view('backend.website_settings.pages.edit', compact('page'));
             }

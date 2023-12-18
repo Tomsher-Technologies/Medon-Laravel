@@ -13,6 +13,7 @@ class WebHomeCategoryCollection extends ResourceCollection
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
+                    'slug' => $data->slug,
                     'icon' => api_upload_asset($data->icon),
                 ];
             });

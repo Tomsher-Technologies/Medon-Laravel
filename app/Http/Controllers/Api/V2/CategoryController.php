@@ -13,10 +13,13 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $parent_id = $request->parent_id ?? 0;
-        $limit = $request->limit ?? 10;
+        $parent_id = $request->has('parent_id') ? $request->parent_id : '';
+        $limit = $request->has('limit') ? $request->limit : '';
 
-        return new CategoryCollection(Category::where('parent_id', $parent_id)->paginate($limit));
+        $category_query = ($parent_id != '') ? Category::where('parent_id', $parent_id) : Category::whereNotNull('slug');
+
+        $query = ($limit != '') ? $category_query->paginate($limit) : $category_query->get();
+        return new CategoryCollection($query);
     }
 
     public function featured()

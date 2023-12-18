@@ -15,6 +15,7 @@ use App\Models\Frontend\HomeSlider;
 use App\Models\Subscriber;
 use App\Http\Resources\V2\WebHomeCategoryCollection;
 use App\Http\Resources\V2\WebHomeBrandCollection;
+use App\Http\Resources\V2\WebHomeOffersCollection;
 use App\Http\Resources\V2\WebHomeProductsCollection;
 use Illuminate\Http\Request;
 use Cache;
@@ -42,6 +43,7 @@ class WebsiteController extends Controller
                                     'name' => $slid->name,
                                     'type' => $slid->link_type,
                                     'link' => $slid->getBannerLink(),
+                                    'type_id' => $slid->link_ref_id,
                                     'sort_order' => $slid->sort_order,
                                     'status' => $slid->status,
                                     'image' => api_upload_asset($slid->image)
@@ -77,7 +79,21 @@ class WebsiteController extends Controller
             }
         });
 
-        $current_banners = BusinessSetting::whereIn('type', array('home_banner_1', 'home_banner_2', 'home_large_banner'))->get()->keyBy('type');
+        $data['offers'] = Cache::rememberForever('home_offers', function () {
+            $offers = get_setting('home_offers');
+            if ($offers) {
+                $details = Offers::whereIn('id', json_decode($offers))->get();
+                return new WebHomeOffersCollection($details);
+            }
+        });
+
+        $home_banners = BusinessSetting::whereIn('type', array('home_banner_1', 'home_banner_2', 'home_banner_3'))->get()->keyBy('type');
+        $banners = [];
+        foreach($home_banners as $key => $hb){
+            $banners[$key] = json_decode($hb->value);
+        }
+
+        // $data['banners'] = $banners;
 
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     }

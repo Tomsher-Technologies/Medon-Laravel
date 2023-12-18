@@ -13,8 +13,9 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         $brand_query = Brand::query();
-        $limit = $request->limit ?? 10;
-        return new BrandCollection($brand_query->paginate($limit));
+        $limit = $request->has('limit') ? $request->limit : '';
+        $query = ($limit != '') ? $brand_query->paginate($limit) : $brand_query->get();
+        return new BrandCollection($query);
     }
 
     public function top()

@@ -13,6 +13,7 @@ class BrandCollection extends ResourceCollection
                 return [
                     'id' => $data->id,
                     'name' => $data->name,
+                    'slug' => $data->slug,
                     'logo' => api_asset($data->logo),
                     'is_top' => (bool)$data->top
                 ];

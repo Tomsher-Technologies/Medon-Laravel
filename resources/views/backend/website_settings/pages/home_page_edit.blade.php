@@ -454,19 +454,19 @@
             {{-- Top 10 --}}
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Popular brands</h6>
+                    <h6 class="mb-0">Offers (Max 10)</h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group row">
-                            <label class="col-md-2 col-from-label">{{ translate('Popular brands') }}</label>
+                            <label class="col-md-2 col-from-label">{{ translate('Offers') }}</label>
                             <div class="col-md-10">
-                                <input type="hidden" name="types[]" value="top10_brands">
-                                <select name="top10_brands[]" class="form-control aiz-selectpicker" multiple
-                                    data-live-search="true" data-selected="{{ get_setting('top10_brands') }}">
-                                    @foreach ($brands as $key => $brand)
-                                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                <input type="hidden" name="types[]" value="home_offers">
+                                <select name="home_offers[]" class="form-control aiz-selectpicker" multiple
+                                    data-live-search="true" data-selected="{{ get_setting('home_offers') }}">
+                                    @foreach ($offers as $key => $off)
+                                        <option value="{{ $off->id }}">{{ $off->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
