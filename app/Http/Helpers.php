@@ -1391,9 +1391,13 @@ function getHeaderCategoryBrands($ids){
     return new WebHomeBrandCollection($brands);
 }
 
-function getOffersProductIds($offerSlugs){
-    $offers = Offers::whereIn('slug',$offerSlugs)->select('category_id','link_type','link_id')->get()->toArray();
-    
+function getOffersProductIds($offerSlugs, $isId = 1){
+    if($isId == 1){
+        $offers = Offers::whereIn('id',$offerSlugs)->select('category_id','link_type','link_id')->get()->toArray();
+    }else{
+        $offers = Offers::whereIn('slug',$offerSlugs)->select('category_id','link_type','link_id')->get()->toArray();
+    }
+
     $products = [];
     if($offers){
         foreach($offers as $off){
