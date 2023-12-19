@@ -39,9 +39,7 @@ class ProductController extends Controller
 
         if($offer_slug){
             $product_ids = getOffersProductIds($offer_slug);
-            if(!empty($product_ids)){
-                $product_query->whereIn('id', $product_ids);
-            }
+            $product_query->whereIn('id', $product_ids);
         }
 
         if ($category) {
