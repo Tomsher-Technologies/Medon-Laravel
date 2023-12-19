@@ -1,5 +1,5 @@
 <div class="form-group row">
-    <label class="col-md-3 col-form-label">Link</label>
+    <label class="col-md-3 col-form-label">Link<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
     <div class="col-md-9">
         <select class="form-control aiz-selectpicker" name="link_ref_id[]" id="link_ref_id" data-live-search="true" multiple required>
             

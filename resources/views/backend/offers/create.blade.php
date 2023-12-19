@@ -11,19 +11,24 @@
                     <form class="form-horizontal" method="POST" action="{{ route('offers.store') }}">
                         @csrf
                         <div class="form-group row">
-                            <label class="col-md-3 col-form-label">Name</label>
+                            <label class="col-md-3 col-form-label">Name<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <input type="text" placeholder="Name" value="{{ old('name') }}" id="name"
-                                    name="name" class="form-control" required>
+                                    name="name" class="form-control slug_title" required>
                                 @error('name')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
 
+                        @livewire('slug-check', ['model' => 'App\\Models\\Offers', 'template' => 2])
+                        @error('slug')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">
-                                Image
+                                Image <span class="text-danger" style="font-size: 20px;line-height: 1;">*</span>
                             </label>
                             <div class="col-md-9">
                                 <div class="input-group" data-toggle="aizuploader" data-type="image">
@@ -45,7 +50,7 @@
                         </div>
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">
-                                Mobile Image
+                                Mobile Image <span class="text-danger" style="font-size: 20px;line-height: 1;">*</span>
                             </label>
                             <div class="col-md-9">
                                 <div class="input-group" data-toggle="aizuploader" data-type="image">
@@ -67,7 +72,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-md-3 col-form-label">Type</label>
+                            <label class="col-md-3 col-form-label">Type<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <select onchange="banner_form()" class="form-control aiz-selectpicker" name="link_type"
                                     id="link_type" data-live-search="true" required>
@@ -93,7 +98,7 @@
 
 
                         <div class="form-group row">
-                            <label class="col-md-3 col-form-label">Offer type</label>
+                            <label class="col-md-3 col-form-label">Offer type<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <select class="form-control aiz-selectpicker" onchange="offer_form()" name="offer_type"
                                     id="offer_type" required>
@@ -112,7 +117,7 @@
                         </div>
 
                         <div class="form-group row offer_type_item" style="display: none" id="percentage">
-                            <label class="col-md-3 col-form-label">Offer Percentage</label>
+                            <label class="col-md-3 col-form-label">Offer Percentage<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <input type="number" step=".01" placeholder="Offer Percentage"
                                     value="{{ old('percentage') }}" id="percentage" name="percentage" class="form-control">
@@ -123,7 +128,7 @@
                         </div>
 
                         <div class="form-group row offer_type_item" style="display: none" id="amount">
-                            <label class="col-md-3 col-form-label">Offer Amount</label>
+                            <label class="col-md-3 col-form-label">Offer Amount<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <input type="number" step=".01" placeholder="Offer Amount" value="{{ old('amount') }}"
                                     id="amount" name="amount" class="form-control">
@@ -135,7 +140,7 @@
 
                         <div class="offer_type_item" id="buy_x_get_y" style="display: none">
                             <div class="form-group row">
-                                <label class="col-md-3 col-form-label">Buy Quantity</label>
+                                <label class="col-md-3 col-form-label">Buy Quantity<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="number" min="1" step="1" placeholder="Buy Quantity"
                                         value="{{ old('buy_amount') }}" id="buy_amount" name="buy_amount"
@@ -146,7 +151,7 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-md-3 col-form-label">Get Quantity</label>
+                                <label class="col-md-3 col-form-label">Get Quantity<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="number" min="1" step="1" placeholder="Get Quantity"
                                         value="{{ old('get_amount') }}" id="get_amount" name="get_amount"
@@ -159,7 +164,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-md-3 col-form-label">Offer Date</label>
+                            <label class="col-md-3 col-form-label">Offer Date<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control aiz-date-range" id="date_range"
                                     name="date_range" placeholder="Select Date" data-time-picker="true"
@@ -171,7 +176,7 @@
                         </div>
 
                         <div class="form-group row d-none">
-                            <label class="col-md-3 col-form-label">Status</label>
+                            <label class="col-md-3 col-form-label">Status<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
                             <div class="col-md-9">
                                 <select class="form-control aiz-selectpicker" name="status" id="status" required>
                                     <option {{ old('status') == '1' ? 'selected' : '' }} value="1">Enabled</option>
@@ -195,6 +200,8 @@
     </div>
 @endsection
 @section('script')
+    @livewireScripts
+    @livewireStyles
     <script type="text/javascript">
         $(document).ready(function() {
             banner_form();
@@ -237,5 +244,10 @@
                 $('#link_ref_id').selectpicker('refresh');
             });
         }
+
+        $('.slug_title').on('change', function() {
+            console.log($(this).val());
+            Livewire.emit('titleChanged', $(this).val())
+        });
     </script>
 @endsection

@@ -48,6 +48,7 @@ class OfferController extends Controller
         // die;
         $request->validate([
             "name" => 'required',
+            'slug' => 'required|unique:offers,slug',
             "link_type" => 'required',
             "link_ref_id" => 'required',
             "image" => 'required',
@@ -65,6 +66,7 @@ class OfferController extends Controller
        
         $offer = Offers::create([
             'name' => $request->name ?? '',
+            'slug' => $request->slug,
             'link_type' => $request->link_type ?? NULL,
             'category_id' => $request->main_category ?? NULL,
             'link_id' => json_encode($request->link_ref_id) ?? NULL,
@@ -121,6 +123,7 @@ class OfferController extends Controller
             "name" => 'required',
             "link_type" => 'required',
             "link_ref_id" => 'required',
+            'slug' => 'required|unique:offers,slug,'.$id,
             // "image" => 'required',
             // "mobile_image" => 'required',
             "offer_type" => 'required',
@@ -158,6 +161,7 @@ class OfferController extends Controller
         $data_range = explode(' to ', $request->date_range);
       
         $offer->name            =  $request->name ?? NULL;
+        $offer->slug            =  $request->slug;
         $offer->category_id     =  $request->main_category ?? NULL;
         $offer->image           =  $request->image;
         $offer->mobile_image    =  $request->mobile_image;
