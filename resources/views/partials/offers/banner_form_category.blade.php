@@ -1,5 +1,5 @@
 <div class="form-group row">
-    <label class="col-md-3 col-form-label">Category</label>
+    <label class="col-md-3 col-form-label">Category<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
     <div class="col-md-9">
         <select  onchange="brands_form()" class="form-control aiz-selectpicker" name="main_category" id="main_category" data-live-search="true" required>
             <option value="">Select Category</option>
@@ -13,7 +13,7 @@
 </div>
 
 <div class="form-group row">
-    <label class="col-md-3 col-form-label">Brands</label>
+    <label class="col-md-3 col-form-label">Brands<span class="text-danger" style="font-size: 20px;line-height: 1;">*</span></label>
     <div class="col-md-9">
         <select class="form-control aiz-selectpicker" name="link_ref_id[]" id="link_ref_id" data-actions-box="true" data-live-search="true" multiple required>
             @if (!empty($brandsData))
