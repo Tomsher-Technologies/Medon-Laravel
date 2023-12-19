@@ -135,20 +135,24 @@ class OfferController extends Controller
         $offer = Offers::find($id);
 
         $amount = $percentage = $buy_amount = $get_amount = NULL;
-        if($offer->offer_type !== $request->offer_type){
-            if($request->offer_type == 'percentage'){
-                $percentage = $request->percentage;
-            }else if($request->offer_type == 'amount_off'){
-                $amount = $request->amount;
-            }else if($request->offer_type == 'buy_x_get_y'){
-                $buy_amount = $request->buy_amount;
-                $get_amount = $request->get_amount;
-            }
-        }else{
-            $amount     = $offer->amount;
-            $percentage = $offer->percentage;
-            $buy_amount = $offer->buy_amount;
-            $get_amount = $offer->get_amount;
+        // if($offer->offer_type !== $request->offer_type){
+           
+        //     echo '!=  ' .$amount;
+        // }else{
+        //     // $amount     = $offer->offer_amount;
+        //     // $percentage = $offer->percentage;
+        //     // $buy_amount = $offer->buy_amount;
+        //     // $get_amount = $offer->get_amount;
+        //     echo '==  ' .$amount;
+        // }
+
+        if($request->offer_type == 'percentage'){
+            $percentage = $request->percentage;
+        }else if($request->offer_type == 'amount_off'){
+            $amount = $request->amount;
+        }else if($request->offer_type == 'buy_x_get_y'){
+            $buy_amount = $request->buy_amount;
+            $get_amount = $request->get_amount;
         }
 
         $data_range = explode(' to ', $request->date_range);
