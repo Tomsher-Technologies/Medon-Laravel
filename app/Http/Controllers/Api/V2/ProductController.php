@@ -33,8 +33,16 @@ class ProductController extends Controller
         $category_slug = $request->category_slug ? explode(',', $request->category_slug)  : false;
         $brand_slug = $request->brand_slug ? explode(',', $request->brand_slug)  : false;
 
+        $offer_slug = $request->offer_slug ? explode(',', $request->offer_slug)  : false;
 
         $product_query  = Product::wherePublished(1);
+
+        if($offer_slug){
+            $product_ids = getOffersProductIds($offer_slug);
+            if(!empty($product_ids)){
+                $product_query->whereIn('id', $product_ids);
+            }
+        }
 
         if ($category) {
             $product_query->whereIn('category_id', $category);
