@@ -82,6 +82,7 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('offer-details', [CommonController::class, 'offerDetails']);
     });
 
+    Route::get('products_list', [CommonController::class, 'productList']);
 
     Route::group(['prefix' => 'website'], function () {
         Route::get('header', [WebsiteController::class, 'websiteHeader']);
