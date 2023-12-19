@@ -112,6 +112,7 @@ class CategoryController extends Controller
         Cache::forget('featured_categories');
         Cache::forget('header_submenus');
         Cache::forget('header_menus');
+        Cache::forget('category_filter');
         
         flash(translate('Category has been inserted successfully'))->success();
         return redirect()->route('categories.index');
@@ -223,6 +224,7 @@ class CategoryController extends Controller
         Cache::forget('featured_categories');
         Cache::forget('header_submenus');
         Cache::forget('header_menus');
+        Cache::forget('category_filter');
         flash(translate('Category has been updated successfully'))->success();
         return back();
     }
