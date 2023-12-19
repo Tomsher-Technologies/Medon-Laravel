@@ -23,12 +23,13 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $limit = $request->has('limit') ? $request->limit : 10;
-        $offset = $request->has('offset') ? $request->offset : 0;
-        $min_price = $request->has('min_price') ? $request->min_price : '';
-        $max_price = $request->has('max_price') ? $request->max_price : '';
+        $limit = $request->limit ? $request->limit : 10;
+        $offset = $request->offset ? $request->offset : 0;
+        $min_price = $request->min_price ? $request->min_price : '';
+        $max_price = $request->max_price ? $request->max_price : '';
         $category = $request->category ? explode(',', $request->category)  : false;
         $brand = $request->brand ? explode(',', $request->brand)  : false;
+        $offer = $request->offer ? explode(',', $request->offer)  : false;
 
         $category_slug = $request->category_slug ? explode(',', $request->category_slug)  : false;
         $brand_slug = $request->brand_slug ? explode(',', $request->brand_slug)  : false;
@@ -37,8 +38,13 @@ class ProductController extends Controller
 
         $product_query  = Product::wherePublished(1);
 
+        if($offer){
+            $product_ids = getOffersProductIds($offer,1);
+            $product_query->whereIn('id', $product_ids);
+        }
+
         if($offer_slug){
-            $product_ids = getOffersProductIds($offer_slug);
+            $product_ids = getOffersProductIds($offer_slug,0);
             $product_query->whereIn('id', $product_ids);
         }
 

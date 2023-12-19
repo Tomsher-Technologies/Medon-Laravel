@@ -72,7 +72,8 @@ class BrandController extends Controller
 
         $brand->logo = $request->logo;
         $brand->save();
-
+        
+        Cache::forget('header_brands');
         flash(translate('Brand has been inserted successfully'))->success();
         return redirect()->route('brands.index');
     }
@@ -137,7 +138,7 @@ class BrandController extends Controller
         $brand->logo = $request->logo;
         $brand->top = $request->top;
         $brand->save();
-
+        Cache::forget('header_brands');
         flash(translate('Brand has been updated successfully'))->success();
         return redirect()->route('brands.index');
     }
