@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Resources\V2\ProductCollection;
 use App\Http\Resources\V2\ProductMiniCollection;
+use App\Http\Resources\V2\ProductFilterCollection;
 use App\Http\Resources\V2\ProductDetailCollection;
 use App\Http\Resources\V2\FlashDealCollection;
 use App\Models\FlashDeal;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Color;
+use App\Models\Category;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use App\Utility\CategoryUtility;
 use App\Utility\SearchUtility;
@@ -20,17 +23,34 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $limit = $request->limit ?? 10;
+        $limit = $request->has('limit') ? $request->limit : 10;
+        $offset = $request->has('offset') ? $request->offset : 0;
+        $min_price = $request->has('min_price') ? $request->min_price : '';
+        $max_price = $request->has('max_price') ? $request->max_price : '';
         $category = $request->category ? explode(',', $request->category)  : false;
         $brand = $request->brand ? explode(',', $request->brand)  : false;
+
+        $category_slug = $request->category_slug ? explode(',', $request->category_slug)  : false;
+        $brand_slug = $request->brand_slug ? explode(',', $request->brand_slug)  : false;
+
 
         $product_query  = Product::wherePublished(1);
 
         if ($category) {
             $product_query->whereIn('category_id', $category);
         }
+
+        if ($category_slug) {
+            $category_ids = Category::whereIn('slug',$category_slug)->pluck('id')->toArray();
+            $product_query->whereIn('category_id', $category_ids);
+        }
+
         if ($brand) {
             $product_query->whereIn('brand_id', $brand);
+        }
+        if ($brand_slug) {
+            $brand_ids = Brand::whereIn('slug',$brand_slug)->pluck('id')->toArray();
+            $product_query->whereIn('brand_id', $brand_ids);
         }
 
         if ($request->order_by) {
@@ -71,10 +91,23 @@ class ProductController extends Controller
 
             SearchUtility::store($sort_search, $request);
         }
+        if ($min_price != null && $min_price != "" && is_numeric($min_price)) {
+            $product_query->where('unit_price', '>=', $min_price);
+        }
 
-        $products = $product_query->paginate($limit);
+        if ($max_price != null && $max_price != "" && is_numeric($max_price)) {
+            $product_query->where('unit_price', '<=', $max_price);
+        }
 
-        return (new ProductMiniCollection($products))->response()->setStatusCode(200);
+        $total_count = $product_query->count();
+        $products = $product_query->skip($offset)->take($limit)->get();
+        
+        $next_offset = $offset + $limit;
+      
+        $response = new ProductFilterCollection($products);
+      
+        return response()->json(['success' => true,"message"=>"Success","data" => $response, "total_count" => $total_count, "next_offset" => $next_offset],200);
+
     }
 
     public function show(Request $request)
