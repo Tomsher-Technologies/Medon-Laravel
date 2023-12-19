@@ -319,12 +319,17 @@ class CommonController extends Controller
             if ($ids) {
                 foreach ($ids as $id) {
                     $c_banner = $all_banners->where('id', $id)->first();
-                    $banners[$banner->type][] = array(
-                        // 'image1' => $c_banner,
-                        'link_type' => $c_banner->link_type ?? '',
-                        'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
-                        'image' => storage_asset($c_banner->mainImage->file_name)
-                    );
+                    if(!empty($c_banner)){
+                        $banners[$banner->type][] = array(
+                            // 'image1' => $c_banner,
+                            'link_type' => $c_banner->link_type ?? '',
+                            'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
+                            'image' => storage_asset($c_banner->mainImage->file_name)
+                        );
+                    }else{
+                        $banners[$banner->type][] = null;
+                    }
+                    
                 }
             }
         }
@@ -335,62 +340,4 @@ class CommonController extends Controller
         ]);
     }
 
-    public function productList(Request $request){
-        
-        $limit = $request->limit ?? 10;
-        $category = $request->category ? explode(',', $request->category)  : false;
-        $brand = $request->brand ? explode(',', $request->brand)  : false;
-
-        $product_query  = Product::wherePublished(1);
-
-        if ($category) {
-            $product_query->whereIn('category_id', $category);
-        }
-        if ($brand) {
-            $product_query->whereIn('brand_id', $brand);
-        }
-
-        if ($request->order_by) {
-            switch ($request->order_by) {
-                case 'latest':
-                    $product_query->latest();
-                    break;
-                case 'oldest':
-                    $product_query->oldest();
-                    break;
-                case 'name_asc':
-                    $product_query->orderBy('name', 'asc');
-                    break;
-                case 'name_desc':
-                    $product_query->orderBy('name', 'desc');
-                    break;
-                case 'price_high':
-                    $product_query->select('*', DB::raw("(SELECT MAX(price) from product_stocks WHERE product_id = products.id) as sort_price"));
-                    $product_query->orderBy('sort_price', 'desc');
-                    break;
-                case 'price_low':
-                    $product_query->select('*', DB::raw("(SELECT MIN(price) from product_stocks WHERE product_id = products.id) as sort_price"));
-                    $product_query->orderBy('sort_price', 'asc');
-                    break;
-                default:
-                    # code...
-                    break;
-            }
-        }
-
-        if ($request->search) {
-            $sort_search = $request->search;
-            $products = $product_query
-                ->where('name', 'like', '%' . $sort_search . '%')
-                ->orWhereHas('stocks', function ($q) use ($sort_search) {
-                    $q->where('sku', 'like', '%' . $sort_search . '%');
-                });
-
-            SearchUtility::store($sort_search, $request);
-        }
-
-        $products = $product_query->paginate($limit);
-
-        return (new ProductMiniCollection($products))->response()->setStatusCode(200);
-    }
 }
