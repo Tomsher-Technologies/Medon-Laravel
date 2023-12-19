@@ -126,10 +126,6 @@ class ProductController extends Controller
     {
         $product = Product::with('tabs')->findOrFail($request->product_id);
 
-        // return response()->json([
-        //     'product_id' => $product,
-        // ]);
-
         return new ProductDetailCollection($product);
     }
 

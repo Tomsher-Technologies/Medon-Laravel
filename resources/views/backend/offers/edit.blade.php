@@ -26,7 +26,7 @@
                             </div>
                         </div>
 
-                        {{-- <div class="form-group row">
+                        <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">
                                 Image
                             </label>
@@ -38,7 +38,7 @@
                                         </div>
                                     </div>
                                     <div class="form-control file-amount">Choose File</div>
-                                    <input value="{{ old('image') }}" type="hidden" name="image" class="selected-files"
+                                    <input value="{{ $offer->image }}" type="hidden" name="image" class="selected-files"
                                         required>
                                 </div>
                                 <div class="file-preview box sm">
@@ -60,7 +60,7 @@
                                         </div>
                                     </div>
                                     <div class="form-control file-amount">Choose File</div>
-                                    <input value="{{ old('mobile_image') }}" type="hidden" name="mobile_image" class="selected-files"
+                                    <input value="{{ $offer->mobile_image }}" type="hidden" name="mobile_image" class="selected-files"
                                         required>
                                 </div>
                                 <div class="file-preview box sm">
@@ -69,7 +69,7 @@
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div> --}}
+                        </div>
 
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label">Link Type</label>

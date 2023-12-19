@@ -43,12 +43,15 @@ class OfferController extends Controller
      */
     public function store(Request $request)
     {
+        // echo '<pre>';
+        // print_r($request->all());
+        // die;
         $request->validate([
             "name" => 'required',
             "link_type" => 'required',
             "link_ref_id" => 'required',
-            // "image" => 'required',
-            // "mobile_image" => 'required',
+            "image" => 'required',
+            "mobile_image" => 'required',
             "offer_type" => 'required',
             // "mobile_image" => 'required',
             'percentage' => 'required_if:offer_type,percentage',
@@ -58,10 +61,6 @@ class OfferController extends Controller
             'date_range' => ['required', new \App\Rules\DateRange]
         ]);
 
-        // echo '<pre>';
-        // print_r($request->all());
-        // die;
-
         $data_range = explode(' to ', $request->date_range);
        
         $offer = Offers::create([
@@ -70,6 +69,8 @@ class OfferController extends Controller
             'category_id' => $request->main_category ?? NULL,
             'link_id' => json_encode($request->link_ref_id) ?? NULL,
             'offer_type' => $request->offer_type ?? NULL,
+            'image' => $request->image ?? NULL,
+            'mobile_image' => $request->mobile_image ?? NULL,
             'percentage' => $request->percentage ?? NULL,
             'offer_amount' => $request->amount ?? NULL,
             'start_date' => (isset($data_range[0])) ? date('Y-m-d H:i:s', strtotime($data_range[0])) : NULL,
@@ -151,9 +152,11 @@ class OfferController extends Controller
         }
 
         $data_range = explode(' to ', $request->date_range);
-
+      
         $offer->name            =  $request->name ?? NULL;
         $offer->category_id     =  $request->main_category ?? NULL;
+        $offer->image           =  $request->image;
+        $offer->mobile_image    =  $request->mobile_image;
         $offer->link_type       =  $request->link_type ?? NULL;
         $offer->link_id         =  $request->link_ref_id ?? NULL;
         $offer->offer_type      =  $request->offer_type ?? NULL;
