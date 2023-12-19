@@ -1390,3 +1390,25 @@ function getHeaderCategoryBrands($ids){
     $brands = Brand::whereIn('id', json_decode($ids))->get();
     return new WebHomeBrandCollection($brands);
 }
+
+function getOffersProductIds($offerSlugs){
+    $offers = Offers::whereIn('slug',$offerSlugs)->select('category_id','link_type','link_id')->get()->toArray();
+    
+    $products = [];
+    if($offers){
+        foreach($offers as $off){
+            $type = $off['link_type'];
+            if($type == 'product'){
+                $products[] = json_decode($off['link_id']);
+            }elseif($type == 'category'){
+                $products[] = Product::where('main_category', $off['category_id'])->whereIn('brand_id', json_decode($off['link_id']))->pluck('id')->toArray();
+            }
+        }
+       
+        if(!empty($products)){
+            $products = array_merge(...$products);
+        }
+    }
+   
+    return $products;
+}
