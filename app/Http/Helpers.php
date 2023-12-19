@@ -1416,3 +1416,17 @@ function getOffersProductIds($offerSlugs, $isId = 1){
    
     return $products;
 }
+
+function getSidebarCategoryTree()
+{
+    $all_cats = Category::select([
+        'id',
+        'parent_id',
+        'name',
+        'level',
+        'slug',
+    ])->with(['childrenCategories'])->withCount('products')->where('parent_id', 0)->get();
+
+    return $all_cats;
+}
+

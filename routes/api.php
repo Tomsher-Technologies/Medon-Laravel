@@ -85,6 +85,7 @@ Route::group(['prefix' => 'v2'], function () {
     Route::group(['prefix' => 'website'], function () {
         Route::get('header', [WebsiteController::class, 'websiteHeader']);
         Route::get('home', [WebsiteController::class, 'websiteHome']);
+        Route::get('categories', [WebsiteController::class, 'websiteCategories']);
     });
 
 

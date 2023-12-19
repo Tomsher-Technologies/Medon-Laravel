@@ -10,6 +10,7 @@ use App\Models\BusinessSetting;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Offers;
+use App\Utility\CategoryUtility;
 use App\Models\Frontend\Banner;
 use App\Models\Frontend\HomeSlider;
 use App\Models\Subscriber;
@@ -267,5 +268,12 @@ class WebsiteController extends Controller
             "result" => true,
             "data" => $banners,
         ]);
+    }
+
+    public function websiteCategories(){
+        // $categories =  Cache::remember('category_filter', 3600, function () { 
+            $categories =  getSidebarCategoryTree();
+        // });
+        return response()->json(['success' => true,"message"=>"Success","data" => $categories],200);
     }
 }
