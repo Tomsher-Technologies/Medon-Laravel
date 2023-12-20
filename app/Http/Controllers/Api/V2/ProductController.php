@@ -129,12 +129,14 @@ class ProductController extends Controller
 
         $product = [];
         if($product_id != ''){
-            $product = Product::with(['tabs'])->where('published',1)->findOrFail($product_id);
+            $product = Product::with(['tabs','reviews'])->where('published',1)->findOrFail($product_id);
         }
 
         if($product_slug != ''){
-            $product = Product::with(['tabs'])->where('slug',$product_slug)->where('published',1)->first();
+            $product = Product::with(['tabs','reviews'])->where('slug',$product_slug)->where('published',1)->first();
         }
+
+       
         if(!empty($product)){
             return new ProductDetailCollection($product);
         }
