@@ -44,6 +44,13 @@ class ProductDetailCollection extends JsonResource
             'id' => 0,
             'name' => "",
             'logo' => "",
+            'slug' => ""
+        ];
+
+        $category = [
+            'id' => 0,
+            'name' => "",
+            'slug' => "",
         ];
 
         if ($this->brand != null) {
@@ -51,8 +58,18 @@ class ProductDetailCollection extends JsonResource
                 'id' => $this->brand->id,
                 'name' => $this->brand->name,
                 'logo' => api_upload_asset($this->brand->logo),
+                'slug' => $this->brand->slug,
             ];
         }
+
+        if ($this->category != null) {
+            $category = [
+                'id' => $this->category->id,
+                'name' => $this->category->name,
+                'slug' => $this->category->slug,
+            ];
+        }
+
 
         return [
             'id' => (int)$this->id,
@@ -76,6 +93,7 @@ class ProductDetailCollection extends JsonResource
             'description' => $this->description,
             'video_link' => $this->video_link != null ?  $this->video_link : "",
             'brand' => $brand,
+            'category' => $category,
             'tabs' => $this->tabs,
             'reviews' => $this->reviews,
             'review_status' => canReview($this->id,$this->user_id)
