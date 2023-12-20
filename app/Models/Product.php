@@ -100,7 +100,7 @@ class Product extends Model
 
     public function tabs()
     {
-        return $this->hasMany(ProductTabs::class);
+        return $this->hasMany(ProductTabs::class,'product_id','id');
     }
 
     // public function enquiries()

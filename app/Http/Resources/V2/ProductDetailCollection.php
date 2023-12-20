@@ -55,6 +55,7 @@ class ProductDetailCollection extends JsonResource
         return [
             'id' => (int)$this->id,
             'name' => $this->name,
+            'sku' => $this->sku,
             'photos' => $photos,
             'thumbnail_image' => $this->thumbnail_img,
             'tags' => explode(',', $this->tags),
@@ -72,6 +73,7 @@ class ProductDetailCollection extends JsonResource
             'description' => $this->description,
             'video_link' => $this->video_link != null ?  $this->video_link : "",
             'brand' => $brand,
+            'tabs' => $this->tabs
         ];
 
         // return [
