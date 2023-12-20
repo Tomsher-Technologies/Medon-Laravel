@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\AppEmailVerificationNotification;
 use Hash;
+use DB;
 
 
 class AuthController extends Controller
@@ -154,10 +155,11 @@ class AuthController extends Controller
         $delivery_boy_condition = $request->has('user_type') && $request->user_type == 'delivery_boy';
 
         if ($delivery_boy_condition) {
-            $user = User::whereIn('user_type', ['delivery_boy'])->where('email', $request->email)->orWhere('phone', $request->email)->first();
+            $user = User::whereIn('user_type', ['delivery_boy'])->where('email', $request->email_or_phone)->orWhere('phone', $request->email_or_phone)->first();
         } else {
-            // $user = User::whereIn('user_type', ['customer', 'seller'])->where('email', $request->email)->orWhere('phone', $request->email)->first();
+            $user = User::whereIn('user_type', ['customer', 'seller'])->where('email', $request->email_or_phone)->orWhere('phone', $request->email_or_phone)->first();
         }
+
 
         if ($user != null) {
             if (Hash::check($request->password, $user->password)) {

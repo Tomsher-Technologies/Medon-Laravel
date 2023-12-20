@@ -36,7 +36,8 @@ Route::group(['prefix' => 'v2/auth'], function () {
 Route::group(['prefix' => 'v2'], function () {
     Route::apiResource('banners', BannerController::class)->only('index');
     
-
+   
+    
     // Wishlist
     Route::group(['middleware' => ['auth:sanctum']], function () {
         // Customer
@@ -45,8 +46,9 @@ Route::group(['prefix' => 'v2'], function () {
             // Route::post('update', [ProfileController::class, 'update']);
             Route::apiResource('address', AddressController::class);
             Route::post('address/make_default', [AddressController::class, 'makeShippingAddressDefault']);
-        });
 
+        });
+        // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
     });
