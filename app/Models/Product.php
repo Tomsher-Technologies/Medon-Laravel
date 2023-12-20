@@ -75,7 +75,7 @@ class Product extends Model
 
     public function reviews()
     {
-        return $this->hasMany(Review::class)->where('status', 1);
+        return $this->hasMany(Review::class,'product_id','id')->where('status', 1)->select('id', 'product_id', 'user_id', 'rating', 'comment', 'created_at');
     }
 
     public function wishlists()
@@ -100,7 +100,7 @@ class Product extends Model
 
     public function tabs()
     {
-        return $this->hasMany(ProductTabs::class);
+        return $this->hasMany(ProductTabs::class,'product_id','id');
     }
 
     // public function enquiries()

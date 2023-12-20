@@ -271,9 +271,9 @@ class WebsiteController extends Controller
     }
 
     public function websiteCategories(){
-        // $categories =  Cache::remember('category_filter', 3600, function () { 
-            $categories =  getSidebarCategoryTree();
-        // });
+        $categories =  Cache::remember('category_filter', 3600, function () { 
+            return $categories =  getSidebarCategoryTree();
+        });
         return response()->json(['success' => true,"message"=>"Success","data" => $categories],200);
     }
 }

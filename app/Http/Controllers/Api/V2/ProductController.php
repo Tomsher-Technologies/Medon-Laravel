@@ -124,9 +124,24 @@ class ProductController extends Controller
 
     public function show(Request $request)
     {
-        $product = Product::with('tabs')->findOrFail($request->product_id);
+        $product_id = $request->has('product_id') ? $request->product_id : '';
+        $product_slug = $request->has('product_slug') ? $request->product_slug : '';
 
-        return new ProductDetailCollection($product);
+        $product = [];
+        if($product_id != ''){
+            $product = Product::with(['tabs','reviews'])->where('published',1)->findOrFail($product_id);
+        }
+
+        if($product_slug != ''){
+            $product = Product::with(['tabs','reviews'])->where('slug',$product_slug)->where('published',1)->first();
+        }
+
+       
+        if(!empty($product)){
+            return new ProductDetailCollection($product);
+        }
+        
+        return response()->json(['success' => false,"message"=>"No data found","data" => []],200);
     }
 
     public function admin()

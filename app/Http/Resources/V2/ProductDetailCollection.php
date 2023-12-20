@@ -16,14 +16,16 @@ class ProductDetailCollection extends JsonResource
         $calculable_price = home_discounted_base_price($this, false);
         $calculable_price = number_format($calculable_price, $precision, '.', '');
         $calculable_price = floatval($calculable_price);
-        $photo_paths = get_images_path($this->photos);
+        
+        $photo_paths = explode(',',$this->photos);
+        
         $photos = [];
         if (!empty($photo_paths)) {
             for ($i = 0; $i < count($photo_paths); $i++) {
                 if ($photo_paths[$i] != "") {
                     $item = array();
                     $item['variant'] = "";
-                    $item['path'] = $photo_paths[$i];
+                    $item['path'] = app('url')->asset($photo_paths[$i]);
                     $photos[] = $item;
                 }
             }
@@ -33,7 +35,7 @@ class ProductDetailCollection extends JsonResource
             if ($stockItem->image != null && $stockItem->image != "") {
                 $item = array();
                 $item['variant'] = $stockItem->variant;
-                $item['path'] = api_asset($stockItem->image);
+                $item['path'] = api_upload_asset($stockItem->image);
                 $photos[] = $item;
             }
         }
@@ -48,15 +50,16 @@ class ProductDetailCollection extends JsonResource
             $brand = [
                 'id' => $this->brand->id,
                 'name' => $this->brand->name,
-                'logo' => api_asset($this->brand->logo),
+                'logo' => api_upload_asset($this->brand->logo),
             ];
         }
 
         return [
             'id' => (int)$this->id,
             'name' => $this->name,
+            'sku' => $this->sku,
             'photos' => $photos,
-            'thumbnail_image' => $this->thumbnail_img,
+            'thumbnail_image' => app('url')->asset($this->thumbnail_img),
             'tags' => explode(',', $this->tags),
             'price_high_low' => (float)explode('-', home_discounted_base_price($this, false))[0] == (float)explode('-', home_discounted_price($this, false))[1] ? format_price((float)explode('-', home_discounted_price($this, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($this, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($this, false))[1]),
             'choice_options' => $this->convertToChoiceOptions(json_decode($this->choice_options)),
@@ -72,6 +75,8 @@ class ProductDetailCollection extends JsonResource
             'description' => $this->description,
             'video_link' => $this->video_link != null ?  $this->video_link : "",
             'brand' => $brand,
+            'tabs' => $this->tabs,
+            'reviews' => $this->reviews
         ];
 
         // return [
