@@ -46,8 +46,7 @@
                             <tr>
                                 <td>{{ $key + 1 + ($reviews->currentPage() - 1) * $reviews->perPage() }}</td>
                                 <td>
-                                    <a href="{{ route('product', $review->product->slug) }}" target="_blank"
-                                        class="text-reset text-truncate-2">{{ $review->product->name }}</a>
+                                    {{ $review->product->name }}
                                 </td>
                                 <td>{{ $review->user->name }} ({{ $review->user->email }})</td>
                                 <td>{{ $review->rating }}</td>

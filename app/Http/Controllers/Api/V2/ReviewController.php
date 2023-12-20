@@ -88,6 +88,7 @@ class ReviewController extends Controller
                 $review->rating = $request->rating;
                 $review->comment = $request->comment;
                 $review->viewed = 0;
+                $review->status = 0;
                 $review->save();
     
                 $count = Review::where('product_id', $product_id)->where('status', 1)->count();
