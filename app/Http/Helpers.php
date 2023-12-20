@@ -1426,3 +1426,11 @@ function getSidebarCategoryTree()
     return $all_cats;
 }
 
+
+function getProductIdFromSlug($slug){
+    if($slug != null){
+        $product = Product::where('slug', $slug)->pluck('id')->first();
+        return $product;
+    }
+    return null;
+}

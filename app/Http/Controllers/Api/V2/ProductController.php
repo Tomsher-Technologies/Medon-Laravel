@@ -18,6 +18,7 @@ use App\Utility\CategoryUtility;
 use App\Utility\SearchUtility;
 use Cache;
 use DB;
+use Auth;
 
 class ProductController extends Controller
 {
@@ -135,13 +136,13 @@ class ProductController extends Controller
         if($product_slug != ''){
             $product = Product::with(['tabs','reviews','category'])->where('slug',$product_slug)->where('published',1)->first();
         }
-        $product->user_id = 46;
-    //    echo '<pre>';
-    //    print_r($product);
-    //    die;
-    // echo $request->user()->id;
-    // print_r($request->user());
-    // die;
+        $product->user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        //    echo '<pre>';
+        //    print_r($product);
+        // //    die;
+        // // // echo auth('sanctum')->user()->id;
+        // // // print_r($request->user());
+        // die;
         if(!empty($product)){
             return new ProductDetailCollection($product);
         }
