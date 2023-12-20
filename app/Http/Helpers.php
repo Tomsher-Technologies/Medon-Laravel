@@ -1425,7 +1425,7 @@ function getSidebarCategoryTree()
         'name',
         'level',
         'slug',
-    ])->with(['childrenCategories'])->withCount('products')->where('parent_id', 0)->get();
+    ])->with(['child'])->withCount('products')->where('parent_id', 0)->get();
 
     return $all_cats;
 }
