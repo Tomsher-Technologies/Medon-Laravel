@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V2\CommonController;
 use App\Http\Controllers\Api\V2\DeliveryBoyController;
 use App\Http\Controllers\Api\V2\ProductController;
 use App\Http\Controllers\Api\V2\ProfileController;
+use App\Http\Controllers\Api\V2\ReviewController;
 use App\Http\Controllers\Api\V2\WishlistController;
 use App\Http\Controllers\Api\V2\WebsiteController;
 
@@ -51,6 +52,8 @@ Route::group(['prefix' => 'v2'], function () {
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
+
+        Route::post('review/submit', [ReviewController::class, 'saveReview']);
     });
 
     // Products

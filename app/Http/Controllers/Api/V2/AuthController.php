@@ -45,7 +45,7 @@ class AuthController extends Controller
             $result['otp'] = $user->verification_code;
         }
 
-        return response()->json($result, 201);
+        return response()->json($result, 200);
     }
 
     public function resend_otp(Request $request)
@@ -160,7 +160,6 @@ class AuthController extends Controller
             $user = User::whereIn('user_type', ['customer', 'seller'])->where('email', $request->email_or_phone)->orWhere('phone', $request->email_or_phone)->first();
         }
 
-
         if ($user != null) {
             if (Hash::check($request->password, $user->password)) {
                 return $this->loginSuccess($user);
@@ -216,7 +215,7 @@ class AuthController extends Controller
                 'result' => false,
                 'message' => translate('User already exists.'),
                 'user_id' => 0
-            ], 201);
+            ], 400);
         }
 
         if ($request->register_by == 'email') {
@@ -260,7 +259,7 @@ class AuthController extends Controller
             'result' => true,
             'message' => translate('Registration Successful. Please verify and log in to your account.'),
             'user_id' => $user->id
-        ], 201);
+        ], 200);
     }
 
     public function check_user_exist(Request $request)
@@ -295,14 +294,14 @@ class AuthController extends Controller
                     $result['otp'] = $user->verification_code;
                 }
 
-                return response()->json($result, 201);
+                return response()->json($result, 200);
             }
         } else {
             return response()->json([
                 'status' => true,
                 'user_exist' => false,
                 'message' => 'The user does not exist.'
-            ], 201);
+            ], 200);
         }
     }
 
