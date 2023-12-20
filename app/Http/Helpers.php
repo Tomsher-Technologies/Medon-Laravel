@@ -1272,7 +1272,6 @@ function hasStock($product)
 
 function canReview($product_id, $user_id)
 {
-
     $res = [
         'can_comment' => false,
         'has_comment' => false,
@@ -1300,9 +1299,6 @@ function canReview($product_id, $user_id)
             $res['has_comment'] = true;
         }
     }
-
-
-
     return $res;
 }
 
