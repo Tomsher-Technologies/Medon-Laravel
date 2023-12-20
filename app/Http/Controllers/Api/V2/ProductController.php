@@ -135,8 +135,10 @@ class ProductController extends Controller
         if($product_slug != ''){
             $product = Product::with(['tabs','reviews'])->where('slug',$product_slug)->where('published',1)->first();
         }
-
-       
+        $product->user_id = 46;
+    //    echo '<pre>';
+    //    print_r($product);
+    //    die;
         if(!empty($product)){
             return new ProductDetailCollection($product);
         }

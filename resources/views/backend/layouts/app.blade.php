@@ -6,7 +6,7 @@
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="admin-url" content="{{ getBaseURL() . env('ADMIN_PREFIX') }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
-
+    <meta name="robots" content="noindex">
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
