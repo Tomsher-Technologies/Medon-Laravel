@@ -23,11 +23,17 @@ class CartController extends Controller
                     );
             }
             $carts = Cart::where('user_id', $user_id)->get();
-            $carts->load(['product', 'product.stocks']);
+            if(!empty($carts[0])){
+                $carts->load(['product', 'product.stocks']);
+            }
+            
         } else {
             $temp_user_id = $request->header('UserToken');
             $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [];
-            $carts->load(['product', 'product.stocks']);
+            
+            if(!empty($carts[0])){
+                $carts->load(['product', 'product.stocks']);
+            }
         }
         
 
