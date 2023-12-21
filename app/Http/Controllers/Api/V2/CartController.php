@@ -29,12 +29,46 @@ class CartController extends Controller
         }
         $carts->load(['product', 'product.stocks']);
 
-        return new CartCollection($carts);
+        $result = [];
+        $sub_total = $discount = $shipping = 0;
+        foreach($carts as $data){
+            $sub_total = $sub_total + ($data->price * $data->quantity);
+            $result['products'][] = [
+                'id' => $data->id,
+                'product' => [
+                    'id' => $data->product->id,
+                    'name' => $data->product->name,
+                    'image' => app('url')->asset($data->product->thumbnail_img)
+                ],
+                'variation' => $data->variation,
+                'price' => $data->price,
+                'quantity' => (integer) $data->quantity,
+                'date' => $data->created_at->diffForHumans(),
+                'total' => $data->price * $data->quantity
+            ];
+        }
+
+        $result['summary'] = [
+            'sub_total' => $sub_total,
+            'discount' => $discount, // Discount is in percentage
+            'shipping' => $shipping,
+            'vat_percentage' => 0,
+            'vat_amount' => 0,
+            'total' => round($sub_total - ($sub_total * ($discount/100)), 2)
+        ];
+        // echo '<pre>';
+        // print_r($carts);
+        // die;
+
+        // return new CartCollection($carts);
+        return response()->json(['status' => true,"message"=>"Success","data" => $result],200);
     }
 
     public function store(Request $request)
     {
-        $product = Product::findOrFail($request->product_id);
+        $product_slug = $request->has('product_slug') ? $request->product_slug : '';
+        $product_id = getProductIdFromSlug($product_slug);
+        $product = Product::findOrFail($product_id);
 
         $str = null;
 
