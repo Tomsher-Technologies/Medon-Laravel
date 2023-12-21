@@ -1277,7 +1277,7 @@ function canReview($product_id, $user_id)
         'has_comment' => false,
     ];
 
-    if ($user_id) {
+    if ($user_id && $product_id) {
         $review_count = Review::where('user_id', $user_id)
             ->where('product_id', $product_id)->count();
 
@@ -1289,14 +1289,12 @@ function canReview($product_id, $user_id)
         })->count();
 
         if ($purchases_count > 0) {
-            $res['can_comment'] = true;
-        }
-
-        if ($review_count == 0) {
-            $res['can_comment'] = true;
-        } else {
-            $res['can_comment'] = false;
-            $res['has_comment'] = true;
+            if ($review_count == 0) {
+                $res['can_comment'] = true;
+            } else {
+                $res['can_comment'] = false;
+                $res['has_comment'] = true;
+            }
         }
     }
     return $res;

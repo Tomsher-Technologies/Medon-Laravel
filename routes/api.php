@@ -37,8 +37,6 @@ Route::group(['prefix' => 'v2/auth'], function () {
 Route::group(['prefix' => 'v2'], function () {
     Route::apiResource('banners', BannerController::class)->only('index');
     
-   
-    
     // Wishlist
     Route::group(['middleware' => ['auth:sanctum']], function () {
         // Customer
@@ -54,6 +52,7 @@ Route::group(['prefix' => 'v2'], function () {
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
 
         Route::post('review/submit', [ReviewController::class, 'saveReview']);
+        Route::get('review/check', [ReviewController::class, 'checkReviewStatus']);
     });
 
     // Products
