@@ -110,4 +110,14 @@ class ReviewController extends Controller
         }
     }
 
+    public function checkReviewStatus(Request $request){
+        $product_slug = $request->has('product_slug') ? $request->product_slug : '';
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+
+        $product_id = getProductIdFromSlug($product_slug);
+        $result = canReview($product_id,$user_id);
+
+        return response()->json(['status' => true,"message"=>"Success","data" => $result],200);
+    }
+
 }
