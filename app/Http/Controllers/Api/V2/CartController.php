@@ -86,91 +86,93 @@ class CartController extends Controller
         $str = null;
 
         $user = getUser();
+        if($user['users_id'] != ''){
+            if ($product) {
+                $product->load('stocks');
+                if ($product->variant_product) {
 
-        if ($product) {
-            $product->load('stocks');
-            if ($product->variant_product) {
+                    $variations =  $request->variations;
 
-                $variations =  $request->variations;
+                    foreach (json_decode($product->choice_options) as $key => $choice) {
+                        if ($str != null) {
+                            $str .= '-' . str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
+                        } else {
+                            $str .= str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
+                        }
+                    }
 
-                foreach (json_decode($product->choice_options) as $key => $choice) {
-                    if ($str != null) {
-                        $str .= '-' . str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
-                    } else {
-                        $str .= str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
+                    $product_stock = $product->stocks->where('variant', $str)->first();
+
+                    if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
+                        return response()->json([
+                            'message' => 'This item is out of stock!',
+                        ], 200);
+                    }
+                } else {
+                    $product_stock = $product->stocks->first();
+                    if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
+                        return response()->json([
+                            'message' => 'This item is out of stock!',
+                        ], 200);
                     }
                 }
 
-                $product_stock = $product->stocks->where('variant', $str)->first();
+                $carts = Cart::where([
+                    $user['users_id_type'] => $user['users_id'],
+                    'product_id' => $product->id,
+                    'variation' => $str,
+                ])->first();
 
-                if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
-                    return response()->json([
-                        'message' => 'This item is out of stock!',
-                    ], 200);
-                }
-            } else {
-                $product_stock = $product->stocks->first();
-                if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
-                    return response()->json([
-                        'message' => 'This item is out of stock!',
-                    ], 200);
-                }
-            }
+                if ($carts) {
+                    $carts->quantity += $request->quantity;
+                    $carts->save();
+                    $rtn_msg = 'Cart updated successfully';
+                } else {
+                    $price = $product_stock->price;
 
-            $carts = Cart::where([
-                $user['users_id_type'] => $user['users_id'],
-                'product_id' => $product->id,
-                'variation' => $str,
-            ])->first();
+                    $discount_applicable = false;
 
-            if ($carts) {
-                $carts->quantity += $request->quantity;
-                $carts->save();
-                $rtn_msg = 'Cart updated successfully';
-            } else {
-                $price = $product_stock->price;
-
-                $discount_applicable = false;
-
-                if (
-                    $product->discount_start_date == null ||
-                    (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-                        strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date)
-                ) {
-                    $discount_applicable = true;
-                }
-
-                if ($discount_applicable) {
-                    if ($product->discount_type == 'percent') {
-                        $price -= ($price * $product->discount) / 100;
-                    } elseif ($product->discount_type == 'amount') {
-                        $price -= $product->discount;
+                    if (
+                        $product->discount_start_date == null ||
+                        (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+                            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date)
+                    ) {
+                        $discount_applicable = true;
                     }
+
+                    if ($discount_applicable) {
+                        if ($product->discount_type == 'percent') {
+                            $price -= ($price * $product->discount) / 100;
+                        } elseif ($product->discount_type == 'amount') {
+                            $price -= $product->discount;
+                        }
+                    }
+
+                    $data[$user['users_id_type']] =  $user['users_id'];
+                    $data['product_id'] = $product->id;
+                    $data['quantity'] = $request['quantity'] ?? 1;
+                    $data['price'] = $price;
+                    $data['variation'] = $str;
+                    $data['tax'] = 0;
+                    $data['shipping_cost'] = 0;
+                    $data['product_referral_code'] = null;
+                    $data['cash_on_delivery'] = $product->cash_on_delivery;
+                    $data['digital'] = $product->digital;
+
+                    $rtn_msg = 'Item added to cart';
+
+                    Cart::create($data);
                 }
 
-                $data[$user['users_id_type']] =  $user['users_id'];
-                $data['product_id'] = $product->id;
-                $data['quantity'] = $request['quantity'] ?? 1;
-                $data['price'] = $price;
-                $data['variation'] = $str;
-                $data['tax'] = 0;
-                $data['shipping_cost'] = 0;
-                $data['product_referral_code'] = null;
-                $data['cash_on_delivery'] = $product->cash_on_delivery;
-                $data['digital'] = $product->digital;
-
-                $rtn_msg = 'Item added to cart';
-
-                Cart::create($data);
+                return response()->json([
+                    'success' => true,
+                    'message' => $rtn_msg,
+                    'count' =>  $this->cartCount()
+                ], 201);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => $rtn_msg,
-                'count' =>  $this->cartCount()
-            ], 201);
         }
-
+       
         return response()->json([
             'success' => false,
             'cart_count' => "Something went wrong, please try again"
