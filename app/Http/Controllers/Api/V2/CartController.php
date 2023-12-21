@@ -23,30 +23,37 @@ class CartController extends Controller
                     );
             }
             $carts = Cart::where('user_id', $user_id)->get();
+            $carts->load(['product', 'product.stocks']);
         } else {
             $temp_user_id = $request->header('UserToken');
             $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [];
+            $carts->load(['product', 'product.stocks']);
         }
-        $carts->load(['product', 'product.stocks']);
+        
 
         $result = [];
         $sub_total = $discount = $shipping = 0;
-        foreach($carts as $data){
-            $sub_total = $sub_total + ($data->price * $data->quantity);
-            $result['products'][] = [
-                'id' => $data->id,
-                'product' => [
-                    'id' => $data->product->id,
-                    'name' => $data->product->name,
-                    'image' => app('url')->asset($data->product->thumbnail_img)
-                ],
-                'variation' => $data->variation,
-                'price' => $data->price,
-                'quantity' => (integer) $data->quantity,
-                'date' => $data->created_at->diffForHumans(),
-                'total' => $data->price * $data->quantity
-            ];
+        if(!empty($carts[0])){
+            foreach($carts as $data){
+                $sub_total = $sub_total + ($data->price * $data->quantity);
+                $result['products'][] = [
+                    'id' => $data->id,
+                    'product' => [
+                        'id' => $data->product->id,
+                        'name' => $data->product->name,
+                        'image' => app('url')->asset($data->product->thumbnail_img)
+                    ],
+                    'variation' => $data->variation,
+                    'price' => $data->price,
+                    'quantity' => (integer) $data->quantity,
+                    'date' => $data->created_at->diffForHumans(),
+                    'total' => $data->price * $data->quantity
+                ];
+            }
+        }else{
+            $result['products'] = [];
         }
+        
 
         $result['summary'] = [
             'sub_total' => $sub_total,
