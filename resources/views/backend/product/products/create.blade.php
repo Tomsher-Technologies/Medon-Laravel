@@ -8,7 +8,138 @@
         <form class="form form-horizontal mar-top" action="{{ route('products.store') }}" method="POST"
             enctype="multipart/form-data" id="choice_form">
             <div class="row gutters-5">
-                <div class="col-lg-8">
+                <div class="col-lg-10">
+
+                    <div class="card bg-transparent shadow-none border-0">
+                        <div class="card-body p-0">
+                            <div class="btn-toolbar float-right" role="toolbar"
+                                aria-label="Toolbar with button groups">
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <button type="submit" name="button" value="draft"
+                                        class="btn btn-warning action-btn">Save As Draft</button>
+                                </div>
+                                {{-- <div class="btn-group mr-2" role="group" aria-label="Third group">
+                                    <button type="submit" name="button" value="unpublish"
+                                        class="btn btn-primary action-btn">Save & Unpublish</button>
+                                </div> --}}
+                                <div class="btn-group" role="group" aria-label="Second group">
+                                    <button type="submit" name="button" value="publish"
+                                        class="btn btn-success action-btn">Save & Publish</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Price visibility</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Hide Price</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="hide_price" value="1">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Low Stock Quantity Warning</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label for="low_stock_quantity">
+                                    Quantity
+                                </label>
+                                <input type="number" name="low_stock_quantity" id="low_stock_quantity" value="1"
+                                    min="0" step="1" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">
+                                Stock Visibility State
+                            </h5>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Show Stock Quantity</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="quantity" checked>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Show Stock With Text Only</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="text">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Hide Stock</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="hide">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card  d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Featured</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Status</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="featured" value="1">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Return and refund status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Status</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="return_refund" value="0">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-10">
                     @csrf
                     <div class="card">
                         <div class="card-header">
@@ -60,7 +191,7 @@
                                         placeholder="Unit (e.g. KG, Pc etc)" required>
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row d-none">
                                 <label class="col-md-3 col-from-label">Minimum Purchase Qty <span
                                         class="text-danger">*</span></label>
                                 <div class="col-md-8">
@@ -114,7 +245,7 @@
                     </div>
 
                     {{-- Attribute --}}
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product Variation') }}</h5>
                         </div>
@@ -273,16 +404,18 @@
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" name="tab_heading">
                                         </div>
-                                        <input data-repeater-delete type="button" class="btn btn-danger action-btn"
-                                            value="Delete" />
+                                        
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 col-from-label">Description</label>
                                         <div class="col-md-8">
                                             <textarea class="text-area" name="tab_description"></textarea>
                                         </div>
-
                                     </div>
+                                    <div class="form-group row">
+                                        <input data-repeater-delete type="button" class="btn btn-danger action-btn"
+                                        value="Delete" />
+                                    </div>    
                                 </div>
                             </div>
                             <input data-repeater-create type="button" class="btn btn-success action-btn"
@@ -290,7 +423,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">Product Dimensions</h5>
                         </div>
@@ -352,8 +485,8 @@
                                     <select class="form-control aiz-selectpicker" name="video_provider"
                                         id="video_provider">
                                         <option value="youtube">Youtube</option>
-                                        <option value="dailymotion">Dailymotion</option>
-                                        <option value="vimeo">Vimeo</option>
+                                        {{-- <option value="dailymotion">Dailymotion</option>
+                                        <option value="vimeo">Vimeo</option> --}}
                                     </select>
                                 </div>
                             </div>
@@ -369,7 +502,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">PDF Specification</h5>
                         </div>
@@ -394,7 +527,7 @@
 
 
 
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">External link</h5>
                         </div>
@@ -482,147 +615,17 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-
-                    <div class="card bg-transparent shadow-none border-0">
-                        <div class="card-body p-0">
-                            <div class="btn-toolbar justify-content-between" role="toolbar"
-                                aria-label="Toolbar with button groups">
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <button type="submit" name="button" value="draft"
-                                        class="btn btn-warning action-btn">Save As Draft</button>
-                                </div>
-                                <div class="btn-group mr-2" role="group" aria-label="Third group">
-                                    <button type="submit" name="button" value="unpublish"
-                                        class="btn btn-primary action-btn">Save & Unpublish</button>
-                                </div>
-                                <div class="btn-group" role="group" aria-label="Second group">
-                                    <button type="submit" name="button" value="publish"
-                                        class="btn btn-success action-btn">Save & Publish</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Price visibility</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Hide Price</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="hide_price" value="1">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Low Stock Quantity Warning</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group mb-3">
-                                <label for="low_stock_quantity">
-                                    Quantity
-                                </label>
-                                <input type="number" name="low_stock_quantity" id="low_stock_quantity" value="1"
-                                    min="0" step="1" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">
-                                Stock Visibility State
-                            </h5>
-                        </div>
-
-                        <div class="card-body">
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Show Stock Quantity</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="quantity" checked>
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Show Stock With Text Only</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="text">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Hide Stock</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="hide">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Featured</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Status</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="featured" value="1">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Return and refund status</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Status</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="return_refund" value="0">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
+                
+                <div class="col-10">
                     <div class="btn-toolbar float-right mb-3" role="toolbar" aria-label="Toolbar with button groups">
                         <div class="btn-group mr-2" role="group" aria-label="First group">
                             <button type="submit" name="button" value="draft" class="btn btn-warning action-btn">Save
                                 As Draft</button>
                         </div>
-                        <div class="btn-group mr-2" role="group" aria-label="Third group">
+                        {{-- <div class="btn-group mr-2" role="group" aria-label="Third group">
                             <button type="submit" name="button" value="unpublish"
                                 class="btn btn-primary action-btn">Save & Unpublish</button>
-                        </div>
+                        </div> --}}
                         <div class="btn-group" role="group" aria-label="Second group">
                             <button type="submit" name="button" value="publish"
                                 class="btn btn-success action-btn">Save & Publish</button>

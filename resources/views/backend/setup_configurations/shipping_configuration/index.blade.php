@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-none">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0 h6">{{ translate('Select Shipping Method') }}</h5>
@@ -47,7 +47,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-none">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0 h6">{{ translate('Note') }}</h5>
@@ -76,7 +76,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-none">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-none">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
@@ -214,7 +214,7 @@
                 </form>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-6 d-none">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0 h6">{{ translate('Note') }}</h5>

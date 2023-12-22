@@ -1,12 +1,12 @@
 <div class="aiz-sidebar-wrap">
     <div class="aiz-sidebar left c-scrollbar">
         <div class="aiz-side-nav-logo-wrap">
-            <a href="{{ route('admin.dashboard') }}" class="d-block text-left">
+            <a href="{{ route('admin.dashboard') }}" class="d-block text-center">
                 @if (get_setting('system_logo_white') != null)
                     <img class="mw-100" src="{{ uploaded_asset(get_setting('system_logo_white')) }}" class="brand-icon"
                         alt="{{ get_setting('site_name') }}">
                 @else
-                    <img class="mw-100" src="{{ static_asset('assets/img/logo.png') }}" class="brand-icon"
+                    <img class="mw-100" src="{{ static_asset('assets/img/logo.svg') }}" class="brand-icon"
                         alt="{{ get_setting('site_name') }}">
                 @endif
             </a>
@@ -62,12 +62,12 @@
                                         <span class="aiz-side-nav-text">Brand</span>
                                     </a>
                                 </li>
-                                <li class="aiz-side-nav-item">
+                                {{-- <li class="aiz-side-nav-item">
                                     <a href="{{ route('attributes.index') }}"
                                         class="aiz-side-nav-link {{ areActiveRoutes(['attributes.index', 'attributes.create', 'attributes.edit']) }}">
                                         <span class="aiz-side-nav-text">Attribute</span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="aiz-side-nav-item">
                                     <a href="{{ route('reviews.index') }}" class="aiz-side-nav-link">
                                         <span class="aiz-side-nav-text">Product Reviews</span>
@@ -226,11 +226,11 @@
                                     </li>
                                 @endif
                             @endif --}}
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('subscribers.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Subscribers</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('coupon.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['coupon.index', 'coupon.create', 'coupon.edit']) }}">
@@ -263,11 +263,11 @@
                                     <span class="aiz-side-nav-text">Header</span>
                                 </a>
                             </li>
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.menu') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Menus</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.footer', ['lang' => App::getLocale()]) }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['website.footer']) }}">
@@ -280,11 +280,11 @@
                                     <span class="aiz-side-nav-text">Pages</span>
                                 </a>
                             </li>
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.appearance') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Appearance</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('home-slider.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['home-slider.index', 'home-slider.create', 'home-slider.edit']) }}">
@@ -346,16 +346,16 @@
                             </li> --}}
 
 
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('currency.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Currency</span>
                                 </a>
-                            </li>
-                            <li class="aiz-side-nav-item">
+                            </li> --}}
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('smtp_settings.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">SMTP Settings</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <!--<li class="aiz-side-nav-item">-->
                             <!--    <a href="javascript:void(0);" class="aiz-side-nav-link">-->
@@ -420,7 +420,7 @@
                                             <span class="aiz-side-nav-text">Shipping Configuration</span>
                                         </a>
                                     </li>
-                                    <li class="aiz-side-nav-item">
+                                    {{-- <li class="aiz-side-nav-item">
                                         <a href="{{ route('countries.index') }}"
                                             class="aiz-side-nav-link {{ areActiveRoutes(['countries.index', 'countries.edit', 'countries.update']) }}">
                                             <span class="aiz-side-nav-text">Shipping Countries</span>
@@ -437,7 +437,7 @@
                                             class="aiz-side-nav-link {{ areActiveRoutes(['cities.index', 'cities.edit', 'cities.update']) }}">
                                             <span class="aiz-side-nav-text">Shipping Cities</span>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 </ul>
                             </li>
 
