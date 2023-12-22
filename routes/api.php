@@ -66,6 +66,7 @@ Route::group(['prefix' => 'v2'], function () {
     // Cart
     Route::get('cart/count', [CartController::class, 'getCount']);
     Route::post('cart/change_quantity', [CartController::class, 'changeQuantity']);
+    Route::post('cart/remove', [CartController::class, 'removeCartItem']);
     Route::apiResource('cart', CartController::class)->only('index', 'store', 'destroy');
 
     // Common
