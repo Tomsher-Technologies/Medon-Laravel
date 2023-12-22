@@ -13,7 +13,7 @@ class WishlistController extends Controller
     {
         $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
         if($user_id != ''){
-            $wishlist = Wishlist::with('product')->where('user_id', $request->user()->id)->get();
+            $wishlist = Wishlist::with('product')->where('user_id', $user_id)->get();
             $result = [];
             if($wishlist){
                 foreach($wishlist as $data){
