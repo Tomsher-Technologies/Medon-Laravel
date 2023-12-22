@@ -105,14 +105,18 @@ class CartController extends Controller
 
                     if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
                         return response()->json([
+                            'success' => false,
                             'message' => 'This item is out of stock!',
+                            'cart_count' => $this->cartCount()
                         ], 200);
                     }
                 } else {
                     $product_stock = $product->stocks->first();
                     if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
                         return response()->json([
+                            'success' => false,
                             'message' => 'This item is out of stock!',
+                            'cart_count' => $this->cartCount()
                         ], 200);
                     }
                 }
@@ -167,7 +171,7 @@ class CartController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $rtn_msg,
-                    'count' =>  $this->cartCount()
+                    'cart_count' =>  $this->cartCount()
                 ], 201);
             }
 
@@ -175,7 +179,8 @@ class CartController extends Controller
        
         return response()->json([
             'success' => false,
-            'cart_count' => "Something went wrong, please try again"
+            'message' => "Failed to add item to the cart",
+            'cart_count' => $this->cartCount()
         ]);
     }
 
