@@ -42,6 +42,8 @@ class CartController extends Controller
         if(!empty($carts[0])){
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
+
+                // $price = getProductPrice();
                 $result['products'][] = [
                     'id' => $data->id,
                     'product' => [
@@ -105,14 +107,18 @@ class CartController extends Controller
 
                     if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
                         return response()->json([
+                            'success' => false,
                             'message' => 'This item is out of stock!',
+                            'cart_count' => $this->cartCount()
                         ], 200);
                     }
                 } else {
                     $product_stock = $product->stocks->first();
                     if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
                         return response()->json([
+                            'success' => false,
                             'message' => 'This item is out of stock!',
+                            'cart_count' => $this->cartCount()
                         ], 200);
                     }
                 }
@@ -167,15 +173,16 @@ class CartController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $rtn_msg,
-                    'count' =>  $this->cartCount()
-                ], 201);
+                    'cart_count' =>  $this->cartCount()
+                ], 200);
             }
 
         }
        
         return response()->json([
             'success' => false,
-            'cart_count' => "Something went wrong, please try again"
+            'message' => "Failed to add item to the cart",
+            'cart_count' => $this->cartCount()
         ]);
     }
 
