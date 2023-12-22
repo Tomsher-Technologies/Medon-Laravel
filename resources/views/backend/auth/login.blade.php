@@ -62,7 +62,7 @@
                                     @endif
                                 </div>
 
-                                {!! NoCaptcha::display() !!}
+                                {{-- {!! NoCaptcha::display() !!} --}}
 
                                 @if ($errors->has('g-recaptcha-response'))
                                     <span class="invalid-feedback d-block" style="font-size: 14px" role="alert">
