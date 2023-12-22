@@ -27,7 +27,7 @@ class WishlistController extends Controller
             'result' => true,
             'wishlist_count' => $this->getWishlistCount($request->user()->id),
             'message' => translate('Product added to wishlist')
-        ], 201);
+        ], 200);
     }
 
     public function destroy(Request $request, $id)

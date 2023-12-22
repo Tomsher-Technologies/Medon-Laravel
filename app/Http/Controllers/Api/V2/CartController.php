@@ -42,6 +42,8 @@ class CartController extends Controller
         if(!empty($carts[0])){
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
+
+                // $price = getProductPrice();
                 $result['products'][] = [
                     'id' => $data->id,
                     'product' => [
@@ -172,7 +174,7 @@ class CartController extends Controller
                     'success' => true,
                     'message' => $rtn_msg,
                     'cart_count' =>  $this->cartCount()
-                ], 201);
+                ], 200);
             }
 
         }
