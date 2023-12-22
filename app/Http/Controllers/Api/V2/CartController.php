@@ -282,4 +282,25 @@ class CartController extends Controller
             $user['users_id_type'] => $user['users_id']
         ])->count();
     }
+
+    public function removeCartItem(Request $request){
+        $cart_ids = $request->cart_ids ? explode(',', $request->cart_ids) : [];
+        $user = getUser();
+
+        if(!empty($cart_ids) && $user['users_id'] != ''){
+            Cart::where([
+                $user['users_id_type'] => $user['users_id']
+            ])->whereIn('id',$cart_ids)->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Cart items removed successfully"
+            ], 200);
+        }else {
+            return response()->json([
+                'status' => false,
+                'message' => "Cart item not found"
+            ], 200);
+        }
+    }
 }
