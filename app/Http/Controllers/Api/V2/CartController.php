@@ -49,6 +49,8 @@ class CartController extends Controller
                     'product' => [
                         'id' => $data->product->id,
                         'name' => $data->product->name,
+                        'slug' => $data->product->slug,
+                        'sku' => $data->product->sku,
                         'image' => app('url')->asset($data->product->thumbnail_img)
                     ],
                     'variation' => $data->variation,
