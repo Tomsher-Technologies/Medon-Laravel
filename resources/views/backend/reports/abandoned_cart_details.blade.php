@@ -33,7 +33,7 @@
                                             <td>
                                                 {{-- <a href="{{ route('product', $cart->product->slug) }}" target="_blank"> --}}
                                                     <img height="50"
-                                                        src="{{ uploaded_asset($cart->product->thumbnail_img) }}">
+                                                        src="{{ asset($cart->product->thumbnail_img) }}">
                                                     {{-- </a> --}}
                                             </td>
                                             <td>
