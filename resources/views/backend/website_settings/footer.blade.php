@@ -29,13 +29,13 @@
                 <div class="col-lg-6">
                     <div class="card shadow-none bg-light">
                         <div class="card-header">
-                            <h6 class="mb-0">About Widget</h6>
+                            <h6 class="mb-0">APP Links</h6>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('business_settings.update') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="form-group d-none">
                                     <label class="form-label" for="signinSrEmail">Footer Logo</label>
                                     <div class="input-group " data-toggle="aizuploader" data-type="image">
                                         <div class="input-group-prepend">
@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="file-preview"></div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group d-none" >
                                     <label>About description (Translatable)</label>
                                     <input type="hidden" name="types[][{{ $lang }}]" value="about_us_description">
                                     <textarea class="aiz-text-editor form-control" name="about_us_description"
@@ -110,7 +110,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-12">
+                <div class="col-lg-12 d-none">
                     <div class="card shadow-none bg-light">
                         <div class="card-header">
                             <h6 class="mb-0">Link Widget One</h6>

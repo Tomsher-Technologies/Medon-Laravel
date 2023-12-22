@@ -12,7 +12,7 @@
                             @if(get_setting('system_logo_black') != null)
                                 <img src="{{ uploaded_asset(get_setting('system_logo_black')) }}" class="mw-100 mb-4" height="40">
                             @else
-                                <img src="{{ static_asset('assets/img/logo.png') }}" class="mw-100 mb-4" height="40">
+                                <img src="{{ static_asset('assets/img/logo.svg') }}" class="mw-100 mb-4" height="40">
                             @endif
                             <h1 class="h3 text-primary mb-0">Welcome to {{ env('APP_NAME') }}</h1>
                             <p>Login to your account.</p>

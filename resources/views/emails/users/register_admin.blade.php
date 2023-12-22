@@ -325,7 +325,7 @@
                                                         <tr>
                                                             <td align="center"
                                                                 style="font:11px Helvetica,  Arial, sans-serif; color:#ffffff;">
-                                                                &copy; <?= date('Y') ?>, ITS All Rights Reserved
+                                                                &copy; <?= date('Y') ?>, Medon All Rights Reserved
                                                             </td>
                                                         </tr>
                                                         <tr>

@@ -84,7 +84,7 @@
                             <img loading="lazy" src="{{ uploaded_asset($logo) }}" height="40"
                                 style="display:inline-block;">
                         @else
-                            <img loading="lazy" src="{{ static_asset('assets/img/logo.png') }}" height="40"
+                            <img loading="lazy" src="{{ static_asset('assets/img/logo.svg') }}" height="40"
                                 style="display:inline-block;">
                         @endif
                     </td>

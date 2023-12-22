@@ -8,7 +8,145 @@
         <form class="form form-horizontal mar-top" action="{{ route('products.update', $product->id) }}" method="POST"
             enctype="multipart/form-data" id="choice_form">
             <div class="row gutters-5">
-                <div class="col-lg-8">
+                <div class="col-lg-10">
+
+                    <div class="card bg-transparent shadow-none border-0">
+                        <div class="card-body p-0">
+                            <div class="btn-toolbar float-right" role="toolbar"
+                                aria-label="Toolbar with button groups">
+                                <div class="btn-group" role="group" aria-label="Second group">
+                                    <button type="submit" name="button" value="publish"
+                                        class="btn btn-info action-btn">Update Product</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Price visibility</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Hide Price</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="hide_price" value="1"
+                                            @if ($product->hide_price == 1) checked @endif>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Low Stock Quantity Warning</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label for="name">
+                                    Quantity
+                                </label>
+                                <input type="number" name="low_stock_quantity"
+                                    value="{{ $product->low_stock_quantity }}" min="0" step="1"
+                                    class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">
+                                Stock Visibility State
+                            </h5>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Show Stock Quantity</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="quantity"
+                                            @if ($product->stock_visibility_state == 'quantity') checked @endif>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Show Stock With Text Only</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="text"
+                                            @if ($product->stock_visibility_state == 'text') checked @endif>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Hide Stock</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="hide"
+                                            @if ($product->stock_visibility_state == 'hide') checked @endif>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Featured</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label class="col-md-6 col-from-label">Status</label>
+                                        <div class="col-md-6">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="checkbox" name="featured" value="1"
+                                                    @if ($product->featured == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Todays Deal</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label class="col-md-6 col-from-label">Status</label>
+                                        <div class="col-md-6">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="checkbox" name="todays_deal" value="1"
+                                                    @if ($product->todays_deal == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-10">
                     <input name="_method" type="hidden" value="POST">
                     <input type="hidden" name="id" value="{{ $product->id }}">
                     <input type="hidden" name="lang" value="{{ $lang }}">
@@ -63,7 +201,7 @@
                                         placeholder="Unit (e.g. KG, Pc etc)" value="{{ $product->unit }}">
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row d-none">
                                 <label class="col-lg-3 col-from-label">Minimum Purchase Qty</label>
                                 <div class="col-lg-8">
                                     <input type="number" lang="en" class="form-control" name="min_qty"
@@ -158,7 +296,7 @@
 
 
                     {{-- Attributes --}}
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product Variation') }}</h5>
                         </div>
@@ -334,14 +472,16 @@
                                         <div class="col-md-8">
                                             <input type="text" class="form-control" name="tab_heading">
                                         </div>
-                                        <input data-repeater-delete type="button" class="btn btn-danger action-btn"
-                                            value="Delete" />
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 col-from-label">Description</label>
                                         <div class="col-md-8">
                                             <textarea class="text-area" name="tab_description"></textarea>
                                         </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <input data-repeater-delete type="button" class="btn btn-danger action-btn"
+                                            value="Delete" />
                                     </div>
                                 </div>
                             </div>
@@ -350,7 +490,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">Product Dimensions</h5>
                         </div>
@@ -414,13 +554,17 @@
                                         <option value="youtube" <?php if ($product->video_provider == 'youtube') {
                                             echo 'selected';
                                         } ?>>Youtube</option>
-                                        <option value="dailymotion" <?php if ($product->video_provider == 'dailymotion') {
-                                            echo 'selected';
-                                        } ?>>Dailymotion
+                                        {{-- <option value="dailymotion" <?php 
+                                        // if ($product->video_provider == 'dailymotion') {
+                                        //     echo 'selected';
+                                        // } 
+                                        ?>>Dailymotion
                                         </option>
-                                        <option value="vimeo" <?php if ($product->video_provider == 'vimeo') {
-                                            echo 'selected';
-                                        } ?>>Vimeo</option>
+                                        <option value="vimeo" <?php 
+                                        // if ($product->video_provider == 'vimeo') {
+                                        //     echo 'selected';
+                                        // } 
+                                        ?>>Vimeo</option> --}}
                                     </select>
                                 </div>
                             </div>
@@ -434,7 +578,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card d-none">
                         <div class="card-header">
                             <h5 class="mb-0 h6">PDF Specification</h5>
                         </div>
@@ -553,144 +697,8 @@
 
                 </div>
 
-                <div class="col-lg-4">
-
-                    <div class="card bg-transparent shadow-none border-0">
-                        <div class="card-body p-0">
-                            <div class="btn-toolbar justify-content-end" role="toolbar"
-                                aria-label="Toolbar with button groups">
-                                <div class="btn-group" role="group" aria-label="Second group">
-                                    <button type="submit" name="button" value="publish"
-                                        class="btn btn-info action-btn">Update Product</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Price visibility</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Hide Price</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="hide_price" value="1"
-                                            @if ($product->hide_price == 1) checked @endif>
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Low Stock Quantity Warning</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group mb-3">
-                                <label for="name">
-                                    Quantity
-                                </label>
-                                <input type="number" name="low_stock_quantity"
-                                    value="{{ $product->low_stock_quantity }}" min="0" step="1"
-                                    class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">
-                                Stock Visibility State
-                            </h5>
-                        </div>
-
-                        <div class="card-body">
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Show Stock Quantity</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="quantity"
-                                            @if ($product->stock_visibility_state == 'quantity') checked @endif>
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Show Stock With Text Only</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="text"
-                                            @if ($product->stock_visibility_state == 'text') checked @endif>
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Hide Stock</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="hide"
-                                            @if ($product->stock_visibility_state == 'hide') checked @endif>
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Featured</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col-md-12">
-                                    <div class="form-group row">
-                                        <label class="col-md-6 col-from-label">Status</label>
-                                        <div class="col-md-6">
-                                            <label class="aiz-switch aiz-switch-success mb-0">
-                                                <input type="checkbox" name="featured" value="1"
-                                                    @if ($product->featured == 1) checked @endif>
-                                                <span></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Todays Deal</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col-md-12">
-                                    <div class="form-group row">
-                                        <label class="col-md-6 col-from-label">Status</label>
-                                        <div class="col-md-6">
-                                            <label class="aiz-switch aiz-switch-success mb-0">
-                                                <input type="checkbox" name="todays_deal" value="1"
-                                                    @if ($product->todays_deal == 1) checked @endif>
-                                                <span></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
+                
+                <div class="col-10">
                     <div class="mb-3 text-right">
                         <button type="submit" name="button" class="btn btn-info">Update Product</button>
                     </div>
