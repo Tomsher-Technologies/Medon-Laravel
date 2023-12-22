@@ -45,7 +45,7 @@ Route::group(['prefix' => 'v2'], function () {
             // Route::post('update', [ProfileController::class, 'update']);
             Route::apiResource('address', AddressController::class);
             Route::post('address/make_default', [AddressController::class, 'makeShippingAddressDefault']);
-
+            Route::post('address/delete', [AddressController::class, 'deleteAddress']);
         });
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);

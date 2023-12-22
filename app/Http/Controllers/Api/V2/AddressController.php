@@ -235,4 +235,30 @@ class AddressController extends Controller
         ])->get();
         return new StatesCollection($states);
     }
+
+    public function deleteAddress(Request $request){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+
+        if($user_id != ''){
+            $check = Address::where(['id' => $request->address_id,'user_id' => $user_id])->count();
+            if($check != 0){
+                Address::where(['id' => $request->address_id,'user_id' => $user_id])->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Address deleted successfullty'
+                ]);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Address not found'
+                ]);
+            }
+            
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+    }
 }
