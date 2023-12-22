@@ -184,7 +184,7 @@
                             </li>
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('abandoned-cart.index') }}"
-                                    class="aiz-side-nav-link {{ areActiveRoutes(['abandoned-cart.index']) }}">
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['abandoned-cart.index','abandoned-cart.view']) }}">
                                     <span class="aiz-side-nav-text">Abandoned Cart</span>
                                 </a>
                             </li>
