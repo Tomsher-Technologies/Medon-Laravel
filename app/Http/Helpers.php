@@ -1432,3 +1432,32 @@ function getProductIdFromSlug($slug){
     }
     return null;
 }
+
+function getProductOfferPrice($product){
+    echo '<pre>';
+    
+    
+
+    $allOffers = Offers::whereRaw('(now() between start_date and end_date)')->where('status',1)->get();
+
+    print_r($allOffers);
+
+    die;
+    // DB::enableQueryLog();
+    $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
+    // print_r($prodOffer);
+    if(empty($prodOffer[0])){
+        // echo 'no product offer';
+        $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('category_id', $product->main_category)
+                        ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
+    }else{
+        // echo 'product offer';
+    }
+
+    // die;
+    // dd(DB::getQueryLog());
+}

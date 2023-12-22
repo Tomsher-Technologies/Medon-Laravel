@@ -43,7 +43,7 @@ class CartController extends Controller
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
 
-                // $price = getProductPrice();
+                // $price = getProductOfferPrice($data->product);
                 $result['products'][] = [
                     'id' => $data->id,
                     'product' => [
@@ -138,23 +138,23 @@ class CartController extends Controller
                 } else {
                     $price = $product_stock->price;
 
-                    $discount_applicable = false;
+                    // $discount_applicable = false;
 
-                    if (
-                        $product->discount_start_date == null ||
-                        (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-                            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date)
-                    ) {
-                        $discount_applicable = true;
-                    }
+                    // if (
+                    //     $product->discount_start_date == null ||
+                    //     (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+                    //         strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date)
+                    // ) {
+                    //     $discount_applicable = true;
+                    // }
 
-                    if ($discount_applicable) {
-                        if ($product->discount_type == 'percent') {
-                            $price -= ($price * $product->discount) / 100;
-                        } elseif ($product->discount_type == 'amount') {
-                            $price -= $product->discount;
-                        }
-                    }
+                    // if ($discount_applicable) {
+                    //     if ($product->discount_type == 'percent') {
+                    //         $price -= ($price * $product->discount) / 100;
+                    //     } elseif ($product->discount_type == 'amount') {
+                    //         $price -= $product->discount;
+                    //     }
+                    // }
 
                     $data[$user['users_id_type']] =  $user['users_id'];
                     $data['product_id'] = $product->id;
@@ -185,7 +185,7 @@ class CartController extends Controller
             'success' => false,
             'message' => "Failed to add item to the cart",
             'cart_count' => $this->cartCount()
-        ]);
+        ], 200);
     }
 
     public function destroy(Request $request, $id)
@@ -206,46 +206,63 @@ class CartController extends Controller
 
     public function changeQuantity(Request $request)
     {
-        $request->validate([
-            'cart_id' => 'required',
-            'quantity' => 'required',
-        ], [
-            'cart_id.required' => 'Please enter a cart id',
-            'quantity.required' => 'Please enter a qantity',
-        ]);
-
+        $cart_id = $request->cart_id ?? '';
+        $quantity = $request->quantity ?? '';
+        $action = $request->action ?? '';
         $user = getUser();
 
-        $cart = Cart::where([
-            $user['users_id_type'] => $user['users_id']
-        ])->with([
-            'product',
-            'product.stocks',
-        ])->findOrFail($request->cart_id);
-
-        $min_qty = $cart->product->min_qty;
-        $max_qty = 0;
-        $quantity =  $request->quantity;
-
-        if ($cart->product->variant_product) {
-        } else {
+        if($cart_id != '' && $quantity != '' && $action != '' && $user['users_id'] != ''){
+            $cart = Cart::where([
+                $user['users_id_type'] => $user['users_id']
+            ])->with([
+                'product',
+                'product.stocks',
+            ])->findOrFail($request->cart_id);
+    
+            $min_qty = $cart->product->min_qty;
             $max_qty = $cart->product->stocks->first()->qty;
-        }
 
-        if ($quantity >= $min_qty && $quantity <= $max_qty) {
-            $cart->quantity = $quantity;
-            $cart->save();
-            return response()->json([
-                'success' => true,
-                'message' => "Cart updated",
-            ]);
+            if ($action == 'plus') {
+                // Increase quantity of a product in the cart.
+                if ( $quantity <= $max_qty) {
+                    $cart->quantity += $quantity;
+                    $cart->save();
+                    return response()->json([
+                        'status' => true,
+                        'message' => "Cart updated",
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => "Maximum quantity reached",
+                    ], 200);
+                }
+            }elseif($action == 'minus'){
+                // Decrease quantity of a product in the cart. If it reaches zero then delete that row from the table.
+
+                if($cart->quantity == 1){
+                    Cart::where('id',$cart->id)->delete();
+                }else{
+                    // Decrease quantity of a product in the cart.
+                    $cart->quantity -= $quantity;
+                    $cart->save();
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => "Cart updated",
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "Undefined action value",
+                ], 200);
+            }
         } else {
             return response()->json([
-                'success' => false,
-                'message' => "Quantity not matched",
-                'min_qty' => $min_qty,
-                'max_qty' => $max_qty,
-            ]);
+                'status' => false,
+                'message' => "Missing data"
+            ], 200);
         }
     }
 
