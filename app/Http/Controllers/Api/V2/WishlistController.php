@@ -127,4 +127,25 @@ class WishlistController extends Controller
             'wishlist_id' => 0
         ], 200);
     }
+
+
+    public function removeWishlistItem(Request $request){
+        $list_ids = $request->list_ids ? explode(',', $request->list_ids) : [];
+        $user = getUser();
+
+        if(!empty($list_ids) && $user['users_id'] != ''){
+            Wishlist::where('user_id', $user['users_id'])->whereIn('id',$list_ids)->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Wishlist items removed successfully",
+                'wishlist_count' => $this->getWishlistCount($user['users_id']),
+            ], 200);
+        }else {
+            return response()->json([
+                'status' => false,
+                'message' => "Wishlist item not found"
+            ], 200);
+        }
+    }
 }
