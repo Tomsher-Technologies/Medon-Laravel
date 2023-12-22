@@ -225,7 +225,7 @@ class CartController extends Controller
             if ($action == 'plus') {
                 // Increase quantity of a product in the cart.
                 if ( $quantity <= $max_qty) {
-                    $cart->quantity += $quantity;
+                    $cart->quantity = $quantity;
                     $cart->save();
                     return response()->json([
                         'status' => true,
@@ -240,11 +240,11 @@ class CartController extends Controller
             }elseif($action == 'minus'){
                 // Decrease quantity of a product in the cart. If it reaches zero then delete that row from the table.
 
-                if($cart->quantity == 1){
+                if($quantity < 1){
                     Cart::where('id',$cart->id)->delete();
                 }else{
                     // Decrease quantity of a product in the cart.
-                    $cart->quantity -= $quantity;
+                    $cart->quantity = $quantity;
                     $cart->save();
                 }
 
