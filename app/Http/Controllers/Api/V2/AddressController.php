@@ -23,38 +23,50 @@ class AddressController extends Controller
     public function store(Request $request)
     {
         $validate = $request->validate([
+            'type' => 'required',
             'name' => 'required',
             'address' => 'required',
-            'country_id' => 'required',
-            'state_id' => 'required',
-            'city' => 'required',
             'phone' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
         ], [
+            'type.required' => 'Please enter address type',
             'name.required' => 'Please enter your name',
             'address.required' => 'Please enter your address',
-            'country_id.required' => 'Please select your address',
-            'state_id.required' => 'Please select your address',
-            'city.required' => 'Please enter your city',
+            'latitude.required' => 'Please enter your latitude',
+            'longitude.required' => 'Please enter your longitude',
             'phone.required' => 'Please enter your phone',
         ]);
 
-        $address = new Address;
-        $address->user_id = $request->user()->id;
-        $address->address = $request->address;
-        $address->name = $request->name;
-        $address->country_id = $request->country_id;
-        $address->state_id = $request->state_id;
-        $address->city = $request->city;
-        $address->postal_code = $request->postal_code;
-        $address->longitude = $request->longitude;
-        $address->latitude = $request->latitude;
-        $address->phone = $request->phone;
-        $address->save();
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
 
-        return response()->json([
-            'result' => true,
-            'message' => 'Shipping information has been added successfully'
-        ]);
+        if($user_id != ''){
+            $address = new Address;
+            $address->user_id = $user_id;
+            $address->type = $request->type ?? null;
+            $address->address = $request->address ?? null;
+            $address->name = $request->name ?? null;
+            $address->country_id = getCountryId($request->country);
+            $address->state_id = getStateId($request->state);
+            $address->country_name = $request->country ?? null;
+            $address->state_name = $request->state ?? null;
+            $address->city = $request->city ?? null;
+            // $address->postal_code = $request->postal_code;
+            $address->longitude = $request->longitude ?? null;
+            $address->latitude = $request->latitude ?? null;
+            $address->phone = $request->phone ?? null;
+            $address->save();
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Address has been added successfully'
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
     }
 
     public function update(Address $address, Request $request)
