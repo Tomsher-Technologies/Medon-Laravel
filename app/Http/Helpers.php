@@ -7,6 +7,8 @@ use App\Models\Currency;
 use App\Models\BusinessSetting;
 use App\Models\ProductStock;
 use App\Models\Address;
+use App\Models\State;
+use App\Models\Country;
 use App\Models\CustomerPackage;
 use App\Models\Upload;
 use App\Models\Translation;
@@ -1460,4 +1462,23 @@ function getProductOfferPrice($product){
 
     // die;
     // dd(DB::getQueryLog());
+}
+
+
+function getCountryId($countryid){
+    $country = Country::where('name','LIKE','%'.$countryid.'%')->pluck('id')->toArray();
+    if(!empty($country)){
+        return $country[0];
+    }else{
+        return NULL;
+    }
+}
+
+function getStateId($stateid){
+    $state = State::where('name','LIKE','%'.$stateid.'%')->pluck('id')->toArray();
+    if(!empty($state)){
+        return $state[0];
+    }else{
+        return NULL;
+    }
 }
