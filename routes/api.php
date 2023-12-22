@@ -50,7 +50,7 @@ Route::group(['prefix' => 'v2'], function () {
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
-
+        Route::post('wishlist/remove', [WishlistController::class, 'removeWishlistItem']);
         Route::post('review/submit', [ReviewController::class, 'saveReview']);
         Route::get('review/check', [ReviewController::class, 'checkReviewStatus']);
     });
