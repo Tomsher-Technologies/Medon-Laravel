@@ -17,17 +17,34 @@ class WishlistController extends Controller
 
     public function store(Request $request)
     {
-        Wishlist::updateOrCreate(
-            [
-                'user_id' => $request->user()->id,
-                'product_id' => $request->product_id
-            ]
-        );
-        return response()->json([
-            'result' => true,
-            'wishlist_count' => $this->getWishlistCount($request->user()->id),
-            'message' => translate('Product added to wishlist')
-        ], 200);
+        $product_slug = $request->has('product_slug') ? $request->product_slug : '';
+        $product_id = getProductIdFromSlug($product_slug);
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+
+        if($product_id != '' && $user_id != ''){
+            $checkWhishlist =   Wishlist::where('user_id',$user_id)->where('product_id',$product_id)->count();
+
+            if($checkWhishlist != 0){
+                Wishlist::where('user_id',$user_id)->where('product_id',$product_id)->delete();
+            }else{
+                Wishlist::create(
+                    [
+                        'user_id' => $user_id,
+                        'product_id' => $product_id
+                    ]
+                );
+            }
+            return response()->json([
+                'status' => true,
+                'wishlist_count' => $this->getWishlistCount($user_id),
+                'message' => 'Wishlist updated'
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Details not found'
+            ], 200);
+        }
     }
 
     public function destroy(Request $request, $id)
