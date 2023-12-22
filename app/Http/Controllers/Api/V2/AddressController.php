@@ -155,19 +155,29 @@ class AddressController extends Controller
             'address_id.required' => 'Please enter address id'
         ]);
 
-        $address =  Address::where([
-            'id' => $request->address_id,
-            'user_id' => $request->user()->id
-        ])->firstOrFail();
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
 
-        Address::where('user_id', $request->user()->id)->update(['set_default' => 0]); //make all user addressed non default first
+        if($user_id != ''){
+            $address =  Address::where([
+                'id' => $request->address_id,
+                'user_id' => $user_id
+            ])->firstOrFail();
 
-        $address->set_default = 1;
-        $address->save();
-        return response()->json([
-            'result' => true,
-            'message' => 'Default shipping information has been updated'
-        ]);
+    
+            Address::where('user_id', $user_id)->update(['set_default' => 0]); //make all user addressed non default first
+    
+            $address->set_default = 1;
+            $address->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Default address has been updated'
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
     }
 
     public function updateAddressInCart(Request $request)
