@@ -154,4 +154,21 @@ class ProfileController extends Controller
             'message' => translate("Profile information updated")
         ]);
     }
+
+    public function updateUserData(Request $request){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $user = User::find($user_id);
+
+        if($user){
+            $user->name = $request->name ?? NULL;
+            $user->phone = $request->phone ?? NULL;
+            $user->save(); 
+            return response()->json(['status' => true,'message' => 'User details updated successfully']);   
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+    }
 }
