@@ -171,4 +171,41 @@ class ProfileController extends Controller
             ]);
         }
     }
+
+    public function orderList(Request $request){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $user = User::find($user_id);
+        if($user){
+            $sort_search = null;
+            $delivery_status = null;
+            $limit = $request->limit ? $request->limit : 10;
+            $offset = $request->offset ? $request->offset : 0;
+            // $date = $request->date;
+
+            $orders = Order::select('id','code','delivery_status','payment_type','grand_total','created_at')->orderBy('id', 'desc')->where('user_id',$user_id);
+            if ($request->has('search')) {
+                $sort_search = $request->search;
+                $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
+            }
+            if ($request->delivery_status != null) {
+                $orders = $orders->where('delivery_status', $request->delivery_status);
+                $delivery_status = $request->delivery_status;
+            }
+            // if ($date != null) {
+            //     $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+            // }
+            
+            $total_count = $orders->count();
+            $data['orders'] = $orders->skip($offset)->take($limit)->get();
+            
+            $data['next_offset'] = $offset + $limit;
+
+            return response()->json(['status' => true,'message' => 'Data fetched successfully','data' => $data]);   
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+    }
 }
