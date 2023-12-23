@@ -52,6 +52,7 @@ Route::group(['prefix' => 'v2'], function () {
             Route::post('/change-password', [ProfileController::class, 'changePassword']);
             Route::post('/send-otp', [ProfileController::class, 'sendOTPPhonenumber']);
             Route::post('/verify-phone', [ProfileController::class, 'verifyPhonenumber']);
+            Route::post('/update-userdata', [ProfileController::class, 'updateUserData']);
         });
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
