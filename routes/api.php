@@ -53,7 +53,12 @@ Route::group(['prefix' => 'v2'], function () {
             Route::post('/send-otp', [ProfileController::class, 'sendOTPPhonenumber']);
             Route::post('/verify-phone', [ProfileController::class, 'verifyPhonenumber']);
             Route::post('/update-userdata', [ProfileController::class, 'updateUserData']);
+
         });
+        Route::group(['prefix' => 'account'], function () {
+            Route::get('orders', [ProfileController::class, 'orderList']);
+        });    
+
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
