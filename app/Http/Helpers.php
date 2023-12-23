@@ -17,6 +17,7 @@ use App\Utility\CategoryUtility;
 use App\Models\Wallet;
 use App\Models\CombinedOrder;
 use App\Models\User;
+use App\Models\Order;
 use App\Models\Offers;
 use App\Models\Addon;
 use App\Models\Attribute;
@@ -1091,6 +1092,27 @@ function wishListCount(): int
         });
     }
 
+    return 0;
+}
+
+function userWishlistCount($user_id){
+    if($user_id != ''){
+        return Wishlist::where('user_id',$user_id)->count();
+    }
+    return 0;
+}
+
+function userOrdersCount($user_id){
+    if($user_id != ''){
+        return Order::where('user_id', $user_id)->count();
+    }
+    return 0;
+}
+
+function userPendingOrders($user_id){
+    if($user_id != ''){
+        return Order::where('delivery_status','!=','delivered')->where('user_id', $user_id)->count();
+    }
     return 0;
 }
 

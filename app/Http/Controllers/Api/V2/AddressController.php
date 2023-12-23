@@ -261,4 +261,62 @@ class AddressController extends Controller
             ]);
         }
     }
+
+    public function updateAddress(Request $request){
+        $validate = $request->validate([
+            'address_id' => 'required',
+            'type' => 'required',
+            'name' => 'required',
+            'address' => 'required',
+            'phone' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ], [
+            'address_id.required' => 'Please enter address id',
+            'type.required' => 'Please enter address type',
+            'name.required' => 'Please enter your name',
+            'address.required' => 'Please enter your address',
+            'latitude.required' => 'Please enter your latitude',
+            'longitude.required' => 'Please enter your longitude',
+            'phone.required' => 'Please enter your phone',
+        ]);
+
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+
+        if($user_id != ''){
+            $address = Address::find($request->address_id);
+            if($address){
+                if ($address->user_id !== $user_id) {
+                    return response()->json([
+                        'result' => false,
+                        'message' => 'Unauthorized'
+                    ], 401);
+                }else{
+                    $address->type = $request->type ?? null;
+                    $address->address = $request->address ?? null;
+                    $address->name = $request->name ?? null;
+                    $address->country_id = getCountryId($request->country);
+                    $address->state_id = getStateId($request->state);
+                    $address->country_name = $request->country ?? null;
+                    $address->state_name = $request->state ?? null;
+                    $address->city = $request->city ?? null;
+                    $address->longitude = $request->longitude ?? null;
+                    $address->latitude = $request->latitude ?? null;
+                    $address->phone = $request->phone ?? null;
+                    $address->save();
+            
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Address has been updated successfully'
+                    ]);
+                }
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Address not found'
+                ]);
+            }
+            
+        }
+    }
 }
