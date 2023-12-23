@@ -49,6 +49,7 @@ Route::group(['prefix' => 'v2'], function () {
             Route::post('address/update', [AddressController::class, 'updateAddress']);
 
             Route::get('account', [ProfileController::class, 'getUserAccountInfo']);
+            Route::post('/change-password', [ProfileController::class, 'changePassword']);
         });
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);

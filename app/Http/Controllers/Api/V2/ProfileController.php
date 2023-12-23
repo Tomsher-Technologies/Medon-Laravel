@@ -48,6 +48,32 @@ class ProfileController extends Controller
         }
     }
 
+    public function changePassword(Request $request)
+    {
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $user = User::find($user_id);
+        if($user){
+            // The passwords matches
+            if (!Hash::check($request->get('current_password'), $user->password)){
+                return response()->json(['status' => false,'message' => 'Old password is incorrect', 'data' => []]);
+            }
+
+            // Current password and new password same
+            if (strcmp($request->get('current_password'), $request->new_password) == 0){
+                return response()->json(['status' => false,'message' => 'New Password cannot be same as your current password.', 'data' => []]);
+            }
+
+            $user->password =  Hash::make($request->new_password);
+            $user->save();
+            return response()->json(['status' => true,'message' => 'Password Changed Successfully', 'data' => []]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+    }
+
     public function counters()
     {
         return response()->json([
