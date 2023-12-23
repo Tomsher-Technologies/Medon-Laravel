@@ -17,4 +17,9 @@ class Offers extends Model
         'end_date' => 'datetime:Y-m-d h:m:s',
         'start_date' => 'datetime:Y-m-d h:m:s',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
 }
