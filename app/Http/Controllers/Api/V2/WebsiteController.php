@@ -101,7 +101,7 @@ class WebsiteController extends Controller
         $data['offers'] = Cache::rememberForever('home_offers', function () {
             $offers = get_setting('home_offers');
             if ($offers) {
-                $details = Offers::whereIn('id', json_decode($offers))->get();
+                $details = Offers::whereIn('id', json_decode($offers))->whereRaw('(now() between start_date and end_date)')->get();
                 return new WebHomeOffersCollection($details);
             }
         });
@@ -275,5 +275,37 @@ class WebsiteController extends Controller
             return $categories =  getSidebarCategoryTree();
         });
         return response()->json(['success' => true,"message"=>"Success","data" => $categories],200);
+    }
+
+    public function categoryOffers(){
+        $offers= Offers::with(['category'])->where('link_type','category')->where('status',1)->whereRaw('(now() between start_date and end_date)')->get();
+        
+        $result = [];
+        if($offers){
+            foreach($offers as $off){
+                $brandIds = json_decode($off->link_id);
+                $brands = Brand::whereIn('id', $brandIds)->get();
+                
+                $result[$off->category->name]['offer'] = [
+                                                        'id' => $off->id,
+                                                        'name' => $off->name,
+                                                        'slug' => $off->slug,
+                                                        'category_name' => $off->category->name
+                                                    ];
+                if($brands){
+                    foreach($brands as $brds){
+                        $result[$off->category->name]['brands'][] = [
+                            'id' => $brds->id,
+                            'name' => $brds->name,
+                            'slug' => $brds->slug,
+                            'logo' => api_upload_asset($brds->logo),
+                            'offer_tag' => getOfferTag($off)
+                        ];
+                        
+                    }
+                }
+            }
+        }
+        return response()->json(['success' => true,"message"=>"Success","data" => $result],200);
     }
 }

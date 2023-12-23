@@ -1532,3 +1532,16 @@ function userDefaultAddress($user_id){
     }
     return array();
 }
+
+function getOfferTag($offer){
+    $tag = '';
+    $offer_type = $offer->offer_type;
+    if($offer_type == 'percentage'){
+        $tag = $offer->percentage.'% OFF';
+    }elseif($offer_type == 'amount_off'){
+        $tag = 'AED '.$offer->offer_amount.' OFF';
+    }elseif($offer_type == 'buy_x_get_y'){
+        $tag = $offer->buy_amount.' + '.$offer->get_amount.' FREE';
+    }
+    return  $tag;
+}

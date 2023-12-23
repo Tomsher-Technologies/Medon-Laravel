@@ -103,6 +103,7 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('header', [WebsiteController::class, 'websiteHeader']);
         Route::get('home', [WebsiteController::class, 'websiteHome']);
         Route::get('categories', [WebsiteController::class, 'websiteCategories']);
+        Route::get('offers', [WebsiteController::class, 'categoryOffers']);
     });
 
 
