@@ -37,7 +37,8 @@ class ProfileController extends Controller
                 "created_at" => $user->created_at,
                 "wishlist_count" => userWishlistCount($user->id),
                 "order_count" => userOrdersCount($user->id),
-                "pending_orders" => userPendingOrders($user->id)
+                "pending_orders" => userPendingOrders($user->id),
+                "default_address" => userDefaultAddress($user->id)
             ];
             return response()->json([
                 'status' => true,

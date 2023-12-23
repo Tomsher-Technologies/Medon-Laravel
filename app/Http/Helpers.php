@@ -1504,3 +1504,31 @@ function getStateId($stateid){
         return NULL;
     }
 }
+
+function userDefaultAddress($user_id){
+    if($user_id != ''){
+        $data = Address::where('user_id', $user_id)->where('set_default',1)->first();
+        $address = [];
+        if($data){
+            $address = [
+                'id'      =>(int) $data->id,
+                'user_id' =>(int) $data->user_id,
+                'type' => $data->type,
+                'name' => $data->name,
+                'address' => $data->address,
+                'country_id' => (int)  $data->country_id,
+                'state_id' =>  (int) $data->state_id,                  
+                'country' => ($data->country_id != NULL) ? $data->country->name : $data->country_name,
+                'state' => ($data->state_id != NULL) ? $data->state->name : $data->state_name,
+                'city' => $data->city,
+                'postal_code' => $data->postal_code,
+                'phone' => $data->phone,
+                'set_default' =>(int) $data->set_default,
+                'lat' => $data->latitude,
+                'lang' => $data->longitude,
+            ];
+        }
+        return $address;
+    }
+    return array();
+}
