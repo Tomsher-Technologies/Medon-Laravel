@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Utility\SendSMSUtility;
+use Carbon\Carbon;
 use Hash;
 
 class ProfileController extends Controller
@@ -66,6 +68,53 @@ class ProfileController extends Controller
             $user->password =  Hash::make($request->new_password);
             $user->save();
             return response()->json(['status' => true,'message' => 'Password Changed Successfully', 'data' => []]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+    }
+
+    public function sendOTPPhonenumber(Request $request){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $user = User::find($user_id);
+        $phone = $request->phone ?? '';
+        if($user && ($phone != '')){
+            $user->verification_code = rand(100000, 999999);
+            $user->verification_code_expiry = Carbon::now()->addMinutes(5);
+            $user->save();
+            $message = "Hi $user->name, Greetings from Farook! Your OTP: $user->verification_code Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.";
+    
+            $status = SendSMSUtility::sendSMS($phone, $message);
+            return response()->json(['status'=>true,'message'=>'Verification code sent to your phone number']);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+    }
+
+    public function verifyPhonenumber(Request $request){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $user = User::find($user_id);
+        $otp = $request->otp ?? '';
+        if($user){
+            if(($otp != '')){
+                if($user->verification_code == $request->otp && Carbon::parse($user->verification_code_expiry
+                ) > Carbon::now()){
+                    $user->phone_verified = 1;
+                    $user->verification_code_expiry = null;
+                    $user->verification_code = null;
+                    $user->save();
+                    return response()->json(['status'=>true,'message'=>'Phone number verified successfully']);
+                }else{
+                    return response()->json(['status'=>false,'message'=>'Invalid OTP or code expired'],200);
+                }
+            }else{
+                return response()->json(['status'=>false,'message'=>'Invalid OTP'],200);
+            }    
         }else{
             return response()->json([
                 'status' => false,
