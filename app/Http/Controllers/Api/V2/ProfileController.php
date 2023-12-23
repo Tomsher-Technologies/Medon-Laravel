@@ -17,6 +17,36 @@ class ProfileController extends Controller
         
     }
 
+    public function getUserAccountInfo(){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }else{
+            $data = [
+                "id" => $user->id,
+                "user_type" => $user->user_type,
+                "name"  => $user->name,
+                "email" => $user->email,
+                "phone" => $user->phone ?? "",
+                "wallet" => $user->wallet,
+                "phone_verified" => $user->phone_verified,
+                "created_at" => $user->created_at,
+                "wishlist_count" => userWishlistCount($user->id),
+                "order_count" => userOrdersCount($user->id),
+                "pending_orders" => userPendingOrders($user->id)
+            ];
+            return response()->json([
+                'status' => true,
+                'message' => 'User found',
+                'data' => $data
+            ]);
+        }
+    }
+
     public function counters()
     {
         return response()->json([
