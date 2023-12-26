@@ -1457,35 +1457,6 @@ function getProductIdFromSlug($slug){
     return null;
 }
 
-function getProductOfferPrice($product){
-    echo '<pre>';
-    
-    
-
-    $allOffers = Offers::whereRaw('(now() between start_date and end_date)')->where('status',1)->get();
-
-    print_r($allOffers);
-
-    die;
-    // DB::enableQueryLog();
-    $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
-                        ->whereRaw('(now() between start_date and end_date)')
-                        ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
-    // print_r($prodOffer);
-    if(empty($prodOffer[0])){
-        // echo 'no product offer';
-        $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
-                        ->whereRaw('(now() between start_date and end_date)')
-                        ->where('category_id', $product->main_category)
-                        ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
-    }else{
-        // echo 'product offer';
-    }
-
-    // die;
-    // dd(DB::getQueryLog());
-}
-
 
 function getCountryId($countryid){
     $country = Country::where('name','LIKE','%'.$countryid.'%')->pluck('id')->toArray();
@@ -1541,7 +1512,95 @@ function getOfferTag($offer){
     }elseif($offer_type == 'amount_off'){
         $tag = 'AED '.$offer->offer_amount.' OFF';
     }elseif($offer_type == 'buy_x_get_y'){
-        $tag = $offer->buy_amount.' + '.$offer->get_amount.' FREE';
+        $tag = 'BUY '.$offer->buy_amount.' GET '.$offer->get_amount;
     }
     return  $tag;
+}
+
+function getProductOfferPrice($product){
+
+    $data["original_price"] = $product->unit_price;
+   
+
+    $discountPrice = $product->unit_price;
+    
+    // $allOffers = Offers::whereRaw('(now() between start_date and end_date)')->where('status',1)->get();
+
+    // print_r($data);
+
+    $offertag = $offer_type = '';
+    $x = $y = 0;
+
+    // die;
+    // DB::enableQueryLog();
+    $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
+    // print_r($prodOffer);
+    if(empty($prodOffer[0])){
+        // echo 'no product offer';
+        $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('category_id', $product->main_category)
+                        ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
+        // print_r($brandOffer);  
+        if(empty($brandOffer[0])){
+
+        }else{
+            $offer_type = $brandOffer[0]->offer_type;
+            if($brandOffer[0]->offer_type == 'amount_off'){
+                $discountPrice -= $brandOffer[0]->offer_amount;
+                $offertag = 'AED '.$brandOffer[0]->offer_amount.' OFF';
+            }elseif($brandOffer[0]->offer_type == 'percentage'){
+                $discountPrice -= ($discountPrice * $brandOffer[0]->percentage)/100 ;
+                $offertag = $brandOffer[0]->percentage.'% OFF';
+            }elseif($brandOffer[0]->offer_type == 'buy_x_get_y'){
+                $offertag = 'BUY '.$brandOffer[0]->buy_amount.' GET '.$brandOffer[0]->get_amount;
+                $x = $brandOffer[0]->buy_amount;
+                $y = $brandOffer[0]->get_amount;
+            }
+        }            
+    }else{
+        $offer_type = $prodOffer[0]->offer_type;
+        if($prodOffer[0]->offer_type == 'amount_off'){
+            $discountPrice -= $prodOffer[0]->offer_amount;
+            $offertag = 'AED '.$prodOffer[0]->offer_amount.' OFF';
+        }elseif($prodOffer[0]->offer_type == 'percentage'){
+            $discountPrice -= ($discountPrice * $prodOffer[0]->percentage)/100 ;
+            $offertag = $prodOffer[0]->percentage.'% OFF';
+        }elseif($prodOffer[0]->offer_type == 'buy_x_get_y'){
+            $offertag = 'BUY '.$prodOffer[0]->buy_amount.' GET '.$prodOffer[0]->get_amount;
+            $x = $prodOffer[0]->buy_amount;
+            $y = $prodOffer[0]->get_amount;
+        }
+    }
+// echo '      Price After Discount = '.$discountPrice;
+   
+    $data["discounted_price"] = $discountPrice;
+    $data["offer_tag"] = $offertag;
+    $data["offer_type"] = $offer_type;
+    $data["x"] = $x;
+    $data["y"] = $y;
+
+    // print_r($data);
+    // die;
+    // dd(DB::getQueryLog());
+    return $data;
+}
+
+function getActiveBuyXgetYOfferProducts(){
+    $offers = Offers::whereRaw('(now() between start_date and end_date)')->where('status',1)
+                        ->where('offer_type', 'buy_x_get_y')->get();
+    $offerProducts = [];
+    if($offers){
+        foreach($offers as $off){
+            if($off->link_type == 'product'){
+                $products = json_decode($off->link_id);
+            }else{
+                $products = Product::where('main_category', $off->category_id)->whereIn('brand_id', json_decode($off->link_id))->pluck('id')->toArray();
+            }
+            $offerProducts[$off->id] = $products;
+        }
+    }
+    return $offerProducts;
 }
