@@ -69,7 +69,7 @@ class ProductDetailCollection extends JsonResource
                 'slug' => $this->category->slug,
             ];
         }
-
+        $priceData = getProductOfferPrice($this);
 
         return [
             'id' => (int)$this->id,
@@ -82,8 +82,8 @@ class ProductDetailCollection extends JsonResource
             'price_high_low' => (float)explode('-', home_discounted_base_price($this, false))[0] == (float)explode('-', home_discounted_price($this, false))[1] ? format_price((float)explode('-', home_discounted_price($this, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($this, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($this, false))[1]),
             'choice_options' => $this->convertToChoiceOptions(json_decode($this->choice_options)),
             'has_discount' => home_base_price($this, false) != home_discounted_base_price($this, false),
-            'stroked_price' => home_base_price($this, false),
-            'main_price' => home_discounted_base_price($this, false),
+            'stroked_price' => $priceData['original_price'],
+            'main_price' => $priceData['discounted_price'],
             'calculable_price' => $calculable_price,
             'currency_symbol' => currency_symbol(),
             'unit' => $this->unit,
@@ -96,7 +96,8 @@ class ProductDetailCollection extends JsonResource
             'category' => $category,
             'tabs' => $this->tabs,
             'reviews' => $this->reviews,
-            'review_status' => canReview($this->id,$this->user_id)
+            'review_status' => canReview($this->id,$this->user_id),
+            'offer_tag' => $priceData['offer_tag']
         ];
 
         // return [

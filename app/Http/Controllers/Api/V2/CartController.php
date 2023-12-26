@@ -36,6 +36,7 @@ class CartController extends Controller
             }
         }
         
+        // $buyXgetYOfferProducts = getActiveBuyXgetYOfferProducts();
 
         $result = [];
         $sub_total = $discount = $shipping = 0;
@@ -43,7 +44,7 @@ class CartController extends Controller
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
 
-                // $price = getProductOfferPrice($data->product);
+                $priceData = getProductOfferPrice($data->product);
                 $result['products'][] = [
                     'id' => $data->id,
                     'product' => [
@@ -54,7 +55,9 @@ class CartController extends Controller
                         'image' => app('url')->asset($data->product->thumbnail_img)
                     ],
                     'variation' => $data->variation,
-                    'price' => $data->price,
+                    'stroked_price' => $priceData['original_price'],
+                    'main_price' => $priceData['discounted_price'],
+                    'offer_tag' => $priceData['offer_tag'],
                     'quantity' => (integer) $data->quantity,
                     'date' => $data->created_at->diffForHumans(),
                     'total' => $data->price * $data->quantity
