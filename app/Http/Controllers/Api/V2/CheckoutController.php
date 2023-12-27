@@ -69,6 +69,7 @@ class CheckoutController extends Controller
                     $shipping += $cartItem['shipping'] * $cartItem['quantity'];
                 }
                 $sum = $subtotal + $tax + $shipping;
+                
     
                 if ($sum >= $coupon_details->min_buy) {
                     if ($coupon->discount_type == 'percent') {
@@ -90,8 +91,11 @@ class CheckoutController extends Controller
                         'status' => true,
                         'message' => translate('Coupon Applied')
                     ], 200);
-    
-    
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => translate('Sorry, this coupon cannot be applied to this order')
+                    ], 200);
                 }
             } elseif ($coupon->type == 'product_base') {
                 $coupon_discount = 0;
@@ -99,9 +103,9 @@ class CheckoutController extends Controller
                     foreach ($coupon_details as $key => $coupon_detail) {
                         if ($coupon_detail->product_id == $cartItem['product_id']) {
                             if ($coupon->discount_type == 'percent') {
-                                $coupon_discount += $cartItem['price'] * $coupon->discount / 100;
+                                $coupon_discount += ($cartItem['price'] * $coupon->discount / 100) * $cartItem['quantity'];
                             } elseif ($coupon->discount_type == 'amount') {
-                                $coupon_discount += $coupon->discount;
+                                $coupon_discount += $coupon->discount * $cartItem['quantity'];
                             }
                         }
                     }
