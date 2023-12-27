@@ -39,7 +39,8 @@ class CartController extends Controller
         // $buyXgetYOfferProducts = getActiveBuyXgetYOfferProducts();
 
         $result = [];
-        $sub_total = $discount = $shipping = $coupon_display = 0;
+        $sub_total = $discount = $shipping = $coupon_display = $coupon_discount = 0;
+        $coupon_code = $coupon_applied = null;
         if(!empty($carts[0])){
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
@@ -65,6 +66,11 @@ class CartController extends Controller
                     'date' => $data->created_at->diffForHumans(),
                     'total' => $data->price * $data->quantity
                 ];
+                $coupon_code = $data->coupon_code;
+                $coupon_applied = $data->coupon_applied;
+                if($data->coupon_applied == 1){
+                    $coupon_discount += $data->discount;
+                }
             }
         }else{
             $result['products'] = [];
@@ -79,6 +85,9 @@ class CartController extends Controller
             'vat_amount' => 0,
             'total' => round($sub_total - ($sub_total * ($discount/100)), 2),
             'coupon_display' => ($coupon_display === 0) ? 1 : 0,
+            'coupon_code' => $coupon_code,
+            'coupon_applied' => $coupon_applied,
+            'coupon_discount' => $coupon_discount
         ];
         // echo '<pre>';
         // print_r($carts);
