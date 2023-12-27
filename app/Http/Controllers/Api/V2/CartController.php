@@ -43,12 +43,15 @@ class CartController extends Controller
         $coupon_code = $coupon_applied = null;
         if(!empty($carts[0])){
             foreach($carts as $data){
-                $sub_total = $sub_total + ($data->price * $data->quantity);
+                
 
                 $priceData = getProductOfferPrice($data->product);
                 if($priceData['offer_tag'] != ''){
                     $coupon_display++;
                 }
+
+                $sub_total = $sub_total + ($priceData['discounted_price'] * $data->quantity);
+
                 $result['products'][] = [
                     'id' => $data->id,
                     'product' => [
