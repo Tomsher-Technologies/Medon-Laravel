@@ -129,15 +129,24 @@ class CheckoutController extends Controller
 
     public function remove_coupon_code(Request $request)
     {
-        Cart::where('user_id', $user['users_id'])->update([
-            'discount' => 0.00,
-            'coupon_code' => "",
-            'coupon_applied' => 0
-        ]);
-
-        return response()->json([
-            'result' => true,
-            'message' => translate('Coupon Removed')
-        ]);
+        $user = getUser();
+        // print_r($user);
+        if($user['users_id'] != ''){
+            Cart::where('user_id', $user['users_id'])->update([
+                'discount' => 0.00,
+                'coupon_code' => "",
+                'coupon_applied' => 0
+            ]);
+    
+            return response()->json([
+                'result' => true,
+                'message' => translate('Coupon Removed')
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ], 200);
+        }
     }
 }
