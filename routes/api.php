@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V2\ReviewController;
 use App\Http\Controllers\Api\V2\WishlistController;
 use App\Http\Controllers\Api\V2\WebsiteController;
 use App\Http\Controllers\Api\V2\CheckoutController;
+use App\Http\Controllers\Api\V2\ErpController;
 
 Route::group(['prefix' => 'v2/auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -33,6 +34,8 @@ Route::group(['prefix' => 'v2/auth'], function () {
         Route::get('user',  [AuthController::class, 'user']);
     });
 });
+
+Route::post('update-product',[ErpController::class, 'updateProduct'])->middleware('erp_token');
 
 Route::group(['prefix' => 'v2'], function () {
     Route::apiResource('banners', BannerController::class)->only('index');
