@@ -42,9 +42,9 @@ class CheckoutController extends Controller
             }
 
             $in_range = strtotime(date('d-m-Y')) >= $coupon->start_date && strtotime(date('d-m-Y')) <= $coupon->end_date;
-            if (strtotime(date('d-m-Y')) >= $coupon->start_date && strtotime(date('d-m-Y')) <= $coupon->end_date) {
+            if (!$in_range) {
                 return response()->json([
-                    'result' => false,
+                    'status' => false,
                     'message' => translate('Coupon expired!')
                 ], 200);
             }
@@ -53,7 +53,7 @@ class CheckoutController extends Controller
 
             if ($is_used) {
                 return response()->json([
-                    'result' => false,
+                    'status' => false,
                     'message' => translate('You already used this coupon!')
                 ], 200);
             }
@@ -87,7 +87,7 @@ class CheckoutController extends Controller
                     ]);
     
                     return response()->json([
-                        'result' => true,
+                        'status' => true,
                         'message' => translate('Coupon Applied')
                     ], 200);
     
@@ -114,7 +114,7 @@ class CheckoutController extends Controller
                 ]);
     
                 return response()->json([
-                    'result' => true,
+                    'status' => true,
                     'message' => translate('Coupon Applied')
                 ], 200);
     
