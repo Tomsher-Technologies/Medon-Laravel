@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\V2\ProfileController;
 use App\Http\Controllers\Api\V2\ReviewController;
 use App\Http\Controllers\Api\V2\WishlistController;
 use App\Http\Controllers\Api\V2\WebsiteController;
-
+use App\Http\Controllers\Api\V2\CheckoutController;
 
 Route::group(['prefix' => 'v2/auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -80,6 +80,7 @@ Route::group(['prefix' => 'v2'], function () {
     Route::post('cart/change_quantity', [CartController::class, 'changeQuantity']);
     Route::post('cart/remove', [CartController::class, 'removeCartItem']);
     Route::apiResource('cart', CartController::class)->only('index', 'store', 'destroy');
+    Route::post('coupon-apply', [CheckoutController::class, 'apply_coupon_code']);
 
     // Common
     Route::apiResource('business-settings', BusinessSettingController::class)->only('index');
@@ -181,7 +182,7 @@ Route::group(['prefix' => 'v2'], function () {
     // Route::post('carts', 'Api\V2\CartController@getList')->middleware('auth:sanctum');
 
 
-    Route::post('coupon-apply', 'Api\V2\CheckoutController@apply_coupon_code')->middleware('auth:sanctum');
+    
     Route::post('coupon-remove', 'Api\V2\CheckoutController@remove_coupon_code')->middleware('auth:sanctum');
 
     Route::post('update-address-in-cart', 'Api\V2\AddressController@updateAddressInCart')->middleware('auth:sanctum');

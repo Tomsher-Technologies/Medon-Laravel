@@ -1545,7 +1545,23 @@ function getProductOfferPrice($product){
                         ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
         // print_r($brandOffer);  
         if(empty($brandOffer[0])){
-
+            $tax = 0;
+    
+            $discount_applicable = false;
+    
+            if(strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date && strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+                $discount_applicable = true;
+            }
+    
+            if ($discount_applicable) {
+                if ($product->discount_type == 'percent') {
+                    $discountPrice -= ($discountPrice * $product->discount) / 100;
+                    $offertag = $product->discount.'% OFF';
+                } elseif ($product->discount_type == 'amount') {
+                    $discountPrice -= $product->discount;
+                    $offertag = 'AED '.$product->discount.' OFF';
+                }
+            }
         }else{
             $offer_type = $brandOffer[0]->offer_type;
             if($brandOffer[0]->offer_type == 'amount_off'){
