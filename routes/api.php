@@ -81,6 +81,7 @@ Route::group(['prefix' => 'v2'], function () {
     Route::post('cart/remove', [CartController::class, 'removeCartItem']);
     Route::apiResource('cart', CartController::class)->only('index', 'store', 'destroy');
     Route::post('coupon-apply', [CheckoutController::class, 'apply_coupon_code']);
+    Route::post('coupon-remove', [CheckoutController::class, 'remove_coupon_code']);
 
     // Common
     Route::apiResource('business-settings', BusinessSettingController::class)->only('index');
@@ -183,7 +184,7 @@ Route::group(['prefix' => 'v2'], function () {
 
 
     
-    Route::post('coupon-remove', 'Api\V2\CheckoutController@remove_coupon_code')->middleware('auth:sanctum');
+    
 
     Route::post('update-address-in-cart', 'Api\V2\AddressController@updateAddressInCart')->middleware('auth:sanctum');
 
