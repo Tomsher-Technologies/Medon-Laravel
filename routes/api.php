@@ -68,6 +68,8 @@ Route::group(['prefix' => 'v2'], function () {
         Route::post('wishlist/remove', [WishlistController::class, 'removeWishlistItem']);
         Route::post('review/submit', [ReviewController::class, 'saveReview']);
         Route::get('review/check', [ReviewController::class, 'checkReviewStatus']);
+
+        Route::post('place-order', [CheckoutController::class, 'placeOrder']);
     });
 
     // Products

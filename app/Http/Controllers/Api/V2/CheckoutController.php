@@ -25,7 +25,7 @@ class CheckoutController extends Controller
                 ], 200);
             }
             
-            $cartOffer = $cart_items->whereNotNull('offer_price')->count();
+            $cartOffer = $cart_items->whereNotNull('offer_id')->count();
            
             if($cartOffer != 0){
                 return response()->json([
@@ -64,7 +64,7 @@ class CheckoutController extends Controller
                 $tax = 0;
                 $shipping = 0;
                 foreach ($cart_items as $key => $cartItem) {
-                    $subtotal += $cartItem['price'] * $cartItem['quantity'];
+                    $subtotal += $cartItem['offer_price'] * $cartItem['quantity'];
                     $tax += $cartItem['tax'] * $cartItem['quantity'];
                     $shipping += $cartItem['shipping'] * $cartItem['quantity'];
                 }
@@ -103,7 +103,7 @@ class CheckoutController extends Controller
                     foreach ($coupon_details as $key => $coupon_detail) {
                         if ($coupon_detail->product_id == $cartItem['product_id']) {
                             if ($coupon->discount_type == 'percent') {
-                                $coupon_discount += ($cartItem['price'] * $coupon->discount / 100) * $cartItem['quantity'];
+                                $coupon_discount += ($cartItem['offer_price'] * $coupon->discount / 100) * $cartItem['quantity'];
                             } elseif ($coupon->discount_type == 'amount') {
                                 $coupon_discount += $coupon->discount * $cartItem['quantity'];
                             }
@@ -152,5 +152,9 @@ class CheckoutController extends Controller
                 'message' => 'User not found'
             ], 200);
         }
+    }
+
+    public function placeOrder(Request $request){
+        print_r($request->all());
     }
 }
