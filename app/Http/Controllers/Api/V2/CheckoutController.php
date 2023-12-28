@@ -276,17 +276,29 @@ class CheckoutController extends Controller
             if($request->payment_method == 'cash_on_delivery'){
                 Cart::where('user_id', $user_id)->delete();
 
-                return response()->json(['status' => true,'message' => 'Order placed successfully'], 200);
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Order placed successfully',
+                    'data' => array(
+                        'payment_type' => 'cash_on_delivery'
+                    )
+                    ], 200);
             }else{
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Payment gateway'
+                    'status' => true,
+                    'message' => 'Payment gateway',
+                    'data' => array(
+                        'payment_type' => 'card'
+                    )
                 ], 200);
             }
         }else{
             return response()->json([
                 'status' => false,
-                'message' => 'Cart Empty'
+                'message' => 'Cart Empty',
+                'data' => array(
+                    'payment_type' => ''
+                )
             ], 200);
         }
     }
