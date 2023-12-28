@@ -35,8 +35,12 @@ class CartController extends Controller
         } else {
             $temp_user_id = $request->header('UserToken');
             $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->orderBy('id','asc')->get() : [];
-            
-            $offerCartCount = $carts->whereNotNull('offer_id')->count();
+            if(!empty($carts)){
+                $offerCartCount = $carts->whereNotNull('offer_id')->count();
+            }else{
+                $offerCartCount= 0;
+            }
+           
             if(!empty($carts[0])){
                 $carts->load(['product', 'product.stocks']);
             }
