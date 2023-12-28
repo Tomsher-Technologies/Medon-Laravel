@@ -160,7 +160,7 @@ class CheckoutController extends Controller
     }
 
     public function placeOrder(Request $request){
-        print_r($request->all());
+        // print_r($request->all());
         $address_id = $request->address_id ?? null;
         $billing_shipping_same = $request->billing_shipping_same ?? null;
 
@@ -207,24 +207,25 @@ class CheckoutController extends Controller
             $combined_order = CombinedOrder::create([
                 'user_id' => $user_id,
                 'shipping_address' => $shipping_address_json,
-                'grand_total' => $this->total,
+                'grand_total' => 0,
             ]);
             $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = 0;
             $coupon_code = '';
 
             $order = Order::create([
                 'user_id' => $user_id,
-                'guest_id' => $user_id,
+                'guest_id' => NULL,
                 'seller_id' =>  0,
                 'combined_order_id' => $combined_order->id,
                 'shipping_address' => $shipping_address_json,
                 'billing_address' => $billing_address_json,
+                'order_notes' => $request->order_notes ?? '',
                 'shipping_type' => 'free_shipping',
                 'shipping_cost' => 0,
                 'pickup_point_id' => 0,
                 'delivery_status' => 'pending',
-                'payment_type' => $request->payment_method,
-                'payment_status' => ($request->payment_method == 'card') ? 'un_paid': 'paid',
+                'payment_type' => $request->payment_method ?? '',
+                'payment_status' => 'un_paid',
                 'grand_total' =>  0,
                 'sub_total' => 0,
                 'offer_discount' => 0,
@@ -253,37 +254,40 @@ class CheckoutController extends Controller
                     'price' => $data->offer_price * $data->quantity,
                     'quantity' => $data->quantity,
                 ];
-                // $result['products'][] = [
-                //     'id' => $data->id,
-                //     'product' => [
-                //         'id' => $data->product->id,
-                //         'name' => $data->product->name,
-                //         'slug' => $data->product->slug,
-                //         'sku' => $data->product->sku,
-                //         'image' => app('url')->asset($data->product->thumbnail_img)
-                //     ],
-                //     'variation' => $data->variation,
-                //     'stroked_price' => $priceData['original_price'],
-                //     'main_price' => $priceData['discounted_price'],
-                //     'offer_tag' => $priceData['offer_tag'],
-                //     'quantity' => (integer) $data->quantity,
-                //     'date' => $data->created_at->diffForHumans(),
-                //     'total' => $data->offer_price * $data->quantity
-                // ];
             }
             OrderDetail::insert($orderItems);
             $grand_total = $sub_total - ($discount + $total_coupon_discount);
+
+            $combined_order->grand_total = $grand_total;
+            $combined_order->save();
 
             $order->grand_total         = $grand_total;
             $order->sub_total           = $sub_total;
             $order->offer_discount      = $discount;
             $order->coupon_discount     = $total_coupon_discount;
             $order->save();
+
+            if($coupon_code != ''){
+                $coupon_usage = new CouponUsage;
+                $coupon_usage->user_id = $user_id;
+                $coupon_usage->coupon_id = Coupon::where('code', $coupon_code)->first()->id;
+                $coupon_usage->save();
+            }
+            if($request->payment_method == 'cash_on_delivery'){
+                Cart::where('user_id', $user_id)->delete();
+
+                return response()->json(['status' => true,'message' => 'Order placed successfully'], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Payment gateway'
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Cart Empty'
+            ], 200);
         }
-
-        
-        
-
-        
     }
 }

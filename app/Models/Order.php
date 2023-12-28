@@ -32,6 +32,9 @@ class Order extends Model
         'delivery_note',
         'delivery_image',
         'delivery_completed_date',
+        'order_notes',
+        'sub_total',
+        'offer_discount',
     ];
 
     public function orderDetails()
