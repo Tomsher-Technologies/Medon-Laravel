@@ -164,10 +164,10 @@ class AuthController extends Controller
             if (Hash::check($request->password, $user->password)) {
                 return $this->loginSuccess($user);
             } else {
-                return response()->json(['result' => false, 'message' => 'Incorrect Password', 'user' => null], 401);
+                return response()->json(['result' => false, 'message' => 'Incorrect Password', 'user' => null], 200);
             }
         } else {
-            return response()->json(['result' => false, 'message' => translate('User not found'), 'user' => null], 401);
+            return response()->json(['result' => false, 'message' => translate('User not found'), 'user' => null], 200);
         }
     }
 
