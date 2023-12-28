@@ -14,22 +14,27 @@ class WishlistController extends Controller
         $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
         if($user_id != ''){
             $wishlist = Wishlist::with('product')->where('user_id', $user_id)->get();
+           
             $result = [];
             if($wishlist){
                 foreach($wishlist as $data){
-                    $result[] = [
-                        'id' => (int) $data->id,
-                        'product' => [
-                            'id' => $data->product->id,
-                            'name' => $data->product->name,
-                            'slug' => $data->product->slug,
-                            'thumbnail_image' => app('url')->asset($data->product->thumbnail_img),
-                            'has_discount' => home_base_price($data->product, false) != home_discounted_base_price($data->product, false),
-                            'stroked_price' => home_base_price($data->product, false),
-                            'main_price' => home_discounted_base_price($data->product, false),
-                            'price_high_low' => (float)explode('-', home_discounted_base_price($data->product, false))[0] == (float)explode('-', home_discounted_price($data->product, false))[1] ? format_price((float)explode('-', home_discounted_price($data->product, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($data->product, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($data->product, false))[1]),
-                        ]
-                    ];
+                    if($data->product){
+                        $priceData = getProductOfferPrice($data->product);
+                        $result[] = [
+                            'id' => (int) $data->id,
+                            'product' => [
+                                'id' => $data->product->id,
+                                'name' => $data->product->name,
+                                'slug' => $data->product->slug,
+                                'thumbnail_image' => app('url')->asset($data->product->thumbnail_img),
+                                'has_discount' => home_base_price($data->product, false) != home_discounted_base_price($data->product, false),
+                                'stroked_price' => $priceData['original_price'],
+                                'main_price' => $priceData['discounted_price'],
+                                'offer_tag' => $priceData['offer_tag'],
+                                'price_high_low' => (float)explode('-', home_discounted_base_price($data->product, false))[0] == (float)explode('-', home_discounted_price($data->product, false))[1] ? format_price((float)explode('-', home_discounted_price($data->product, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($data->product, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($data->product, false))[1]),
+                            ]
+                        ];
+                    }
                 }    
             }
         
@@ -37,7 +42,7 @@ class WishlistController extends Controller
                 'status' => true,
                 'message' => 'Success',
                 'data' => $result,
-                'wishlist_count' => $this->getWishlistCount($user_id)
+                'wishlist_count' => count($result)
             ], 200);
         }else{
             return response()->json([
