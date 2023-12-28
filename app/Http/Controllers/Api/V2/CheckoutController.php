@@ -6,8 +6,13 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Models\Coupon;
 use App\Models\CouponUsage;
-use Illuminate\Http\Request;
+use App\Models\Address;
 use App\Models\Cart;
+use App\Models\CombinedOrder;
+use App\Models\Country;
+use App\Models\Order;
+use App\Models\OrderDetail;
+use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
@@ -156,5 +161,129 @@ class CheckoutController extends Controller
 
     public function placeOrder(Request $request){
         print_r($request->all());
+        $address_id = $request->address_id ?? null;
+        $billing_shipping_same = $request->billing_shipping_same ?? null;
+
+        $shipping_address_json = [];
+        $billing_address_json = [];
+
+        $user = getUser();
+        $user_id = $user['users_id'];
+        // print_r($user);
+        if($user_id != ''){
+            $address = Address::where('id', $address_id)->first();
+
+            $shipping_address_json['name']        = $address->name;
+            $shipping_address_json['email']       = auth('sanctum')->user()->email;
+            $shipping_address_json['address']     = $address->address;
+            $shipping_address_json['country']     = $address->country_name;
+            $shipping_address_json['state']       = $address->state_name;
+            $shipping_address_json['city']        = $address->city;
+            $shipping_address_json['phone']       = $address->phone;
+            $shipping_address_json['longitude']   = $address->longitude;
+            $shipping_address_json['latitude']    = $address->latitude;
+        }
+
+        if ($billing_shipping_same == 0) {
+            $billing_address_json['name']        = $request->name;
+            $billing_address_json['email']       = $request->email;
+            $billing_address_json['address']     = $request->address;
+            $billing_address_json['country']     = $request->country;
+            $billing_address_json['state']       = $request->state;
+            $billing_address_json['city']        = $request->city;
+            $billing_address_json['phone']       = $request->phone;
+        } else {
+            $billing_address_json = $shipping_address_json;
+        }
+
+        $shipping_address_json = json_encode($shipping_address_json);
+        $billing_address_json = json_encode($billing_address_json);
+
+        $carts = Cart::where('user_id', $user_id)->orderBy('id','asc')->get();
+            
+        if(!empty($carts[0])){
+            $carts->load(['product', 'product.stocks']);
+
+            $combined_order = CombinedOrder::create([
+                'user_id' => $user_id,
+                'shipping_address' => $shipping_address_json,
+                'grand_total' => $this->total,
+            ]);
+            $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = 0;
+            $coupon_code = '';
+
+            $order = Order::create([
+                'user_id' => $user_id,
+                'guest_id' => $user_id,
+                'seller_id' =>  0,
+                'combined_order_id' => $combined_order->id,
+                'shipping_address' => $shipping_address_json,
+                'billing_address' => $billing_address_json,
+                'shipping_type' => 'free_shipping',
+                'shipping_cost' => 0,
+                'pickup_point_id' => 0,
+                'delivery_status' => 'pending',
+                'payment_type' => $request->payment_method,
+                'payment_status' => ($request->payment_method == 'card') ? 'un_paid': 'paid',
+                'grand_total' =>  0,
+                'sub_total' => 0,
+                'offer_discount' => 0,
+                'coupon_discount' => 0,
+                'code' => date('Ymd-His') . rand(10, 99),
+                'date' => strtotime('now'),
+                'delivery_viewed' => 0
+            ]);
+
+            $orderItems = [];
+
+            foreach($carts as $data){
+                $sub_total = $sub_total + ($data->price * $data->quantity);
+                $discount = $discount + (($data->price * $data->quantity) - ($data->offer_price * $data->quantity));
+                $coupon_code = $data->coupon_code;
+                $coupon_applied = $data->coupon_applied;
+                if($data->coupon_applied == 1){
+                    $total_coupon_discount += $data->discount;
+                }
+                $orderItems[] = [
+                    'order_id' => $order->id,
+                    'product_id' => $data->product_id,
+                    'variation' => $data->variation,
+                    'og_price' => $data->price,
+                    'offer_price' => $data->offer_price,
+                    'price' => $data->offer_price * $data->quantity,
+                    'quantity' => $data->quantity,
+                ];
+                // $result['products'][] = [
+                //     'id' => $data->id,
+                //     'product' => [
+                //         'id' => $data->product->id,
+                //         'name' => $data->product->name,
+                //         'slug' => $data->product->slug,
+                //         'sku' => $data->product->sku,
+                //         'image' => app('url')->asset($data->product->thumbnail_img)
+                //     ],
+                //     'variation' => $data->variation,
+                //     'stroked_price' => $priceData['original_price'],
+                //     'main_price' => $priceData['discounted_price'],
+                //     'offer_tag' => $priceData['offer_tag'],
+                //     'quantity' => (integer) $data->quantity,
+                //     'date' => $data->created_at->diffForHumans(),
+                //     'total' => $data->offer_price * $data->quantity
+                // ];
+            }
+            OrderDetail::insert($orderItems);
+            $grand_total = $sub_total - ($discount + $total_coupon_discount);
+
+            $order->grand_total         = $grand_total;
+            $order->sub_total           = $sub_total;
+            $order->offer_discount      = $discount;
+            $order->coupon_discount     = $total_coupon_discount;
+            $order->save();
+        }
+
+        
+        
+
+        
     }
 }
