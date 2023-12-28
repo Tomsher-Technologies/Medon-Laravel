@@ -1528,7 +1528,7 @@ function getProductOfferPrice($product){
 
     // print_r($data);
 
-    $offertag = $offer_type = '';
+    $offertag = $offer_type = $offer_id = '';
     $x = $y = 0;
 
     // die;
@@ -1536,23 +1536,24 @@ function getProductOfferPrice($product){
     $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
                         ->whereRaw('(now() between start_date and end_date)')
                         ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
-    // print_r($prodOffer);
+
     if(empty($prodOffer[0])){
         // echo 'no product offer';
         $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
                         ->whereRaw('(now() between start_date and end_date)')
                         ->where('category_id', $product->main_category)
                         ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
-        // print_r($brandOffer);  
+        // print_r($brandOffer);  die;
         if(empty($brandOffer[0])){
             $tax = 0;
     
             $discount_applicable = false;
-    
-            if(strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date && strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
-                $discount_applicable = true;
+            if($product->discount_start_date != NULL && $product->discount_end_date != NULL){
+                if(strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date && strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+                    $discount_applicable = true;
+                }
             }
-    
+           
             if ($discount_applicable) {
                 if ($product->discount_type == 'percent') {
                     $discountPrice -= ($discountPrice * $product->discount) / 100;
@@ -1561,8 +1562,11 @@ function getProductOfferPrice($product){
                     $discountPrice -= $product->discount;
                     $offertag = 'AED '.$product->discount.' OFF';
                 }
+                $offer_id = 0;
             }
+            
         }else{
+            $offer_id = $brandOffer[0]->id;
             $offer_type = $brandOffer[0]->offer_type;
             if($brandOffer[0]->offer_type == 'amount_off'){
                 $discountPrice -= $brandOffer[0]->offer_amount;
@@ -1577,6 +1581,7 @@ function getProductOfferPrice($product){
             }
         }            
     }else{
+        $offer_id = $prodOffer[0]->id;
         $offer_type = $prodOffer[0]->offer_type;
         if($prodOffer[0]->offer_type == 'amount_off'){
             $discountPrice -= $prodOffer[0]->offer_amount;
@@ -1593,7 +1598,8 @@ function getProductOfferPrice($product){
 // echo '      Price After Discount = '.$discountPrice;
    
     $data["discounted_price"] = $discountPrice;
-    $data["offer_tag"] = $offertag;
+    $data["offer_tag"]  = $offertag;
+    $data["offer_id"]   = $offer_id;
     $data["offer_type"] = $offer_type;
     $data["x"] = $x;
     $data["y"] = $y;
