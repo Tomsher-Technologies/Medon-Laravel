@@ -416,7 +416,30 @@ class CheckoutController extends Controller
     }
 
     public function cancelPayment(Request $request){
-        echo '<pre>';
-        print_r($request->all());
+        $encResponse = $request->encResp;          //This is the response sent by the CCAvenue Server
+        $rcvdString = decryptCC($encResponse,env('CCA_WORKING_KEY')); //Crypto Decryption used as per the specified working key.
+        $order_status = $order_code = "";
+        $decryptValues = explode('&', $rcvdString);
+        $dataSize = sizeof($decryptValues);
+        $details = [];
+        for($i = 0; $i < $dataSize; $i++) {
+            $information=explode('=',$decryptValues[$i]);
+            $details[$information[0]] = $information[1];
+            if($i==0)  $order_code=$information[1];
+            if($i==3)  $order_status=$information[1];
+        }
+     
+        $payment_details = json_encode($details);
+        
+        if($order_code != ''){
+            $orderDetails = Order::where('code','=',$order_code)->firstOrFail();
+
+            $orderPayments = new OrderPayments();
+            $orderPayments->order_id = $orderDetails->id;
+            $orderPayments->payment_status = $order_status;
+            $orderPayments->payment_details = $payment_details;
+            $orderPayments->save();
+        }
+        return redirect(env('MEDON_PAYMENT_CANCEL').'?status='.$order_status);
     }
 }
