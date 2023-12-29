@@ -348,6 +348,7 @@ class CheckoutController extends Controller
                 }else{
                     $order->payment_status = 'paid';
                     $order->save();
+                    Cart::where('user_id', $user_id)->delete();
                     return response()->json([
                         'status' => true,
                         'message' => 'Your order has been placed successfully',
@@ -390,6 +391,7 @@ class CheckoutController extends Controller
             $orderDetails = Order::where('code','=',$order_code)->firstOrFail();
             if($order_status === "Success"){
                 $orderDetails->payment_status = 'paid';
+                Cart::where('user_id', $orderDetails->user_id)->delete();
             }
             $orderDetails->payment_details = $payment_details;
             $orderDetails->save();
