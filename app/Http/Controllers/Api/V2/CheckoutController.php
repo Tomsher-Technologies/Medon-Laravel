@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\User;
 use App\Models\CombinedOrder;
 use App\Models\Country;
 use App\Models\Order;
@@ -164,8 +165,8 @@ class CheckoutController extends Controller
         $address_id = $request->address_id ?? null;
         $billing_shipping_same = $request->billing_shipping_same ?? null;
 
-        $shipping_address_json = [];
-        $billing_address_json = [];
+        $shipping_address = [];
+        $billing_address = [];
 
         $user = getUser();
         $user_id = $user['users_id'];
@@ -173,31 +174,31 @@ class CheckoutController extends Controller
         if($user_id != ''){
             $address = Address::where('id', $address_id)->first();
 
-            $shipping_address_json['name']        = $address->name;
-            $shipping_address_json['email']       = auth('sanctum')->user()->email;
-            $shipping_address_json['address']     = $address->address;
-            $shipping_address_json['country']     = $address->country_name;
-            $shipping_address_json['state']       = $address->state_name;
-            $shipping_address_json['city']        = $address->city;
-            $shipping_address_json['phone']       = $address->phone;
-            $shipping_address_json['longitude']   = $address->longitude;
-            $shipping_address_json['latitude']    = $address->latitude;
+            $shipping_address['name']        = $address->name;
+            $shipping_address['email']       = auth('sanctum')->user()->email;
+            $shipping_address['address']     = $address->address;
+            $shipping_address['country']     = $address->country_name;
+            $shipping_address['state']       = $address->state_name;
+            $shipping_address['city']        = $address->city;
+            $shipping_address['phone']       = $address->phone;
+            $shipping_address['longitude']   = $address->longitude;
+            $shipping_address['latitude']    = $address->latitude;
         }
 
         if ($billing_shipping_same == 0) {
-            $billing_address_json['name']        = $request->name;
-            $billing_address_json['email']       = $request->email;
-            $billing_address_json['address']     = $request->address;
-            $billing_address_json['country']     = $request->country;
-            $billing_address_json['state']       = $request->state;
-            $billing_address_json['city']        = $request->city;
-            $billing_address_json['phone']       = $request->phone;
+            $billing_address['name']        = $request->name;
+            $billing_address['email']       = $request->email;
+            $billing_address['address']     = $request->address;
+            $billing_address['country']     = $request->country;
+            $billing_address['state']       = $request->state;
+            $billing_address['city']        = $request->city;
+            $billing_address['phone']       = $request->phone;
         } else {
-            $billing_address_json = $shipping_address_json;
+            $billing_address = $shipping_address;
         }
 
-        $shipping_address_json = json_encode($shipping_address_json);
-        $billing_address_json = json_encode($billing_address_json);
+        $shipping_address_json = json_encode($shipping_address);
+        $billing_address_json = json_encode($billing_address);
 
         $carts = Cart::where('user_id', $user_id)->orderBy('id','asc')->get();
             
@@ -278,28 +279,101 @@ class CheckoutController extends Controller
 
                 return response()->json([
                     'status' => true,
-                    'message' => 'Order placed successfully',
+                    'message' => 'Your order has been placed successfully',
                     'data' => array(
-                        'payment_type' => 'cash_on_delivery'
+                        'payment_type' => 'cash_on_delivery',
+                        'url' => ''
                     )
                     ], 200);
             }else{
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Payment gateway',
-                    'data' => array(
-                        'payment_type' => 'card'
-                    )
-                ], 200);
+                $cardAmount = $amount = $grand_total;
+                if($request->wallet == 1){
+                    $userData = User::find($user_id);
+                    $userWallet = $userData->wallet;
+                    if($userWallet >= $amount){
+                        $amountBal = $userWallet - $amount;
+                        $cardAmount = 0;
+                        $userData->wallet = $amountBal;
+                        $order->wallet_deduction = $amount;
+                    }else{
+                        $amountBal = $amount - $userWallet;
+                        $cardAmount = $amountBal;
+                        $userData->wallet = 0;
+                        $order->wallet_deduction = $userWallet;
+                    }
+
+                    $userData->save();
+                    $order->payment_type = 'card_wallet';
+                    $order->save();
+                }
+                
+                if($cardAmount != 0){
+                    $payment['amount'] = $grand_total;
+                    $payment['order_id'] = $order->code;
+                    $payment['currency'] = "AED";
+                    $payment['redirect_url'] = route('payment-success');
+                    $payment['cancel_url'] = route('payment-cancel');
+                    $payment['language'] = "EN";
+                    $payment['merchant_id'] = env('CCA_MERCHANT_ID');
+    
+                    $working_key = env('CCA_WORKING_KEY'); // config('cc-avenue.working_key'); //Shared by CCAVENUES
+                    $access_code = env('CCA_ACCESS_CODE'); // config('cc-avenue.access_code'); //Shared by CCAVENUES
+    
+                    $payment['billing_name'] = $billing_address['name'];
+                    $payment['billing_address'] = $billing_address['address'];
+                    $payment['billing_city'] = $billing_address['city'];
+                    $payment['billing_state'] = $billing_address['state'];
+                    $payment['billing_country'] = $billing_address['country'];
+                    $payment['billing_tel'] = $billing_address['phone'];
+                    $payment['billing_email'] = $billing_address['email'];
+
+                    $merchant_data = "";
+
+                    foreach ($payment as $key => $value) {
+                        $merchant_data .= $key . '=' . $value . '&';
+                    }
+                
+                    $encrypted_data = encryptCC($merchant_data, $working_key);
+                    $url = 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
+    
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Payment gateway',
+                        'data' => array(
+                            'payment_type' => 'card',
+                            'url' => $url
+                        )
+                    ], 200);
+                }else{
+                    $order->payment_status = 'paid';
+                    $order->save();
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Your order has been placed successfully',
+                        'data' => array(
+                            'payment_type' => 'wallet',
+                            'url' =>''
+                        )
+                    ], 200);
+                }
             }
         }else{
             return response()->json([
                 'status' => false,
                 'message' => 'Cart Empty',
                 'data' => array(
-                    'payment_type' => ''
+                    'payment_type' => '',
+                    'url' => ''
                 )
             ], 200);
         }
+    }
+
+    public function successPayment(Request $request){
+        print_r($request->all());
+    }
+
+    public function cancelPayment(Request $request){
+        print_r($request->all());
     }
 }
