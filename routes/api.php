@@ -70,6 +70,8 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('review/check', [ReviewController::class, 'checkReviewStatus']);
 
         Route::post('place-order', [CheckoutController::class, 'placeOrder']);
+        Route::get('payment-success', [CheckoutController::class, 'successPayment'])->name('payment-success');
+        Route::get('payment-cancel', [CheckoutController::class, 'cancelPayment'])->name('payment-cancel');
     });
 
     // Products
