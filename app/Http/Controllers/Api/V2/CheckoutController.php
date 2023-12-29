@@ -13,7 +13,9 @@ use App\Models\CombinedOrder;
 use App\Models\Country;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\OrderPayments;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class CheckoutController extends Controller
 {
@@ -369,10 +371,50 @@ class CheckoutController extends Controller
     }
 
     public function successPayment(Request $request){
-        print_r($request->all());
+        $encResponse = $request->encResp;          //This is the response sent by the CCAvenue Server
+        $rcvdString = decryptCC($encResponse,env('CCA_WORKING_KEY')); //Crypto Decryption used as per the specified working key.
+        $order_status = $order_code = "";
+        $decryptValues = explode('&', $rcvdString);
+        $dataSize = sizeof($decryptValues);
+        $details = [];
+        for($i = 0; $i < $dataSize; $i++) {
+            $information=explode('=',$decryptValues[$i]);
+            $details[$information[0]] = $information[1];
+            if($i==0)  $order_code=$information[1];
+            if($i==3)  $order_status=$information[1];
+        }
+     
+        $payment_details = json_encode($details);
+
+        if($order_code != ''){
+            $orderDetails = Order::where('code','=',$order_code)->firstOrFail();
+            if($order_status === "Success"){
+                $orderDetails->payment_status = 'paid';
+            }
+            $orderDetails->payment_details = $payment_details;
+            $orderDetails->save();
+
+            $orderPayments = new OrderPayments();
+            $orderPayments->order_id = $orderDetails->id;
+            $orderPayments->payment_status = $order_status;
+            $orderPayments->payment_details = $payment_details;
+            $orderPayments->save();
+        }
+
+        // if($order_status === "Success"){
+        //     $resMessage = "Thank you for shopping with us. Your card has been charged and your transaction is successful. We will be shipping your order to you soon.";
+        // }else if($order_status === "Aborted"){
+        //     $resMessage = "Thank you for shopping with us. We will keep you posted regarding the status of your order through e-mail";
+        // }else if($order_status === "Failure"){
+        //     $resMessage = "Thank you for shopping with us. However,the transaction has been declined.";
+        // }else{
+        //     $resMessage = "Security Error. Illegal access detected";
+        // }
+        return redirect(env('MEDON_PAYMENT_SUCCESS').'?status='.$order_status);
     }
 
     public function cancelPayment(Request $request){
+        echo '<pre>';
         print_r($request->all());
     }
 }
