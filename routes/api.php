@@ -60,6 +60,7 @@ Route::group(['prefix' => 'v2'], function () {
         });
         Route::group(['prefix' => 'account'], function () {
             Route::get('orders', [ProfileController::class, 'orderList']);
+            Route::get('order-details', [ProfileController::class, 'orderDetails']);
         });    
 
         // Route::get('product', [ProductController::class, 'show']);

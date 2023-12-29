@@ -63,8 +63,9 @@
                         {{ json_decode($order->shipping_address)->email }}<br>
                         {{ json_decode($order->shipping_address)->phone }}<br>
                         {{ json_decode($order->shipping_address)->address }},
-                        {{ json_decode($order->shipping_address)->city }},
-                        {{ json_decode($order->shipping_address)->postal_code }}<br>
+                        {{ json_decode($order->shipping_address)->city }}
+                        {{-- {{ json_decode($order->shipping_address)->postal_code }} --}}
+                        <br>
                         {{ json_decode($order->shipping_address)->country }}
                     </address>
                     @if ($order->manual_payment && is_array(json_decode($order->manual_payment_data, true)))
