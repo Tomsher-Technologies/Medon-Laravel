@@ -318,7 +318,6 @@ class CheckoutController extends Controller
     
                     $working_key = env('CCA_WORKING_KEY'); // config('cc-avenue.working_key'); //Shared by CCAVENUES
                     $access_code = env('CCA_ACCESS_CODE'); // config('cc-avenue.access_code'); //Shared by CCAVENUES
-    
                     $payment['billing_name'] = $billing_address['name'];
                     $payment['billing_address'] = $billing_address['address'];
                     $payment['billing_city'] = $billing_address['city'];
@@ -334,7 +333,7 @@ class CheckoutController extends Controller
                     }
                 
                     $encrypted_data = encryptCC($merchant_data, $working_key);
-                    $url = 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
+                    $url = env('CCA_URL').'?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
     
                     return response()->json([
                         'status' => true,
