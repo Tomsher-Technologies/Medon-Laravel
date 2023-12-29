@@ -308,7 +308,7 @@ class CheckoutController extends Controller
                 }
                 
                 if($cardAmount != 0){
-                    $payment['amount'] = $grand_total;
+                    $payment['amount'] = $cardAmount;
                     $payment['order_id'] = $order->code;
                     $payment['currency'] = "AED";
                     $payment['redirect_url'] = route('payment-success');
