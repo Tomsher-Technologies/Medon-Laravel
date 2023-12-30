@@ -523,4 +523,41 @@ class CheckoutController extends Controller
             ], 200);
         }
     }
+
+    public function cancelOrderRequest(Request $request){
+        $order_id = $request->order_id ?? '';
+        $reason   = $request->reason ?? '';
+        $user = getUser();
+        if($order_id != ''){
+            $order = Order::find($order_id);
+            if($order){
+                if($order->cancel_request == 0){
+                    $order->cancel_request = 1;
+                    $order->cancel_request_date = date('Y-m-d H:i:s');
+                    $order->cancel_refund_amount = $order->grand_total;
+                    $order->cancel_reason = $reason;
+                    $order->save();
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Order cancelled successfully'
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Order cancel request already send'
+                    ], 200);
+                }
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order not found'
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Order not found'
+            ], 200);
+        }
+    }
 }

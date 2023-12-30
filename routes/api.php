@@ -72,7 +72,7 @@ Route::group(['prefix' => 'v2'], function () {
 
         Route::post('place-order', [CheckoutController::class, 'placeOrder']);
         Route::post('return-request', [CheckoutController::class, 'returnRequest']);
-
+        Route::post('cancel-order', [CheckoutController::class, 'cancelOrderRequest']);
     });
     Route::post('payment-success', [CheckoutController::class, 'successPayment'])->name('payment-success');
     Route::post('payment-cancel', [CheckoutController::class, 'cancelPayment'])->name('payment-cancel');
