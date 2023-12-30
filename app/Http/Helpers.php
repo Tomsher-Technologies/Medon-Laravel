@@ -1678,3 +1678,13 @@ function getActiveBuyXgetYOfferProducts(){
         } 
         return $binString; 
     } 
+
+    function reduceProductQuantity($productQuantities){
+        if(!empty($productQuantities)){
+            foreach($productQuantities as $key => $value){
+                $product_stock = ProductStock::where('product_id', $key)->first();
+                $product_stock->qty -= $value;
+                $product_stock->save();
+            }
+        }
+    }

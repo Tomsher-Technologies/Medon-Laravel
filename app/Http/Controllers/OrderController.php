@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Models\BusinessSetting;
 use App\Models\CombinedOrder;
 use App\Models\SmsTemplate;
+use App\Models\OrderTracking;
 use Auth;
 use Session;
 use DB;
@@ -516,6 +517,13 @@ class OrderController extends Controller
         $order->delivery_status = $request->status;
         $order->save();
 
+        $track              = new OrderTracking;
+        $track->order_id    = $order->id;
+        $track->status      = $request->status;
+        $track->description = null;
+        $track->status_date = date('Y-m-d H:i:s');
+        $track->save();
+        
         if ($request->status == 'cancelled' && $order->payment_type == 'wallet') {
             $user = User::where('id', $order->user_id)->first();
             $user->balance += $order->grand_total;
