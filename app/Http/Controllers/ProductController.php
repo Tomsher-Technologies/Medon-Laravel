@@ -589,6 +589,12 @@ class ProductController extends Controller
             $product->featured = 1;
         }
 
+        if ($request->has('return_refund')) {
+            $product->return_refund = 1;
+        }else{
+            $product->return_refund = 0;
+        }
+
         $product->pdf = $request->pdf;
 
         $choice_options = array();

@@ -97,7 +97,14 @@ class ProductDetailCollection extends JsonResource
             'tabs' => $this->tabs,
             'reviews' => $this->reviews,
             'review_status' => canReview($this->id,$this->user_id),
-            'offer_tag' => $priceData['offer_tag']
+            'offer_tag' => $priceData['offer_tag'],
+            'meta_title' => $this->seo->meta_title ?? '',
+            'meta_description' => $this->seo->meta_description ?? '',
+            'meta_keywords' => $this->seo->meta_keywords ?? '',
+            'og_title' => $this->seo->og_title ?? '',
+            'og_description' => $this->seo->og_description ?? '',
+            'twitter_title' => $this->seo->twitter_title ?? '',
+            'twitter_description' => $this->seo->twitter_description ?? '',
         ];
 
         // return [

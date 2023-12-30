@@ -8,8 +8,7 @@
         <form class="form form-horizontal mar-top" action="{{ route('products.store') }}" method="POST"
             enctype="multipart/form-data" id="choice_form">
             <div class="row gutters-5">
-                <div class="col-lg-10">
-
+                <div class="col-lg-12">
                     <div class="card bg-transparent shadow-none border-0">
                         <div class="card-body p-0">
                             <div class="btn-toolbar float-right" role="toolbar"
@@ -30,116 +29,8 @@
                         </div>
                     </div>
 
-                    <div class="card d-none">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Price visibility</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Hide Price</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="hide_price" value="1">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card d-none">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Low Stock Quantity Warning</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group mb-3">
-                                <label for="low_stock_quantity">
-                                    Quantity
-                                </label>
-                                <input type="number" name="low_stock_quantity" id="low_stock_quantity" value="1"
-                                    min="0" step="1" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card d-none">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">
-                                Stock Visibility State
-                            </h5>
-                        </div>
-
-                        <div class="card-body">
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Show Stock Quantity</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="quantity" checked>
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Show Stock With Text Only</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="text">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Hide Stock</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="radio" name="stock_visibility_state" value="hide">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="card  d-none">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Featured</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Status</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="featured" value="1">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="card d-none">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">Return and refund status</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-6 col-from-label">Status</label>
-                                <div class="col-md-6">
-                                    <label class="aiz-switch aiz-switch-success mb-0">
-                                        <input type="checkbox" name="return_refund" value="0">
-                                        <span></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-                <div class="col-lg-10">
+                <div class="col-lg-8">
                     @csrf
                     <div class="card">
                         <div class="card-header">
@@ -614,9 +505,120 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-4">
 
+                   
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Price visibility</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Hide Price</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="hide_price" value="1">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Low Stock Quantity Warning</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label for="low_stock_quantity">
+                                    Quantity
+                                </label>
+                                <input type="number" name="low_stock_quantity" id="low_stock_quantity" value="1"
+                                    min="0" step="1" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">
+                                Stock Visibility State
+                            </h5>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Show Stock Quantity</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="quantity" checked>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Show Stock With Text Only</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="text">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Hide Stock</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="radio" name="stock_visibility_state" value="hide">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card  d-none">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Featured</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Status</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="featured" value="1">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">Return and refund status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-6 col-from-label">Status</label>
+                                <div class="col-md-6">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="return_refund" value="0">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="col-10">
+                <div class="col-12">
                     <div class="btn-toolbar float-right mb-3" role="toolbar" aria-label="Toolbar with button groups">
                         <div class="btn-group mr-2" role="group" aria-label="First group">
                             <button type="submit" name="button" value="draft" class="btn btn-warning action-btn">Save

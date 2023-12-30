@@ -130,11 +130,11 @@ class ProductController extends Controller
 
         $product = [];
         if($product_id != ''){
-            $product = Product::with(['tabs','reviews','category'])->where('published',1)->findOrFail($product_id);
+            $product = Product::with(['tabs','reviews','category','seo'])->where('published',1)->findOrFail($product_id);
         }
 
         if($product_slug != ''){
-            $product = Product::with(['tabs','reviews','category'])->where('slug',$product_slug)->where('published',1)->first();
+            $product = Product::with(['tabs','reviews','category','seo'])->where('slug',$product_slug)->where('published',1)->first();
         }
         $product->user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
         //    echo '<pre>';
