@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api\V2;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Wishlist;
-use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\OrderTracking;
+use Illuminate\Http\Request;
 use App\Utility\SendSMSUtility;
 use Carbon\Carbon;
 use Hash;
@@ -255,8 +256,19 @@ class ProfileController extends Controller
                         );
                     }
                 }
-    
-                $details['timeline'] = [];
+
+                $tracks = OrderTracking::where('order_id', $order->id)->orderBy('id','ASC')->get();
+                $track_list = [];
+                if ($tracks) {
+                    foreach ($tracks as $key=>$value) {
+                        $temp = array();
+                        $temp['id'] = $value->id;
+                        $temp['status'] = $value->status;
+                        $temp['date'] = date("d-m-Y H:i a", strtotime($value->status_date));
+                        $track_list[] = $temp;
+                    }
+                }    
+                $details['timeline'] = $track_list;
                 
                 return response()->json([
                     'status' => true,

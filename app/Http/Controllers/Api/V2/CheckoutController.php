@@ -14,6 +14,8 @@ use App\Models\Country;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\OrderPayments;
+use App\Models\ProductStock;
+use App\Models\OrderTracking;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 
@@ -238,7 +240,14 @@ class CheckoutController extends Controller
                 'delivery_viewed' => 0
             ]);
 
-            $orderItems = [];
+            $track = new OrderTracking;
+            $track->order_id = $order->id;
+            $track->status = 'pending';
+            $track->description = "The order has been placed successfully";
+            $track->status_date = date('Y-m-d H:i:s');
+            $track->save();
+
+            $orderItems = $productQuantities = [];
 
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
@@ -257,6 +266,7 @@ class CheckoutController extends Controller
                     'price' => $data->offer_price * $data->quantity,
                     'quantity' => $data->quantity,
                 ];
+                $productQuantities[$data->product_id] = $data->quantity;
             }
             OrderDetail::insert($orderItems);
             $grand_total = $sub_total - ($discount + $total_coupon_discount);
@@ -277,8 +287,8 @@ class CheckoutController extends Controller
                 $coupon_usage->save();
             }
             if($request->payment_method == 'cash_on_delivery'){
+                reduceProductQuantity($productQuantities);
                 Cart::where('user_id', $user_id)->delete();
-
                 return response()->json([
                     'status' => true,
                     'message' => 'Your order has been placed successfully',
@@ -348,6 +358,7 @@ class CheckoutController extends Controller
                 }else{
                     $order->payment_status = 'paid';
                     $order->save();
+                    reduceProductQuantity($productQuantities);
                     Cart::where('user_id', $user_id)->delete();
                     return response()->json([
                         'status' => true,
@@ -388,16 +399,26 @@ class CheckoutController extends Controller
         $payment_details = json_encode($details);
 
         if($order_code != ''){
-            $orderDetails = Order::where('code','=',$order_code)->firstOrFail();
+            $order = Order::where('code','=',$order_code)->firstOrFail();
             if($order_status === "Success"){
-                $orderDetails->payment_status = 'paid';
-                Cart::where('user_id', $orderDetails->user_id)->delete();
+                $order->payment_status = 'paid';
+                Cart::where('user_id', $order->user_id)->delete();
             }
-            $orderDetails->payment_details = $payment_details;
-            $orderDetails->save();
+            $order->payment_details = $payment_details;
+            $order->save();
+
+            $orderDetails = OrderDetail::where('order_id', $order->id)->get();
+
+            if(!empty($orderDetails[0])){
+                foreach($orderDetails as $od){
+                    $product_stock = ProductStock::where('product_id', $od->product_id)->first();
+                    $product_stock->qty -= $od->quantity;
+                    $product_stock->save();
+                }
+            }
 
             $orderPayments = new OrderPayments();
-            $orderPayments->order_id = $orderDetails->id;
+            $orderPayments->order_id = $order->id;
             $orderPayments->payment_status = $order_status;
             $orderPayments->payment_details = $payment_details;
             $orderPayments->save();
