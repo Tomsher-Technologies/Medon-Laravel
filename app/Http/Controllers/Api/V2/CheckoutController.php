@@ -16,6 +16,7 @@ use App\Models\OrderDetail;
 use App\Models\OrderPayments;
 use App\Models\ProductStock;
 use App\Models\OrderTracking;
+use App\Models\RefundRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 
@@ -462,5 +463,64 @@ class CheckoutController extends Controller
             $orderPayments->save();
         }
         return redirect(env('MEDON_PAYMENT_CANCEL').'?status='.$order_status);
+    }
+
+    public function returnRequest(Request $request){
+        $order_id = $request->order_id ?? '';
+        $products = $request->products ?? '';
+        $reason   = $request->reason ?? '';
+        $user = getUser();
+        $order_details = explode(',', $products);
+
+        if($order_id != ''){
+            if(!empty($order_details)){
+                $details = OrderDetail::with(['product'])->whereIn('id', $order_details)->where('order_id',$order_id)->get();
+                
+                $data = [];
+                if(!empty($details[0])){
+                    foreach($details as $od){
+                        if($od->product->return_refund == 1){
+                            $checkReturn = RefundRequest::where('order_id',$order_id)->where('order_details_id', $od->id)->count();
+                            if($checkReturn == 0){
+                                $data[] = array(
+                                    'order_id' => $order_id,
+                                    'order_details_id' => $od->id,
+                                    'product_id' => $od->product_id,
+                                    'user_id' => $user['users_id'],
+                                    'reason' => $reason,
+                                    'offer_price' => $od->offer_price,
+                                    'quantity' => $od->quantity,
+                                    'refund_amount' => ($od->offer_price * $od->quantity)
+                                );
+                            }
+                        }
+                    }
+                    if(!empty($data)){
+                        RefundRequest::insert($data);
+                    }
+                    
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Refund request sent successfully'
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Order details not found'
+                    ], 200);
+                }
+               
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order details not found'
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Order not found'
+            ], 200);
+        }
     }
 }
