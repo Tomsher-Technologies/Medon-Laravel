@@ -242,6 +242,7 @@ class ProfileController extends Controller
                 $details['products'] = [];
                 if($order->orderDetails){
                     foreach($order->orderDetails as $product){
+                        $requestCount = ($product->refund_request) ? 1 : 0 ;
                         $details['products'][] = array(
                             'id' => $product->id ?? '',
                             'product_id' => $product->product_id ?? '',
@@ -254,6 +255,8 @@ class ProfileController extends Controller
                             'total_price' => $product->price ?? '',
                             'delivery_status' => $product->delivery_status ?? '',
                             'thumbnail_img' => app('url')->asset($product->product->thumbnail_img ?? ''),
+                            'return_refund' => $product->product->return_refund ?? '',
+                            'refund_requested' => $requestCount
                         );
                     }
                 }
