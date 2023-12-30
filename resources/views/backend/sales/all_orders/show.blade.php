@@ -57,14 +57,14 @@
                 {!! QrCode::size(100)->generate($order->code) !!}
             </div>
             <div class="row gutters-5">
-                <div class="col text-center text-md-left">
+                <div class="col-sm-12 col-md-6 text-md-left">
                     <address>
                         <strong class="text-main">{{ json_decode($order->shipping_address)->name }}</strong><br>
                         {{ json_decode($order->shipping_address)->email }}<br>
                         {{ json_decode($order->shipping_address)->phone }}<br>
                         {{ json_decode($order->shipping_address)->address }},
                         {{ json_decode($order->shipping_address)->city }}
-                        {{-- {{ json_decode($order->shipping_address)->postal_code }} --}}
+                        {{ json_decode($order->shipping_address)->state }}
                         <br>
                         {{ json_decode($order->shipping_address)->country }}
                     </address>
@@ -81,8 +81,8 @@
                                 height="100"></a>
                     @endif
                 </div>
-                <div class="col-md-4 ml-auto">
-                    <table>
+                <div class="col-sm-12 col-md-6 float-right">
+                    <table class="float-right">
                         <tbody>
                             <tr>
                                 <td class="text-main text-bold">Order #</td>
@@ -135,7 +135,7 @@
                                 </th>
                                 <th data-breakpoints="lg" class="min-col text-center text-uppercase">
                                     Price</th>
-                                <th data-breakpoints="lg" class="min-col text-right text-uppercase">
+                                <th data-breakpoints="lg" class="min-col text-center text-uppercase">
                                     Total</th>
                             </tr>
                         </thead>
@@ -147,11 +147,11 @@
                                         @if ($orderDetail->product != null && $orderDetail->product->auction_product == 0)
                                             <a href="javascript:void(0)"
                                                 target="_blank"><img height="50"
-                                                    src="{{ uploaded_asset($orderDetail->product->thumbnail_img) }}"></a>
+                                                    src="{{ asset($orderDetail->product->thumbnail_img) }}"></a>
                                         @elseif ($orderDetail->product != null && $orderDetail->product->auction_product == 1)
                                             <a href="javascript:void(0)"
                                                 target="_blank"><img height="50"
-                                                    src="{{ uploaded_asset($orderDetail->product->thumbnail_img) }}"></a>
+                                                    src="{{ asset($orderDetail->product->thumbnail_img) }}"></a>
                                         @else
                                             <strong>N/A</strong>
                                         @endif
@@ -172,7 +172,7 @@
                                     </td>
                                     <td class="text-center">{{ $orderDetail->quantity }}</td>
                                     <td class="text-center">
-                                        @if ($orderDetail->og_price)
+                                        @if ($orderDetail->og_price != $orderDetail->offer_price)
                                             <del>{{ single_price($orderDetail->og_price) }}</del> <br>
                                         @endif
                                         {{ single_price($orderDetail->price / $orderDetail->quantity) }}
@@ -230,8 +230,8 @@
                     </tbody>
                 </table>
                 <div class="text-right no-print">
-                    <a download="" href="{{ route('invoice.download', $order->id) }}" type="button"
-                        class="btn btn-icon btn-light"><i class="las la-print"></i></a>
+                    <a href="{{ route('invoice.download', $order->id) }}" type="button"
+                        class="btn btn-icon btn-light"><i class="las la-download"></i></a>
                 </div>
             </div>
 
@@ -246,6 +246,7 @@
         $('#update_delivery_status').on('change', function() {
             var order_id = {{ $order->id }};
             var status = $('#update_delivery_status').val();
+            
             $.post('{{ route('orders.update_delivery_status') }}', {
                 _token: '{{ @csrf_token() }}',
                 order_id: order_id,
