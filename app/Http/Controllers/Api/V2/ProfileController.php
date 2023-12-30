@@ -238,6 +238,7 @@ class ProfileController extends Controller
                 $details['card_deduction'] = $order->grand_total - $order->wallet_deduction;
                 $details['delivery_completed_date'] = $order->delivery_completed_date ?? '';
                 $details['date'] = date('d-m-Y h:i A', $order->date);
+                $details['cancel_request'] = $order->cancel_request;
     
                 $details['products'] = [];
                 if($order->orderDetails){
