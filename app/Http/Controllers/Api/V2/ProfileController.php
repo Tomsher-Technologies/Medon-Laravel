@@ -243,6 +243,7 @@ class ProfileController extends Controller
                 if($order->orderDetails){
                     foreach($order->orderDetails as $product){
                         $details['products'][] = array(
+                            'id' => $product->id ?? '',
                             'product_id' => $product->product_id ?? '',
                             'name' => $product->product->name ?? '',
                             'sku' => $product->product->sku ?? '',

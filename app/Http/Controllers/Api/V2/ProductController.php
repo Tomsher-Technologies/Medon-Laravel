@@ -98,6 +98,7 @@ class ProductController extends Controller
             $sort_search = $request->search;
             $products = $product_query
                 ->where('name', 'like', '%' . $sort_search . '%')
+                ->orWhere('tags', 'like', '%' . $sort_search . '%')
                 ->orWhereHas('stocks', function ($q) use ($sort_search) {
                     $q->where('sku', 'like', '%' . $sort_search . '%');
                 });

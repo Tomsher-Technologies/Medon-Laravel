@@ -90,6 +90,7 @@ class ProductDetailCollection extends JsonResource
             'rating' => (float)$this->rating,
             'rating_count' => (int)Review::where(['product_id' => $this->id])->count(),
             'earn_point' => (float)$this->earn_point,
+            'return_refund' => $this->return_refund,
             'description' => $this->description,
             'video_link' => $this->video_link != null ?  $this->video_link : "",
             'brand' => $brand,
