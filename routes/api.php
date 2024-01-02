@@ -73,7 +73,7 @@ Route::group(['prefix' => 'v2'], function () {
         Route::post('place-order', [CheckoutController::class, 'placeOrder']);
         Route::post('return-request', [CheckoutController::class, 'returnRequest']);
         Route::post('cancel-order', [CheckoutController::class, 'cancelOrderRequest']);
-        Route::post('upload-prescription', [ProfileController::class, 'uploadPrescription']);
+       
     });
     Route::post('payment-success', [CheckoutController::class, 'successPayment'])->name('payment-success');
     Route::post('payment-cancel', [CheckoutController::class, 'cancelPayment'])->name('payment-cancel');
@@ -99,7 +99,7 @@ Route::group(['prefix' => 'v2'], function () {
     // Route::get('states', [AddressController::class, 'getStates']);
     Route::get('countries', [AddressController::class, 'getCountries']);
     Route::get('states-by-country',  [AddressController::class, 'getStatesByCountry']);
-
+    Route::post('upload-prescription', [ProfileController::class, 'uploadPrescription']);
     // Home
     Route::group(['prefix' => 'app'], function () {
         Route::apiResource('app-banners', AppBannerController::class)->only('index');
