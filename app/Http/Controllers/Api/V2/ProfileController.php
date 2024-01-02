@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Wishlist;
 use App\Models\Cart;
 use App\Models\OrderTracking;
+use App\Models\Prescriptions;
 use Illuminate\Http\Request;
 use App\Utility\SendSMSUtility;
 use Carbon\Carbon;
@@ -167,11 +168,11 @@ class ProfileController extends Controller
 
         if($user){
             $request->validate([
-                'eid_front' => 'nullable|max:200',
-                'eid_back' => 'nullable|max:200',
+                'eid_front' => 'nullable|max:300',
+                'eid_back' => 'nullable|max:300',
             ],[
-                'eid_front.max' => 'File size should be less than 200 KB',
-                'eid_back.max' => 'File size should be less than 200 KB'
+                'eid_front.max' => 'File size should be less than 300 KB',
+                'eid_back.max' => 'File size should be less than 300 KB'
             ]);
 
             $presentFrontImage = $user->eid_image_front;
@@ -340,29 +341,115 @@ class ProfileController extends Controller
 
     
     public function uploadPrescription(Request $request){
-        print_r($request->all());
+        // print_r($request->all());
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        if($user_id != ''){
+            $request->validate([
+                'eid_front' => 'nullable|mimes:jpg,jpeg,png,bmp,svg,webp,pdf,doc,docx|max:300',
+                'eid_back' => 'nullable|mimes:jpg,jpeg,png,bmp,svg,webp,pdf,doc,docx|max:300',
+                'prescription' => 'required|mimes:jpg,jpeg,png,bmp,svg,webp,pdf,doc,docx|max:1024',
+            ],[
+                'eid_front.max' => 'File size should be less than 300 KB',
+                'eid_back.max' => 'File size should be less than 300 KB',
+                'prescription.required' => "Prescription is required",
+                'prescription.max' => 'File size should be less than 1 MB'
+            ]);
+        }else{
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required',
+                'phone' => 'required',
+                'eid_front' => 'required|mimes:jpg,jpeg,png,bmp,svg,webp,pdf,doc,docx|max:300',
+                'eid_back' => 'required|mimes:jpg,jpeg,png,bmp,svg,webp,pdf,doc,docx|max:300',
+                'prescription' => 'required|mimes:jpg,jpeg,png,bmp,svg,webp,pdf,doc,docx|max:1024',
+            ],[
+                'name.required' => 'Name is required',
+                'email.required' => 'Email is required',
+                'phone.required' => 'Phone is required',
+                'eid_front.max' => 'File size should be less than 300 KB',
+                'eid_back.max' => 'File size should be less than 300 KB',
+                'prescription.required' => "Prescription is required",
+                'eid_front.required' => "Emirates ID front is required",
+                'eid_back.required' => "Emirates ID back is required",
+                'prescription.max' => 'File size should be less than 1 MB'
+            ]);
+        }
+        
+        $presentFrontImage = $presentBackImage = '';
+        if($user_id == ''){
+            $data = [
+                'name'=> $request->name ?? '',
+                'email'=> $request->email ?? '',
+                'phone' => $request->phone ?? '',
+                'comment' => $request->comment ?? '',
+            ];
+        }else{
+            $data = [
+                'comment' => $request->comment ?? '',
+                'user_id' => $user_id,
+            ];
+            $user = User::find($user_id);
+            $presentFrontImage = $user->eid_image_front;
+            $presentBackImage = $user->eid_image_back;
+        }
 
-        $request->validate([
-            'eid_front' => 'required|max:500',
-            'eid_back' => 'required',
-            'prescription' => 'required',
-        ],[
-            'image.max' => 'File size should be less than 200 KB'
-        ]);
+        if ($request->hasFile('eid_front')) {
+            $eid_front = $request->file('eid_front');
+            $filename =    strtolower(Str::random(2)).time().'.'. $eid_front->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'prescriptions/eid',
+                $eid_front,
+                $filename
+            );
+            
+            $eid_image_front = Storage::url($name) ;
+            $data['emirates_id_front'] = $eid_image_front;
 
+            if($user_id != ''){
+                Storage::disk('public')->put('users/'.$user_id.'/'.$filename, Storage::get($eid_image_front));
+                $user->eid_image_front  = Storage::url('users/'.$user_id.'/'.$filename) ;
+                if($presentFrontImage != '' && File::exists(public_path($presentFrontImage))){
+                    unlink(public_path($presentFrontImage));
+                }
+            }
+        } 
 
-        die;
-        $data = [
-            'name'=> $request->name,
-            'link'=> $request->link,
-            'status' => $request->status,
-        ];
+        if ($request->hasFile('eid_back')) {
+            $eid_back = $request->file('eid_back');
+            $filename =    strtolower(Str::random(2)).time().'.'. $eid_back->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'prescriptions/eid',
+                $eid_back,
+                $filename
+            );
+            $eid_image_back = Storage::url($name);
+            $data['emirates_id_back'] = $eid_image_back;
+            
+            if($user_id != ''){
+                Storage::disk('public')->put('users/'.$user_id.'/'.$filename, Storage::get($eid_image_back));
+                $user->eid_image_back  = Storage::url('users/'.$user_id.'/'.$filename) ;
+                if($presentBackImage != '' && File::exists(public_path($presentBackImage))){
+                    unlink(public_path($presentBackImage));
+                }
+            }
+        }
 
-        $popup = Popups::create($data);
+        if ($request->hasFile('prescription')) {
+            $prescription = $request->file('prescription');
+            $filename =    strtolower(Str::random(2)).time().'.'. $prescription->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'prescriptions',
+                $prescription,
+                $filename
+            );
+            $prescriptionFile = Storage::url($name);
+            $data['prescription'] = $prescriptionFile;
+        }
 
-        $image = uploadImage($request, 'image', 'popup');
-
-        $popup->image = $image;
-        $popup->save();
+        if($user_id != ''){
+            $user->save(); 
+        }
+        Prescriptions::create($data);
+        return response()->json(['status' => true,'message' => 'Prescription uploaded successfully']);   
     }
 }
