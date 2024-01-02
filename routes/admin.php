@@ -257,6 +257,10 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/all_orders', [OrderController::class, 'all_orders'])->name('all_orders.index');
     Route::get('/all_orders/{id}/show', [OrderController::class, 'all_orders_show'])->name('all_orders.show');
 
+    Route::get('/return_requests', [OrderController::class, 'allReturnRequests'])->name('return_requests.index');
+    Route::post('/return-request-status', [OrderController::class, 'returnRequestStatus'])->name('return-request-status');
+    Route::post('/return-payment-type', [OrderController::class, 'returnPaymentType'])->name('return-payment-type');
+
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
 
     Route::post('/bulk-order-status', [OrderController::class, 'bulk_order_status'])->name('bulk-order-status');

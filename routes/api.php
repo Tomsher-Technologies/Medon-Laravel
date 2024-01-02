@@ -84,7 +84,7 @@ Route::group(['prefix' => 'v2'], function () {
     Route::apiResource('brands', BrandController::class)->only('index');
     Route::get('products', [ProductController::class, 'index']);
     Route::get('product', [ProductController::class, 'show']);
-
+    Route::get('related-products', [ProductController::class, 'relatedProducts']);
     // Cart
     Route::get('cart/count', [CartController::class, 'getCount']);
     Route::post('cart/change_quantity', [CartController::class, 'changeQuantity']);

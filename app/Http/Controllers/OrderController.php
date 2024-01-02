@@ -22,6 +22,7 @@ use App\Models\BusinessSetting;
 use App\Models\CombinedOrder;
 use App\Models\SmsTemplate;
 use App\Models\OrderTracking;
+use App\Models\RefundRequest;
 use Auth;
 use Session;
 use DB;
@@ -106,6 +107,45 @@ class OrderController extends Controller
         return view('backend.sales.all_orders.show', compact('order'));
     }
 
+     // All Orders
+     public function allReturnRequests(Request $request)
+     {
+         $date = $request->date;
+         $sort_search = null;
+         
+         $orders = RefundRequest::with(['order'])->orderBy('id', 'desc');
+         if ($request->has('search')) {
+             $sort_search = $request->search;
+             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
+         }
+         
+         if ($date != null) {
+             $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+         }
+         $orders = $orders->paginate(15);
+         return view('backend.sales.return_requests', compact('orders', 'sort_search', 'date'));
+     }
+
+     public function returnRequestStatus(Request $request){
+        $id = $request->id;
+        $status = $request->status;
+        
+        $refund_request = RefundRequest::findOrFail($id);
+        $refund_request->update([
+            'admin_approval' => $status,
+        ]);
+
+     }
+
+     public function returnPaymentType(Request $request){
+        $id = $request->id;
+        $type = $request->type;
+
+        $refund_request = RefundRequest::findOrFail($id);
+        $refund_request->update([
+            'refund_type' => $type,
+        ]);
+     }
     // Inhouse Orders
     public function admin_orders(Request $request)
     {
