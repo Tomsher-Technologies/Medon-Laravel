@@ -202,7 +202,9 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'avatar' => $user->avatar,
                 'avatar_original' => api_asset($user->avatar_original),
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                "eid_front" => $user->getEidFrontImage(),
+                "eid_back" => $user->getEidBackImage(),
             ]
         ], 200);
     }

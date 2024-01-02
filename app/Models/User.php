@@ -9,6 +9,7 @@ use App\Models\Cart;
 use App\Models\Delivery\DeliveryBoy;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\PasswordReset;
+use Illuminate\Support\Facades\URL;
 
 class User extends Authenticatable
 {
@@ -42,7 +43,9 @@ class User extends Authenticatable
         'provider_id',
         'email_verified_at',
         'verification_code',
-        'phone_verified'
+        'phone_verified',
+        'eid_image_front',
+        'eid_image_back'
     ];
 
     /**
@@ -162,5 +165,15 @@ class User extends Authenticatable
     public function product_bids()
     {
         return $this->hasMany(AuctionProductBid::class);
+    }
+
+    public function getEidFrontImage()
+    {
+        return $this->eid_image_front ? URL::to($this->eid_image_front) : null;
+    }
+
+    public function getEidBackImage()
+    {
+        return $this->eid_image_back ? URL::to($this->eid_image_back) : null;
     }
 }
