@@ -560,4 +560,5 @@ class CheckoutController extends Controller
             ], 200);
         }
     }
+
 }

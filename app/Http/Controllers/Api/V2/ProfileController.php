@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use App\Utility\SendSMSUtility;
 use Carbon\Carbon;
 use Hash;
+use Storage;
+use Str;
+use File;
 
 class ProfileController extends Controller
 {
@@ -35,6 +38,8 @@ class ProfileController extends Controller
                 "name"  => $user->name,
                 "email" => $user->email,
                 "phone" => $user->phone ?? "",
+                "eid_front" => $user->getEidFrontImage(),
+                "eid_back" => $user->getEidBackImage(),
                 "wallet" => $user->wallet,
                 "phone_verified" => $user->phone_verified,
                 "created_at" => $user->created_at,
@@ -161,6 +166,45 @@ class ProfileController extends Controller
         $user = User::find($user_id);
 
         if($user){
+            $request->validate([
+                'eid_front' => 'nullable|max:200',
+                'eid_back' => 'nullable|max:200',
+            ],[
+                'eid_front.max' => 'File size should be less than 200 KB',
+                'eid_back.max' => 'File size should be less than 200 KB'
+            ]);
+
+            $presentFrontImage = $user->eid_image_front;
+            $presentBackImage = $user->eid_image_back;
+            
+            if ($request->hasFile('eid_front')) {
+                $eid_front = $request->file('eid_front');
+                $filename =    strtolower(Str::random(2)).time().'.'. $eid_front->getClientOriginalName();
+                $name = Storage::disk('public')->putFileAs(
+                    'users/'.$user_id,
+                    $eid_front,
+                    $filename
+                );
+               $user->eid_image_front = Storage::url($name) ;
+               if($presentFrontImage != '' && File::exists(public_path($presentFrontImage))){
+                    unlink(public_path($presentFrontImage));
+                }
+            } 
+
+            if ($request->hasFile('eid_back')) {
+                $eid_back = $request->file('eid_back');
+                $filename =    strtolower(Str::random(2)).time().'.'. $eid_back->getClientOriginalName();
+                $name = Storage::disk('public')->putFileAs(
+                    'users/'.$user_id,
+                    $eid_back,
+                    $filename
+                );
+                $user->eid_image_back = Storage::url($name);
+                if($presentBackImage != '' && File::exists(public_path($presentBackImage))){
+                    unlink(public_path($presentBackImage));
+                }
+            } 
+
             $user->name = $request->name ?? NULL;
             $user->phone = $request->phone ?? NULL;
             $user->save(); 
@@ -292,5 +336,33 @@ class ProfileController extends Controller
                 'message' => 'Order not found'
             ]);
         }
+    }
+
+    
+    public function uploadPrescription(Request $request){
+        print_r($request->all());
+
+        $request->validate([
+            'eid_front' => 'required|max:500',
+            'eid_back' => 'required',
+            'prescription' => 'required',
+        ],[
+            'image.max' => 'File size should be less than 200 KB'
+        ]);
+
+
+        die;
+        $data = [
+            'name'=> $request->name,
+            'link'=> $request->link,
+            'status' => $request->status,
+        ];
+
+        $popup = Popups::create($data);
+
+        $image = uploadImage($request, 'image', 'popup');
+
+        $popup->image = $image;
+        $popup->save();
     }
 }
