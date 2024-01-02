@@ -22,6 +22,28 @@ use Auth;
 
 class ProductController extends Controller
 {
+
+    public function relatedProducts(Request $request){
+        $limit = $request->limit ? $request->limit : 10;
+        $offset = $request->offset ? $request->offset : 0;
+        $category_slug = $request->category_slug ?? '';
+        $product_slug = $request->product_slug ?? '';
+
+       
+        $product_query  = Product::wherePublished(1);
+
+        if ($category_slug) {
+            $category_ids = Category::where('slug',$category_slug)->pluck('id')->toArray();
+            $product_query->whereIn('category_id', $category_ids);
+        }
+        $product_query->where('slug','!=', $product_slug)->latest();
+
+        $products = $product_query->skip($offset)->take($limit)->get();
+        
+        $response = new ProductFilterCollection($products);
+      
+        return response()->json(['success' => true,"message"=>"Success","data" => $response],200);
+    }
     public function index(Request $request)
     {
         $limit = $request->limit ? $request->limit : 10;

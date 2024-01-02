@@ -110,6 +110,22 @@
                                     </a>
                                 </li>
                             @endif
+                            @if (userHasPermision(4))
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('return_requests.index') }}"
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['return_requests.index', 'all_orders.show']) }}">
+                                        <span class="aiz-side-nav-text">Return Requests</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (userHasPermision(5))
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('all_orders.index') }}"
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['all_orders.index', 'all_orders.show']) }}">
+                                        <span class="aiz-side-nav-text">Cancel Requests</span>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
