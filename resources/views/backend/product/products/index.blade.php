@@ -124,7 +124,7 @@
                 <table class="table aiz-table mb-0">
                     <thead>
                         <tr>
-                            <th>
+                            {{-- <th>
                                 <div class="form-group">
                                     <div class="aiz-checkbox-inline">
                                         <label class="aiz-checkbox">
@@ -133,7 +133,8 @@
                                         </label>
                                     </div>
                                 </div>
-                            </th>
+                            </th> --}}
+                            <th data-breakpoints="lg" width="10%">#</th>
                             <th>{{ translate('Name') }}</th>
                             <th data-breakpoints="lg">Category</th>
                             <th data-breakpoints="sm">{{ translate('Info') }}</th>
@@ -147,8 +148,8 @@
                     <tbody>
                         @foreach ($products as $key => $product)
                             <tr>
-                                <!--<td>{{ $key + 1 + ($products->currentPage() - 1) * $products->perPage() }}</td>-->
-                                <td>
+                                <td>{{ $key + 1 + ($products->currentPage() - 1) * $products->perPage() }}</td>
+                                {{-- <td>
                                     <div class="form-group d-inline-block">
                                         <label class="aiz-checkbox">
                                             <input type="checkbox" class="check-one" name="id[]"
@@ -156,7 +157,7 @@
                                             <span class="aiz-square-check"></span>
                                         </label>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td>
                                     <div class="row gutters-5 w-200px w-md-300px mw-100">
 
@@ -237,10 +238,10 @@
                                     {{-- <a class="btn btn-soft-warning btn-icon btn-circle btn-sm" href="{{route('products.duplicate', ['id'=>$product->id, 'type'=>$type]  )}}" title="Duplicate">
                                 <i class="las la-copy"></i>
                             </a> --}}
-                                    <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
+                                    {{-- <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                         data-href="{{ route('products.destroy', $product->id) }}" title="Delete">
                                         <i class="las la-trash"></i>
-                                    </a>
+                                    </a> --}}
                                 </td>
                             </tr>
                         @endforeach

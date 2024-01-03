@@ -117,10 +117,10 @@
                                     title="Edit">
                                     <i class="las la-edit"></i>
                                 </a>
-                                <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
+                                {{-- <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                     data-href="{{ route('categories.destroy', $category->id) }}" title="Delete">
                                     <i class="las la-trash"></i>
-                                </a>
+                                </a> --}}
                             </td>
                         </tr>
                     @endforeach

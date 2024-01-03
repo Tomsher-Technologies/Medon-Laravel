@@ -9,7 +9,7 @@
                 <h5 class="mb-md-0 h6">All Orders</h5>
             </div>
 
-            <div class="dropdown mb-2 mb-md-0">
+            {{-- <div class="dropdown mb-2 mb-md-0">
                 <button class="btn border dropdown-toggle" type="button" data-toggle="dropdown">
                     {{translate('Bulk Action')}}
                 </button>
@@ -20,7 +20,7 @@
                         {{translate('Change Order Status')}}
                     </a>-->
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Change Status Modal -->
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -84,8 +84,8 @@
             <table class="table aiz-table mb-0">
                 <thead>
                     <tr>
-                        <!--<th>#</th>-->
-                        <th>
+                        <th>#</th>
+                        {{-- <th>
                             <div class="form-group">
                                 <div class="aiz-checkbox-inline">
                                     <label class="aiz-checkbox">
@@ -94,26 +94,26 @@
                                     </label>
                                 </div>
                             </div>
-                        </th>
+                        </th> --}}
                         <th>Order Code</th>
                         <th data-breakpoints="md">Num. of Products</th>
                         <th data-breakpoints="md">Customer</th>
                         <th data-breakpoints="md">Amount</th>
-                        <th data-breakpoints="md">Delivery Status</th>
-                        <th data-breakpoints="md">Payment Status</th>
+                        <th data-breakpoints="md" class="text-center">Delivery Status</th>
+                        <th data-breakpoints="md"  class="text-center">Payment Status</th>
                         @if (addon_is_activated('refund_request'))
                         <th>Refund</th>
                         @endif
-                        <th class="text-right" width="15%">{{translate('options')}}</th>
+                        <th class="text-center" width="15%">{{translate('options')}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($orders as $key => $order)
                     <tr>
-    <!--                    <td>
-                            {{ ($key+1) + ($orders->currentPage() - 1)*$orders->perPage() }}
-                        </td>-->
                         <td>
+                            {{ ($key+1) + ($orders->currentPage() - 1)*$orders->perPage() }}
+                        </td>
+                        {{-- <td>
                             <div class="form-group">
                                 <div class="aiz-checkbox-inline">
                                     <label class="aiz-checkbox">
@@ -122,7 +122,7 @@
                                     </label>
                                 </div>
                             </div>
-                        </td>
+                        </td> --}}
                         <td>
                             {{ $order->code }}
                         </td>
@@ -139,7 +139,7 @@
                         <td>
                             {{ single_price($order->grand_total) }}
                         </td>
-                        <td>
+                        <td class="text-center">
                             @php
                                 $status = $order->delivery_status;
                                 if($order->delivery_status == 'cancelled') {
@@ -149,7 +149,7 @@
                             @endphp
                             {!! $status !!}
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if ($order->payment_status == 'paid')
                             <span class="badge badge-inline badge-success">{{translate('Paid')}}</span>
                             @else
@@ -165,16 +165,16 @@
                             @endif
                         </td>
                         @endif
-                        <td class="text-right">
+                        <td class="text-center">
                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('all_orders.show', encrypt($order->id))}}" title="View">
                                 <i class="las la-eye"></i>
                             </a>
                             <a class="btn btn-soft-info btn-icon btn-circle btn-sm" href="{{ route('invoice.download', $order->id) }}" title="Download Invoice">
                                 <i class="las la-download"></i>
                             </a>
-                            <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('orders.destroy', $order->id)}}" title="Delete">
+                            {{-- <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('orders.destroy', $order->id)}}" title="Delete">
                                 <i class="las la-trash"></i>
-                            </a>
+                            </a> --}}
                         </td>
                     </tr>
                     @endforeach
