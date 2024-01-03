@@ -56,6 +56,7 @@ use App\Http\Controllers\CareersController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestQuoteController;
+use App\Http\Controllers\ShopsController;
 
 Route::post('/update', [UpdateController::class, 'step0'])->name('update');
 Route::get('/update/step1', [UpdateController::class, 'step1'])->name('update.step1');
@@ -256,6 +257,14 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
 
     Route::get('/all_orders', [OrderController::class, 'all_orders'])->name('all_orders.index');
     Route::get('/all_orders/{id}/show', [OrderController::class, 'all_orders_show'])->name('all_orders.show');
+
+    Route::get('/prescriptions', [WebsiteController::class, 'prescriptions'])->name('prescriptions');
+
+
+    Route::resource('shops', ShopsController::class, ['as' => 'admin']);
+    Route::post('/shops/delete/', [ShopsController::class, 'delete'])->name('admin.shops.delete');
+    Route::get('/shops/edit/{id}', [ShopsController::class, 'edit'])->name('admin.shops.edit');
+    Route::post('/shops/update/{id}', [ShopsController::class, 'update'])->name('admin.shops.update');
 
     Route::get('/return_requests', [OrderController::class, 'allReturnRequests'])->name('return_requests.index');
     Route::post('/return-request-status', [OrderController::class, 'returnRequestStatus'])->name('return-request-status');

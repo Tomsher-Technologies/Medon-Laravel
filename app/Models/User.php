@@ -35,6 +35,7 @@ class User extends Authenticatable
         'email',
         'password',
         'user_type',
+        'shop_id',
         'address',
         'city',
         'postal_code',
@@ -45,7 +46,8 @@ class User extends Authenticatable
         'verification_code',
         'phone_verified',
         'eid_image_front',
-        'eid_image_back'
+        'eid_image_back',
+        'is_active'
     ];
 
     /**
@@ -99,7 +101,7 @@ class User extends Authenticatable
 
     public function shop()
     {
-        return $this->hasOne(Shop::class);
+        return $this->hasOne(Shops::class,'id','shop_id');
     }
 
     public function staff()

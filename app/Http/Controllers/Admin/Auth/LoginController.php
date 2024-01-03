@@ -37,7 +37,8 @@ class LoginController extends Controller
             'user_type' => [
                 'staff',
                 'admin'
-            ]
+            ],
+            'banned' => 0
         ];
 
         if (Auth::attempt($credentials, $request->remember)) {
@@ -51,7 +52,7 @@ class LoginController extends Controller
 
         // }
         return back()->withErrors([
-            'login' => 'The provided credentials do not match our records.',
+            'login' => 'The provided credentials do not match our records Or your account is disabled',
         ])->onlyInput('email');
     }
 

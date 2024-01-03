@@ -7,6 +7,8 @@ use App\Models\Staff;
 use App\Models\Role;
 use App\Models\User;
 use Hash;
+use Validator;
+use DB;
 
 class StaffController extends Controller
 {
@@ -15,10 +17,33 @@ class StaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $staffs = Staff::paginate(10);
-        return view('backend.staff.staffs.index', compact('staffs'));
+        $sort_search = null;
+        if ($request->has('search')) {
+            $sort_search = $request->search;
+        }
+     
+        $query = Staff::with(['user'])->select("*");
+
+        if($sort_search){ 
+            $query->whereHas('user', function ($query) use ($sort_search){
+                $query->where('name', 'LIKE', "%$sort_search%")
+                ->orWhere('phone', 'LIKE', "%$sort_search%")
+                ->orWhere('email', 'LIKE', "%$sort_search%");
+                $query->orwhereHas('shop', function ($query) use ($sort_search){
+                    $query->where('name', 'LIKE', "%$sort_search%");
+                });    
+            });        
+            $query->orwhereHas('role', function ($query) use ($sort_search){
+                $query->where('name', 'LIKE', "%$sort_search%");
+            });  
+        }
+                        
+        $query->orderBy('id','DESC');
+
+        $staffs = $query->paginate(20);
+        return view('backend.staff.staffs.index', compact('staffs','sort_search'));
     }
 
     /**
@@ -40,12 +65,25 @@ class StaffController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'password' => 'required|min:6',
+            'phone' => 'required|integer',
+            'email' => 'required|email|unique:users',
+            'role_id' => 'required'
+        ]);
+ 
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
         if (User::where('email', $request->email)->first() == null) {
             $user = new User;
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->phone = $request->mobile;
+            $user->phone = $request->phone;
             $user->user_type = "staff";
+            $user->shop_id = $request->shop_id;
             $user->password = Hash::make($request->password);
             if ($user->save()) {
                 $staff = new Staff;
@@ -97,9 +135,23 @@ class StaffController extends Controller
     {
         $staff = Staff::findOrFail($id);
         $user = $staff->user;
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'password' => 'nullable|min:6',
+            'phone' => 'required|integer',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'role_id' => 'required'
+        ]);
+ 
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+        
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->phone = $request->mobile;
+        $user->phone = $request->phone;
+        $user->shop_id = $request->shop_id;
+        $user->banned = ($request->has('status')) ? 0 : 1;
         if (strlen($request->password) > 0) {
             $user->password = Hash::make($request->password);
         }

@@ -7,6 +7,7 @@ use App\Models\Delivery\DeliveryBoy;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
+use DB;
 
 class DeliveryBoyController extends Controller
 {
@@ -18,14 +19,23 @@ class DeliveryBoyController extends Controller
     public function index(Request $request)
     {
         $sort_search = null;
-        $users = User::where('user_type', 'delivery_boy')->orderBy('created_at', 'desc');
         if ($request->has('search')) {
             $sort_search = $request->search;
-            $users->where(function ($q) use ($sort_search) {
-                $q->where('name', 'like', '%' . $sort_search . '%')->orWhere('email', 'like', '%' . $sort_search . '%');
-            });
         }
+      
+        $users = User::where('user_type', 'delivery_boy')->orderBy('created_at', 'desc');
+        if($sort_search){  
+            $users->Where(function ($users) use ($sort_search) {
+                    $users->where('name', 'LIKE', "%$sort_search%")
+                    ->orWhere('email', 'LIKE', "%$sort_search%");
+                    $users->orwhereHas('shop', function ($users) use ($sort_search){
+                        $users->where('name', 'LIKE', "%$sort_search%");
+                    });   
+            });                    
+        }
+        
         $users = $users->paginate(15);
+       
         return view('backend.delivery_boy.index', compact('users', 'sort_search'));
     }
 
@@ -48,9 +58,13 @@ class DeliveryBoyController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'shop_id'       => 'required',
             'name'          => 'required',
             'email'         => 'required|unique:users|email',
             'phone'         => 'required|unique:users',
+            'password'      => 'required|min:6',
+        ],[
+            'shop_id.required'   => "The shop field is required"    
         ]);
 
         $user = User::create(array_merge([
@@ -58,6 +72,7 @@ class DeliveryBoyController extends Controller
             'name'      => $request->name,
             'email'     => $request->email,
             'phone'     => $request->phone,
+            'shop_id'   => $request->shop_id,
             'password'  => Hash::make($request->password)
         ]));
 
@@ -106,12 +121,24 @@ class DeliveryBoyController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'shop_id'       => 'required',
+            'name'          => 'required',
+            'email'         => 'required|email|unique:users,email,'.$id,
+            'phone'         => 'required|integer|unique:users,phone,'.$id,
+            'password'      => 'nullable|min:6',
+        ],[
+            'shop_id.required'   => "The shop field is required"    
+        ]);
+
         $delivery_boy = User::findOrFail($id);
 
         if ($delivery_boy->user_type == 'delivery_boy') {
             $delivery_boy->name = $request->name;
             $delivery_boy->email = $request->email;
-            $delivery_boy->phone = $request->mobile;
+            $delivery_boy->phone = $request->phone;
+            $delivery_boy->shop_id = $request->shop_id;
+            $delivery_boy->banned = ($request->has('status')) ? 0 : 1;
             if (strlen($request->password) > 0) {
                 $delivery_boy->password = Hash::make($request->password);
             }
