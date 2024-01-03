@@ -64,12 +64,12 @@
                                             href="{{ route('brands.edit', $brand) }}" title="Edit">
                                             <i class="las la-edit"></i>
                                         </a>
-                                        <a href="#"
+                                        {{-- <a href="#"
                                             class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                             data-href="{{ route('brands.destroy', $brand->id) }}"
                                             title="Delete">
                                             <i class="las la-trash"></i>
-                                        </a>
+                                        </a> --}}
                                     </td>
                                 </tr>
                             @endforeach
