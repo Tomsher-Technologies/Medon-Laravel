@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Offers;
 use App\Models\Addon;
+use App\Models\Shops;
 use App\Models\Attribute;
 use App\Models\Brand;
 use App\Models\Cart;
@@ -1270,6 +1271,11 @@ function userHasPermision($id)
         return true;
     }
     return false;
+}
+
+function getActiveShops(){
+    $shops = Shops::where('status',1)->orderBy('name','ASC')->get();
+    return $shops;
 }
 
 function allAttributes()

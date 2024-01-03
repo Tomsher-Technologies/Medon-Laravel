@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\HeaderMenus;
+use App\Models\Prescriptions;
 use App\Models\Frontend\HomeSlider;
 use Cache;
 use Harimayco\Menu\Models\MenuItems;
@@ -86,5 +87,11 @@ class WebsiteController extends Controller
 		Cache::forget('menu_' . $request->menu_id);
 
 		return response()->json('completed', 200);
+	}
+
+	public function prescriptions(){
+		
+		$prescription = Prescriptions::with(['user'])->orderBy('id','desc')->paginate(15);
+		return view('backend.website_settings.prescriptions',compact('prescription'));
 	}
 }

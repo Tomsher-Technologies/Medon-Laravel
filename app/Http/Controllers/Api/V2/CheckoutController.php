@@ -497,12 +497,16 @@ class CheckoutController extends Controller
                     }
                     if(!empty($data)){
                         RefundRequest::insert($data);
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'Refund request sent successfully'
+                        ], 200);
+                    }else{
+                        return response()->json([
+                            'status' => false,
+                            'message' => "You can not make a refund request for this product."
+                        ], 200);
                     }
-                    
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Refund request sent successfully'
-                    ], 200);
                 }else{
                     return response()->json([
                         'status' => false,

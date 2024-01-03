@@ -159,6 +159,16 @@
                         </a>
                     </li>
                 @endif
+
+                @if (userHasPermision(23))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('prescriptions') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['prescriptions']) }}">
+                            <i class="las la-folder-open aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Prescriptions</span>
+                        </a>
+                    </li>
+                @endif
                 <!-- Reports -->
                 @if (userHasPermision(10))
                     <li class="aiz-side-nav-item">
@@ -461,6 +471,15 @@
                     </li>
                 @endif
 
+                @if (userHasPermision(21))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('admin.shops.index') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['admin.shops.index','admin.shops.create','admin.shops.edit']) }}">
+                            <i class="las la-store aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Shops</span>
+                        </a>
+                    </li>
+                @endif
 
                 <!-- Staffs -->
                 @if (userHasPermision(20))
