@@ -100,6 +100,8 @@ Route::group(['prefix' => 'v2'], function () {
     Route::get('countries', [AddressController::class, 'getCountries']);
     Route::get('states-by-country',  [AddressController::class, 'getStatesByCountry']);
     Route::post('upload-prescription', [ProfileController::class, 'uploadPrescription']);
+
+    Route::get('get-prescriptions',  [ProfileController::class, 'getPrescriptions']);
     // Home
     Route::group(['prefix' => 'app'], function () {
         Route::apiResource('app-banners', AppBannerController::class)->only('index');

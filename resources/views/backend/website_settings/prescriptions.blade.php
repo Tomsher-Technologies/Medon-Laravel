@@ -43,17 +43,17 @@
                         <td>{{ $pre->user->phone ??  $pre->phone}}</td>
                         <td>{{ $pre->comment}}</td>
                         <td class="text-center">
-                            <a class="btn btn-soft-info btn-icon btn-circle btn-sm" href="{{ $pre->user->eid_image_front ??  $pre->emirates_id_front}}" target="_blank">
+                            <a class="btn btn-soft-info btn-icon btn-circle btn-sm" href="{{ asset($pre->user->eid_image_front ??  $pre->emirates_id_front)}}" target="_blank">
                                 <i class="las la-file"></i>
                             </a>
                         </td>
                         <td class="text-center">
-                            <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{ $pre->user->eid_image_back ??  $pre->emirates_id_back}}" target="_blank">
+                            <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{ asset($pre->user->eid_image_back ??  $pre->emirates_id_back)}}" target="_blank">
                                 <i class="las la-file"></i>
                             </a>
                         </td>
                         <td class="text-center">
-                            <a class="btn btn-soft-success btn-icon btn-circle btn-sm" href="{{ $pre->prescription}}" target="_blank">
+                            <a class="btn btn-soft-success btn-icon btn-circle btn-sm" href="{{ asset($pre->prescription)}}" target="_blank">
                                 <i class="las la-file"></i>
                             </a>
                         </td>
