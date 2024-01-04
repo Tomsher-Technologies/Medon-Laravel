@@ -32,15 +32,13 @@ class CommonController extends Controller
 
         if ($sub->wasRecentlyCreated) {
             return response()->json([
-                'result' => true,
-                'status' => 1,
+                'status' => true,
                 'message' => "You have been sucessfull subscribed to our newsletter",
             ], 200);
         }
 
         return response()->json([
-            'result' => true,
-            'status' => 0,
+            'status' => false,
             'message' => "You are aleardy subscribed to our newsletter",
         ], 200);
     }

@@ -96,7 +96,7 @@
                             </div>
                         </th> --}}
                         <th>Order Code</th>
-                        <th data-breakpoints="md">Num. of Products</th>
+                        <th data-breakpoints="md">No. of Products</th>
                         <th data-breakpoints="md">Customer</th>
                         <th data-breakpoints="md">Amount</th>
                         <th data-breakpoints="md" class="text-center">Delivery Status</th>
@@ -104,10 +104,16 @@
                         @if (addon_is_activated('refund_request'))
                         <th>Refund</th>
                         @endif
-                        <th class="text-center" width="15%">{{translate('options')}}</th>
+                        <th class="text-center" data-breakpoints="lg" width="25%">
+                            {{translate('Assign Store')}}
+                        </th>
+                        <th class="text-center">{{translate('options')}}</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="order-table">
+                    @php
+                        $shops = getActiveShops();
+                    @endphp
                     @foreach ($orders as $key => $order)
                     <tr>
                         <td>
@@ -165,6 +171,23 @@
                             @endif
                         </td>
                         @endif
+
+                        <td class="myInputGroupSelect">
+                            @php
+                                if($order->shop_id != null){
+                                    $color = 'border:2px solid #09c309';
+                                }else {
+                                    $color = 'border:2px solid red';
+                                }
+                            @endphp
+                            <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
+                                <option value="">Select Shop</option>
+                                @foreach ($shops as $shop)
+                                    <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+
                         <td class="text-center">
                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('all_orders.show', encrypt($order->id))}}" title="View">
                                 <i class="las la-eye"></i>
@@ -196,7 +219,48 @@
 @endsection
 
 @section('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
+
+        $(document).on('change','.selectShop',function(){
+            
+            var shop_id = $(this).val();
+            var order_id = $(this).attr('data-order');
+
+            swal({
+                title: "Are you sure?",
+                text: "",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    $.ajax({
+                        url: "{{ route('assign-shop-order') }}",
+                        type: "POST",
+                        data: {
+                            order_id: order_id,
+                            shop_id : $(this).val(),
+                            _token: '{{ @csrf_token() }}',
+                        },
+                        dataType: "html",
+                        success: function() {
+                            swal("Successfully assigned!", {
+                                icon: "success",
+                            });
+                            window.location.reload();
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+                            swal("Something went wrong!", {
+                                icon: "warning",
+                            });
+                        }
+                    });
+                } 
+            });
+        });
+
         $(document).on("change", ".check-all", function() {
             if(this.checked) {
                 // Iterate each checkbox
@@ -250,5 +314,7 @@
                 }
             });
         }
+
+     
     </script>
 @endsection

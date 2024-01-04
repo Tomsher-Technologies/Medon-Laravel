@@ -118,12 +118,11 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('offers', [WebsiteController::class, 'categoryOffers']);
     });
 
+    // Footer
+    Route::get('footer', [CommonController::class, 'footer']);
 
     // Footer newsletter
     Route::post('newsletter', [CommonController::class, 'newsletter']);
-
-    // Footer
-    Route::get('footer', [CommonController::class, 'footer']);
 
     // Splash screen
     Route::get('splash_screen', [CommonController::class, 'splash_screen']);

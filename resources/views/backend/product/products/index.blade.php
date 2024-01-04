@@ -142,10 +142,14 @@
                             {{-- <th data-breakpoints="lg">{{translate('Todays Deal')}}</th> --}}
                             <th data-breakpoints="lg">{{ translate('Published') }}</th>
                             {{-- <th data-breakpoints="lg">{{translate('Featured')}}</th> --}}
+                           
                             <th data-breakpoints="sm" class="text-right">{{ translate('Options') }}</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $shops = getActiveShops();
+                        @endphp
                         @foreach ($products as $key => $product)
                             <tr>
                                 <td>{{ $key + 1 + ($products->currentPage() - 1) * $products->perPage() }}</td>
@@ -204,13 +208,13 @@
                                     @endif
                                 </td>
                                 {{-- <td>
-                            <label class="aiz-switch aiz-switch-success mb-0">
-                                <input onchange="update_todays_deal(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->todays_deal == 1) {
-                                    echo 'checked';
-                                } ?> >
-                                <span class="slider round"></span>
-                            </label>
-                        </td> --}}
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input onchange="update_todays_deal(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->todays_deal == 1) {
+                                            echo 'checked';
+                                        } ?> >
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td> --}}
                                 <td>
                                     <label class="aiz-switch aiz-switch-success mb-0">
                                         <input onchange="update_published(this)" value="{{ $product->id }}"
@@ -221,13 +225,15 @@
                                     </label>
                                 </td>
                                 {{-- <td>
-                            <label class="aiz-switch aiz-switch-success mb-0">
-                                <input onchange="update_featured(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->featured == 1) {
-                                    echo 'checked';
-                                } ?> >
-                                <span class="slider round"></span>
-                            </label>
-                        </td> --}}
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input onchange="update_featured(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->featured == 1) {
+                                            echo 'checked';
+                                        } ?> >
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td> --}}
+
+                                
                                 <td class="text-right">
                                   
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
