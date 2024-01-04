@@ -15,6 +15,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\OrderPayments;
 use App\Models\ProductStock;
+use App\Models\Product;
 use App\Models\OrderTracking;
 use App\Models\RefundRequest;
 use Illuminate\Http\Request;
@@ -268,6 +269,10 @@ class CheckoutController extends Controller
                     'quantity' => $data->quantity,
                 ];
                 $productQuantities[$data->product_id] = $data->quantity;
+
+                $product = Product::find($data->product_id);
+                $product->num_of_sale += $data->quantity;
+                $product->save();
             }
             OrderDetail::insert($orderItems);
             $grand_total = $sub_total - ($discount + $total_coupon_discount);
@@ -404,6 +409,8 @@ class CheckoutController extends Controller
             if($order_status === "Success"){
                 $order->payment_status = 'paid';
                 Cart::where('user_id', $order->user_id)->delete();
+            }else{
+                $order->payment_status = 'failed';
             }
             $order->payment_details = $payment_details;
             $order->save();

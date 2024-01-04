@@ -104,4 +104,6 @@ class NotificationUtility
 
         $firebase_notification->save();
     }
+
+    
 }

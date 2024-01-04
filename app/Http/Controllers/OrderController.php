@@ -7,6 +7,7 @@ use App\Http\Controllers\OTPVerificationController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ClubPointController;
 use App\Models\Order;
+use App\Models\Shops;
 use App\Models\Cart;
 use App\Models\Address;
 use App\Models\Product;
@@ -23,12 +24,14 @@ use App\Models\CombinedOrder;
 use App\Models\SmsTemplate;
 use App\Models\OrderTracking;
 use App\Models\RefundRequest;
+use App\Models\ShopNotifications;
 use Auth;
 use Session;
 use DB;
 use Mail;
 use App\Mail\InvoiceEmailManager;
 use App\Utility\NotificationUtility;
+use App\Mail\Admin\OrderAssign;
 // use CoreComponentRepository;
 use App\Utility\SmsUtility;
 
@@ -782,5 +785,30 @@ class OrderController extends Controller
         }
 
         return 1;
+    }
+
+    public function assign_shop_order(Request $request){
+        $shop_id = $request->shop_id;
+        $order_id = $request->order_id;
+
+        $order = Order::find($order_id);
+        $order->shop_id = $shop_id;
+        $order->save();
+        //send notification to shop about the order
+        $shop = Shops::find($shop_id);
+
+        $not = new ShopNotifications;
+        $not->shop_id = $shop_id;
+        $not->order_id = $order_id;
+        $not->is_read = 0;
+        $not->message ="A new order has been assigned. Order code : <b>".$order->code ?? ''."</b>";
+        $not->type = 'order_assign';
+        $not->save();
+
+        Mail::to($shop->email)->queue(new OrderAssign($order));
+    }
+
+    public function test(){
+        return view('emails.admin.order_assign');
     }
 }
