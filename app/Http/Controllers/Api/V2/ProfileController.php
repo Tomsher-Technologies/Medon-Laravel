@@ -452,4 +452,33 @@ class ProfileController extends Controller
         Prescriptions::create($data);
         return response()->json(['status' => true,'message' => 'Prescription uploaded successfully']);   
     }
+
+    public function getPrescriptions(Request $request){
+        $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        $limit = $request->limit ? $request->limit : 10;
+        $offset = $request->offset ? $request->offset : 0;
+        if($user_id != ''){
+            $prescriptions = Prescriptions::where('user_id', $user_id)->orderBy('id','desc')->skip($offset)->take($limit)->get();
+            
+            $details = [];
+            foreach($prescriptions as $pre){
+                $details[] = [
+                    "id" => $pre->id ,
+                    "comment"=> $pre->comment,
+                    "prescription" => asset($pre->prescription),
+                    "front_side" => asset($pre->user->eid_image_front ??  $pre->emirates_id_front),
+                    "back_side" => asset($pre->user->eid_image_back ??  $pre->emirates_id_back),
+                    "date" => date("d-m-Y H:i a",strtotime($pre->created_at)),
+                ];
+            }
+            $data['prescriptions'] = $details;
+            $data['next_offset'] = $offset + $limit;
+            return response()->json(['status' => true,'message' => 'Prescriptions fetched successfully', 'data' =>  $data]);   
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Prescriptions not found'
+            ]);
+        }
+    }
 }
