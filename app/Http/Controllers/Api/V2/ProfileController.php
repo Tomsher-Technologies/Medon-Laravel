@@ -406,7 +406,7 @@ class ProfileController extends Controller
             $data['emirates_id_front'] = $eid_image_front;
 
             if($user_id != ''){
-                Storage::disk('public')->put('users/'.$user_id.'/'.$filename, Storage::get($eid_image_front));
+                Storage::disk('public')->put('users/'.$user_id.'/'.$filename, Storage::disk('public')->get(str_replace('/storage','', $eid_image_front)));
                 $user->eid_image_front  = Storage::url('users/'.$user_id.'/'.$filename) ;
                 if($presentFrontImage != '' && File::exists(public_path($presentFrontImage))){
                     unlink(public_path($presentFrontImage));
@@ -426,7 +426,7 @@ class ProfileController extends Controller
             $data['emirates_id_back'] = $eid_image_back;
             
             if($user_id != ''){
-                Storage::disk('public')->put('users/'.$user_id.'/'.$filename, Storage::get($eid_image_back));
+                Storage::disk('public')->put('users/'.$user_id.'/'.$filename, Storage::disk('public')->get(str_replace('/storage','', $eid_image_back)));
                 $user->eid_image_back  = Storage::url('users/'.$user_id.'/'.$filename) ;
                 if($presentBackImage != '' && File::exists(public_path($presentBackImage))){
                     unlink(public_path($presentBackImage));
