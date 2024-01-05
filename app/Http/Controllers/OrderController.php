@@ -88,6 +88,9 @@ class OrderController extends Controller
         $delivery_status = null;
 
         $orders = Order::orderBy('id', 'desc');
+        if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
+            $orders->where('shop_id', Auth::user()->shop_id);
+        }
         if ($request->has('search')) {
             $sort_search = $request->search;
             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
