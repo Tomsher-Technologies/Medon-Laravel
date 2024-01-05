@@ -814,4 +814,27 @@ class OrderController extends Controller
     public function test(){
         return view('emails.admin.order_assign');
     }
+
+    public function getNearByDeliveryAgents($id){
+        $order_id = decrypt($id);
+
+        $orderDetails = Order::find($order_id);
+        $shop_id = $orderDetails->shop_id;
+        if($shop_id){
+            $deviceTokens = User::where('user_type','delivery_boy')
+                                ->where('shop_id', $shop_id)
+                                ->where('banned',0)
+                                ->whereNotNull('device_token')->pluck('device_token')->all();
+            print_r($deviceTokens);  
+            if(!empty($deviceTokens)){
+                $data['device_tokens'] = $deviceTokens;
+                $data['title'] = 'Live Location Request';
+                $data['body'] = " New order {$orderDetails->code}";;
+                $report = sendPushNotification($data);
+            }else{
+                flash(translate('No Active Delivery Agents Found'))->error();
+                return redirect()->route('all_orders.index');
+            }             
+        }
+    }
 }

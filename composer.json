@@ -19,6 +19,7 @@
         "guzzlehttp/guzzle": "^7.3",
         "harimayco/laravel-menu": "^1.4",
         "intervention/image": "^2.5",
+        "kreait/laravel-firebase": "^4.2",
         "laracasts/flash": "^3.0",
         "laracon21/combinations": "^1.2",
         "laravel/framework": "^8.0",

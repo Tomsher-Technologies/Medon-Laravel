@@ -259,7 +259,7 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/all_orders/{id}/show', [OrderController::class, 'all_orders_show'])->name('all_orders.show');
 
     Route::get('/prescriptions', [WebsiteController::class, 'prescriptions'])->name('prescriptions');
-
+    Route::get('/delivery-agents/{id}', [OrderController::class, 'getNearByDeliveryAgents'])->name('delivery-agents');
 
     Route::resource('shops', ShopsController::class, ['as' => 'admin']);
     Route::post('/shops/delete/', [ShopsController::class, 'delete'])->name('admin.shops.delete');

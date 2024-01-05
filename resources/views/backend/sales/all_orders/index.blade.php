@@ -181,7 +181,7 @@
                         @endif
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                             <td class="text-center">
-                                <button class="btn btn-sm btn-success">Find Nearest Agent</button>
+                                <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
                             </td>
                         @else
                             <td class="myInputGroupSelect">

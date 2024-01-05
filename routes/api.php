@@ -32,7 +32,9 @@ Route::group(['prefix' => 'v2/auth'], function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('logout', [AuthController::class, 'logout']);
         Route::get('user',  [AuthController::class, 'user']);
+        
     });
+    
 });
 
 Route::post('update-product',[ErpController::class, 'updateProduct'])->middleware('erp_token');
@@ -56,13 +58,13 @@ Route::group(['prefix' => 'v2'], function () {
             Route::post('/send-otp', [ProfileController::class, 'sendOTPPhonenumber']);
             Route::post('/verify-phone', [ProfileController::class, 'verifyPhonenumber']);
             Route::post('/update-userdata', [ProfileController::class, 'updateUserData']);
-
+            
         });
         Route::group(['prefix' => 'account'], function () {
             Route::get('orders', [ProfileController::class, 'orderList']);
             Route::get('order-details', [ProfileController::class, 'orderDetails']);
         });    
-
+        Route::post('save-location', [ProfileController::class, 'saveLiveLocation']);
         // Route::get('product', [ProductController::class, 'show']);
         Route::get('wishlists/count', [WishlistController::class, 'getCount']);
         Route::apiResource('wishlists', WishlistController::class)->only('index', 'store', 'destroy');
