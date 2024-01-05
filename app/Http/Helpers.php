@@ -39,6 +39,9 @@ use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
 use Artesaos\SEOTools\Facades\JsonLd;
 use Artesaos\SEOTools\Facades\JsonLdMulti;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\RawMessageFromArray;
+use Kreait\Firebase\Contract\Messaging;
 use Carbon\Carbon;
 // use DB;
 
@@ -1691,6 +1694,55 @@ function getActiveBuyXgetYOfferProducts(){
                 $product_stock = ProductStock::where('product_id', $key)->first();
                 $product_stock->qty -= $value;
                 $product_stock->save();
+            }
+        }
+    }
+
+    function sendPushNotification($req){
+        $messaging = app('firebase.messaging');
+        $deviceTokens = $req['device_tokens'];
+        $message = new RawMessageFromArray([
+                        'notification' => [
+                            // https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#notification
+                            'title' => $req['title'],
+                            'body' => $req['body'],
+                        ],
+                        'data' => [
+                            'key' => 'Value',
+                        ]
+                    ]);
+
+        $sendReport = $messaging->sendMulticast($message, $deviceTokens);
+        echo 'Successful sends: '.$sendReport->successes()->count().PHP_EOL;
+        echo '<br>Failed sends: '.$sendReport->failures()->count().PHP_EOL;
+
+        if ($sendReport->hasFailures()) {
+            foreach ($sendReport->failures()->getItems() as $failure) {
+                echo '<br>'. $failure->error()->getMessage().PHP_EOL;
+            }
+        }
+    }
+
+    function distanceCalculator($lat1, $lon1, $lat2, $lon2, $unit) {
+        if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+            return 0;
+        }
+        else {
+            $theta = $lon1 - $lon2;
+            $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            $dist = acos($dist);
+            $dist = rad2deg($dist);
+            $miles = $dist * 60 * 1.1515;
+            $unit = strtoupper($unit);
+            
+            if ($unit == "KM") {                                     // Kilometer - km
+                return ($miles * 1.609344);
+            } else if ($unit == "NM") {                              // Nautical Mile - nm
+                return ($miles * 0.8684);
+            } else if ($unit == "M") {                               // Meter - m 
+                return ($miles * 1609.34);
+            } else {                                                 // Mile - mi
+                return $miles;
             }
         }
     }
