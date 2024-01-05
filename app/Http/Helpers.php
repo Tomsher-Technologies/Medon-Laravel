@@ -1713,14 +1713,14 @@ function getActiveBuyXgetYOfferProducts(){
                     ]);
 
         $sendReport = $messaging->sendMulticast($message, $deviceTokens);
-        echo 'Successful sends: '.$sendReport->successes()->count().PHP_EOL;
-        echo '<br>Failed sends: '.$sendReport->failures()->count().PHP_EOL;
+        // echo 'Successful sends: '.$sendReport->successes()->count().PHP_EOL;
+        // echo '<br>Failed sends: '.$sendReport->failures()->count().PHP_EOL;
 
-        if ($sendReport->hasFailures()) {
-            foreach ($sendReport->failures()->getItems() as $failure) {
-                echo '<br>'. $failure->error()->getMessage().PHP_EOL;
-            }
-        }
+        // if ($sendReport->hasFailures()) {
+        //     foreach ($sendReport->failures()->getItems() as $failure) {
+        //         echo '<br>'. $failure->error()->getMessage().PHP_EOL;
+        //     }
+        // }
     }
 
     function distanceCalculator($lat1, $lon1, $lat2, $lon2, $unit) {
