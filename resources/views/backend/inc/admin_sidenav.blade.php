@@ -218,13 +218,15 @@
                     </li>
                 @endif
 
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('delivery_boy.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['delivery_boy.index', 'delivery_boy.create', 'delivery_boy.edit']) }}">
-                        <i class="las la-motorcycle aiz-side-nav-icon"></i>
-                        <span class="aiz-side-nav-text">Delivery Boys</span>
-                    </a>
-                </li>
+                @if (userHasPermision(26))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('delivery_boy.index') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['delivery_boy.index', 'delivery_boy.create', 'delivery_boy.edit']) }}">
+                            <i class="las la-motorcycle aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Delivery Boys</span>
+                        </a>
+                    </li>
+                @endif
 
                 <!-- marketing -->
                 @if (userHasPermision(11))
@@ -252,11 +254,11 @@
                                     </li>
                                 @endif
                             @endif --}}
-                            {{-- <li class="aiz-side-nav-item">
+                            <li class="aiz-side-nav-item">
                                 <a href="{{ route('subscribers.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Subscribers</span>
                                 </a>
-                            </li> --}}
+                            </li>
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('coupon.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['coupon.index', 'coupon.create', 'coupon.edit']) }}">
@@ -327,34 +329,36 @@
                     </li>
                 @endif
 
-                <li class="aiz-side-nav-item">
-                    <a href="#"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['website.footer', 'website.header', 'banners.*']) }}">
-                        <i class="las la-mobile aiz-side-nav-icon"></i>
-                        <span class="aiz-side-nav-text">App Setup</span>
-                        <span class="aiz-side-nav-arrow"></span>
-                    </a>
-                    <ul class="aiz-side-nav-list level-2">
-                        <li class="aiz-side-nav-item">
-                            <a href="{{ route('splash_screen.index') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['splash_screen.index']) }}">
-                                <span class="aiz-side-nav-text">Splash Sliders</span>
-                            </a>
-                        </li>
-                        <li class="aiz-side-nav-item">
-                            <a href="{{ route('app-banner.index') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['app-banner.index', 'app-banner.create', 'app-banner.edit']) }}">
-                                <span class="aiz-side-nav-text">Home Sliders</span>
-                            </a>
-                        </li>
-                        <li class="aiz-side-nav-item">
-                            <a href="{{ route('app.home') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['app.home']) }}">
-                                <span class="aiz-side-nav-text">Home Page</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                @if (userHasPermision(27))
+                    <li class="aiz-side-nav-item">
+                        <a href="#"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['website.footer', 'website.header', 'banners.*']) }}">
+                            <i class="las la-mobile aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">App Setup</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+                        <ul class="aiz-side-nav-list level-2">
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('splash_screen.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['splash_screen.index']) }}">
+                                    <span class="aiz-side-nav-text">Splash Sliders</span>
+                                </a>
+                            </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('app-banner.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['app-banner.index', 'app-banner.create', 'app-banner.edit']) }}">
+                                    <span class="aiz-side-nav-text">Home Sliders</span>
+                                </a>
+                            </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('app.home') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['app.home']) }}">
+                                    <span class="aiz-side-nav-text">Home Page</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
 
                 <!-- Setup & Configurations -->
                 @if (userHasPermision(14))

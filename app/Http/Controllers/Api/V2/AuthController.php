@@ -152,6 +152,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $device_token = $request->has('device_token') ? $request->device_token : NULL ;
         $delivery_boy_condition = $request->has('user_type') && $request->user_type == 'delivery_boy';
 
         if ($delivery_boy_condition) {
@@ -162,6 +163,8 @@ class AuthController extends Controller
 
         if ($user != null) {
             if (Hash::check($request->password, $user->password)) {
+                $user->device_token = $device_token;
+                $user->save();
                 return $this->loginSuccess($user);
             } else {
                 return response()->json(['result' => false, 'message' => 'Incorrect Password', 'user' => null], 200);

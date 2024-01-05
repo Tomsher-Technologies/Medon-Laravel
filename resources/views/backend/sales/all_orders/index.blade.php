@@ -104,9 +104,17 @@
                         @if (addon_is_activated('refund_request'))
                         <th>Refund</th>
                         @endif
-                        <th class="text-center" data-breakpoints="lg" width="25%">
-                            {{translate('Assign Store')}}
-                        </th>
+
+                        @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
+                            <th class="text-center" data-breakpoints="lg" width="25%">
+                                {{translate('Assign Delivery Boy')}}
+                            </th>
+                        @else
+                            <th class="text-center" data-breakpoints="lg" width="25%">
+                                {{translate('Assign Store')}}
+                            </th>
+                        @endif
+                        
                         <th class="text-center">{{translate('options')}}</th>
                     </tr>
                 </thead>
@@ -171,22 +179,27 @@
                             @endif
                         </td>
                         @endif
-
-                        <td class="myInputGroupSelect">
-                            @php
-                                if($order->shop_id != null){
-                                    $color = 'border:2px solid #09c309';
-                                }else {
-                                    $color = 'border:2px solid red';
-                                }
-                            @endphp
-                            <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
-                                <option value="">Select Shop</option>
-                                @foreach ($shops as $shop)
-                                    <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
-                                @endforeach
-                            </select>
-                        </td>
+                        @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-success">Find Nearest Agent</button>
+                            </td>
+                        @else
+                            <td class="myInputGroupSelect">
+                                @php
+                                    if($order->shop_id != null){
+                                        $color = 'border:2px solid #09c309';
+                                    }else {
+                                        $color = 'border:2px solid red';
+                                    }
+                                @endphp
+                                <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
+                                    <option value="">Select Shop</option>
+                                    @foreach ($shops as $shop)
+                                        <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                        @endif
 
                         <td class="text-center">
                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('all_orders.show', encrypt($order->id))}}" title="View">
@@ -257,7 +270,9 @@
                             });
                         }
                     });
-                } 
+                }else{
+                    $(this).val('');
+                }
             });
         });
 
