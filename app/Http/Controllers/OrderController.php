@@ -25,6 +25,7 @@ use App\Models\SmsTemplate;
 use App\Models\OrderTracking;
 use App\Models\RefundRequest;
 use App\Models\ShopNotifications;
+use App\Models\LiveLocations;
 use Auth;
 use Session;
 use DB;
@@ -82,6 +83,7 @@ class OrderController extends Controller
     public function all_orders(Request $request)
     {
         //CoreComponentRepository::instantiateShopRepository();
+        $request->session()->put('last_url', url()->full());
 
         $date = $request->date;
         $sort_search = null;
@@ -832,7 +834,8 @@ class OrderController extends Controller
                 $data['body'] = $orderDetails->code;
                 $report = sendPushNotification($data);
 
-                // $locs = LiveLocations::where('order_id',$order_id)
+                $locs = LiveLocations::where('order_id',$order_id)->orderBy('distance','asc')->get();
+                return view('backend.sales.assign_agent', compact('locs'));
             }else{
                 flash(translate('No Active Delivery Agents Found'))->error();
                 return redirect()->route('all_orders.index');

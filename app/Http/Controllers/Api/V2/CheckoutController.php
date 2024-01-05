@@ -441,7 +441,7 @@ class CheckoutController extends Controller
         // }else{
         //     $resMessage = "Security Error. Illegal access detected";
         // }
-        return redirect(env('MEDON_PAYMENT_SUCCESS').'?status='.$order_status);
+        return redirect(env('MEDON_PAYMENT_SUCCESS').'?status='.$order_status.'&code='.$order_code);
     }
 
     public function cancelPayment(Request $request){
@@ -469,7 +469,7 @@ class CheckoutController extends Controller
             $orderPayments->payment_details = $payment_details;
             $orderPayments->save();
         }
-        return redirect(env('MEDON_PAYMENT_CANCEL').'?status='.$order_status);
+        return redirect(env('MEDON_PAYMENT_CANCEL').'?status='.$order_status.'&code='.$order_code);
     }
 
     public function returnRequest(Request $request){

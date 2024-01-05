@@ -105,7 +105,7 @@
                             @if (userHasPermision(3))
                                 <li class="aiz-side-nav-item">
                                     <a href="{{ route('all_orders.index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['all_orders.index', 'all_orders.show']) }}">
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['all_orders.index', 'all_orders.show','delivery-agents']) }}">
                                         <span class="aiz-side-nav-text">All Orders</span>
                                     </a>
                                 </li>
