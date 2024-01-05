@@ -825,12 +825,14 @@ class OrderController extends Controller
                                 ->where('shop_id', $shop_id)
                                 ->where('banned',0)
                                 ->whereNotNull('device_token')->pluck('device_token')->all();
-            print_r($deviceTokens);  
+            
             if(!empty($deviceTokens)){
                 $data['device_tokens'] = $deviceTokens;
                 $data['title'] = 'Live Location Request';
-                $data['body'] = " New order {$orderDetails->code}";;
+                $data['body'] = $orderDetails->code;
                 $report = sendPushNotification($data);
+
+                // $locs = LiveLocations::where('order_id',$order_id)
             }else{
                 flash(translate('No Active Delivery Agents Found'))->error();
                 return redirect()->route('all_orders.index');
