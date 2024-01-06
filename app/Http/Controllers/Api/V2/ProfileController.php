@@ -505,22 +505,29 @@ class ProfileController extends Controller
                 $shop_latitude = $shop->delivery_pickup_latitude;
                 $shop_longitude = $shop->delivery_pickup_longitude;
 
-                $checkLoc = LiveLocations::where('user_id', $user_id)->where('order_id', $order->id)->first();
-                if(!empty($checkLoc)){
-                    $checkLoc->latitude = $latitude;
-                    $checkLoc->longitude = $longitude;
-                    $checkLoc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude,'km');
-                    $checkLoc->save();
+                $deliveryBoyStatus = DeliveryBoy::where('user_id',$user_id)->where('status',1)->count();
+                if($deliveryBoyStatus != 0){
+                    $checkLoc = LiveLocations::where('user_id', $user_id)->where('order_id', $order->id)->first();
+                
+                    if(!empty($checkLoc)){
+                        $checkLoc->latitude = $latitude;
+                        $checkLoc->longitude = $longitude;
+                        $checkLoc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude,'km');
+                        $checkLoc->save();
+                    }else{
+                        $loc = new LiveLocations;
+                        $loc->user_id = $user_id;
+                        $loc->order_id = $order->id;
+                        $loc->latitude = $latitude;
+                        $loc->longitude = $longitude;
+                        $loc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude, 'km');
+                        $loc->save();
+                    }
+    
+                    return response()->json(['status' => true,'message' => 'Live location saved']); 
                 }else{
-                    $loc = new LiveLocations;
-                    $loc->user_id = $user_id;
-                    $loc->order_id = $order->id;
-                    $loc->latitude = $latitude;
-                    $loc->longitude = $longitude;
-                    $loc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude, 'km');
-                    $loc->save();
+                    return response()->json(['status' => false ,'message'=>"Delivery boy not available"]);
                 }
-                return response()->json(['status' => true,'message' => 'Live location saved']); 
             }
         }else{
             return response()->json([
