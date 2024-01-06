@@ -5,6 +5,7 @@
     <div class="card">
         <div class="card-header">
             <h1 class="h2 fs-16 mb-0">Order Details</h1>
+            <a class="btn btn-primary" href="{{ Session::has('last_url') ? Session::get('last_url') : route('all_orders.index') }}" >Go Back</a>
         </div>
         <div class="card-body">
             <div class="row gutters-5">
@@ -34,11 +35,13 @@
                                 Pending</option>
                             <option value="confirmed" @if ($delivery_status == 'confirmed') selected @endif>
                                 Confirmed</option>
+                            <option value="partial_pick_up" @if ($delivery_status == 'partial_pick_up') selected @endif>
+                                Partial Pick Up</option>
                             <option value="picked_up" @if ($delivery_status == 'picked_up') selected @endif>
                                 Picked Up</option>
-                            <option value="on_the_way" @if ($delivery_status == 'on_the_way') selected @endif>
-                                On The Way</option>
-                            <option value="delivered" @if ($delivery_status == 'delivered') selected @endif>
+                            <option value="partial_delivery" @if ($delivery_status == 'partial_delivery') selected  @endif disabled>
+                                Partial Delivery</option>
+                            <option value="delivered" @if ($delivery_status == 'delivered') selected @endif disabled>
                                 Delivered</option>
                             <option value="cancelled" @if ($delivery_status == 'cancelled') selected @endif>
                                 Cancel</option>
@@ -122,11 +125,26 @@
                 </div>
             </div>
             <hr class="new-section-sm bord-no">
+            <ul class="status_indicator">
+                <li class="status completed" style="float:left">Delivered</li>
+                <li class="status picked_up ml-2" style="float:left">Picked Up</li>
+            </ul>
+            <br>
             <div class="row">
                 <div class="col-lg-12 table-responsive">
                     <table class="table table-bordered aiz-table invoice-summary">
                         <thead>
                             <tr class="bg-trans-dark">
+                                <th>
+                                    <div class="form-group">
+                                        <div class="aiz-checkbox-inline">
+                                            <label class="aiz-checkbox">
+                                                <input type="checkbox" class="check-all">
+                                                <span class="aiz-square-check"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </th>
                                 <th data-breakpoints="lg" class="min-col">#</th>
                                 <th width="10%">Photo</th>
                                 <th class="text-uppercase">Description</th>
@@ -141,7 +159,28 @@
                         </thead>
                         <tbody>
                             @foreach ($order->orderDetails as $key => $orderDetail)
-                                <tr>
+                                @php
+                                    $statusColor = '#fff';
+                                    if ($orderDetail->delivery_status == 'picked_up'){
+                                        $statusColor = '#e9ae004f';
+                                    }elseif ($orderDetail->delivery_status == 'delivered') {
+                                        $statusColor = '#03ff0338';
+                                    }
+                                    
+                                @endphp
+                                <tr style="background:{{$statusColor}}">
+                                    <td>
+                                        @if ($orderDetail->delivery_status == 'pending' || $orderDetail->delivery_status == 'confirmed')
+                                            <div class="form-group">
+                                                <div class="aiz-checkbox-inline">
+                                                    <label class="aiz-checkbox">
+                                                        <input type="checkbox" class="check-one" name="id[]" value="{{$orderDetail->id}}">
+                                                        <span class="aiz-square-check"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td>{{ $key + 1 }}</td>
                                     <td>
                                         @if ($orderDetail->product != null && $orderDetail->product->auction_product == 0)
@@ -239,18 +278,77 @@
     </div>
 @endsection
 
+@section('styles')
+    <style>
+    .status_indicator {
+        margin: 0px 0px 20px;
+        padding: 0;
+        list-style: none;
+    }
+    .status {
+        &.completed:before {
+            background-color: #03ff0338;
+            border-color: #78D965;
+            box-shadow: 0px 0px 4px 1px #94E185;
+        }
+
+        &.picked_up:before {
+            background-color: #e9ae004f;
+            border-color: #FFB161;
+            box-shadow: 0px 0px 4px 1px #FFC182;
+        }
+        &:before {
+            content: ' ';
+            display: inline-block;
+            width: 25px;
+            height: 12px;
+            margin-right: 10px;
+            border: 1px solid #000;
+        }
+    }
+    </style>
+@endsection
+
 @section('script')
     <script type="text/javascript">
-
+        $(document).on("change", ".check-all", function() {
+            if(this.checked) {
+                $('.check-one:checkbox').each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $('.check-one:checkbox').each(function() {
+                    this.checked = false;
+                });
+            }
+        });
 
         $('#update_delivery_status').on('change', function() {
             var order_id = {{ $order->id }};
             var status = $('#update_delivery_status').val();
+            let product_ids = []; 
+            $('.check-one:checkbox').each(function() {
+                if(this.checked) {
+                    product_ids.push($(this).val()); 
+                }
+            });  
+
+            if((status == 'partial_pick_up' || status == 'partial_delivery') && product_ids.length === 0){
+                AIZ.plugins.notify('warning', 'Please select products');
+                if(status == 'partial_pick_up'){
+                    $('#update_delivery_status').val('confirmed').selectpicker('refresh');
+                }
+                if(status == 'partial_delivery'){
+                    $('#update_delivery_status').val('partial_pick_up').selectpicker('refresh');
+                }
+                return false;
+            }
             
             $.post('{{ route('orders.update_delivery_status') }}', {
                 _token: '{{ @csrf_token() }}',
                 order_id: order_id,
-                status: status
+                status: status,
+                product_ids: product_ids
             }, function(data) {
                 AIZ.plugins.notify('success', 'Delivery status has been updated');
             });

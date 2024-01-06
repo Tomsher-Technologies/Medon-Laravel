@@ -15,7 +15,7 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="#" onclick="bulk_delete()"> {{translate('Delete selection')}}</a>
-<!--                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exampleModal">
+    <!--                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exampleModal">
                         <i class="las la-sync-alt"></i>
                         {{translate('Change Order Status')}}
                     </a>-->
@@ -81,6 +81,11 @@
         </div>
 
         <div class="card-body">
+            <ul class="status_indicator">
+                <li class="status completed" style="float:left">Delivered</li>
+                <li class="status picked_up ml-2" style="float:left">Partial Delivery</li>
+            </ul>
+            <br>
             <table class="table aiz-table mb-0">
                 <thead>
                     <tr>
@@ -96,7 +101,7 @@
                             </div>
                         </th> --}}
                         <th>Order Code</th>
-                        <th data-breakpoints="md">No. of Products</th>
+                        <th  class="text-center" data-breakpoints="md">No. of Products</th>
                         <th data-breakpoints="md">Customer</th>
                         <th data-breakpoints="md">Amount</th>
                         <th data-breakpoints="md" class="text-center">Delivery Status</th>
@@ -123,7 +128,16 @@
                         $shops = getActiveShops();
                     @endphp
                     @foreach ($orders as $key => $order)
-                    <tr>
+                        @php
+                            $statusColor = '#fff';
+                            if ($order->delivery_status == 'partial_delivery'){
+                                $statusColor = '#e9ae004f';
+                            }elseif ($order->delivery_status == 'delivered') {
+                                $statusColor = '#03ff0338';
+                            }
+                            
+                        @endphp
+                    <tr style="background:{{$statusColor}}">
                         <td>
                             {{ ($key+1) + ($orders->currentPage() - 1)*$orders->perPage() }}
                         </td>
@@ -140,7 +154,7 @@
                         <td>
                             {{ $order->code }}
                         </td>
-                        <td>
+                        <td class="text-center">
                             {{ count($order->orderDetails) }}
                         </td>
                         <td>
@@ -161,7 +175,7 @@
                                 }
 
                             @endphp
-                            {!! $status !!}
+                            {!! ucfirst(str_replace('_', ' ', $status)) !!}
                         </td>
                         <td class="text-center">
                             @if ($order->payment_status == 'paid')
@@ -181,7 +195,9 @@
                         @endif
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                             <td class="text-center">
-                                <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
+                                @if (!in_array($status,['pending','delivered','cancelled']))
+                                    <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
+                                @endif
                             </td>
                         @else
                             <td class="myInputGroupSelect">
@@ -229,6 +245,37 @@
 
 @section('modal')
     @include('modals.delete_modal')
+@endsection
+
+@section('styles')
+    <style>
+    .status_indicator {
+        margin: 0px 0px 20px;
+        padding: 0;
+        list-style: none;
+    }
+    .status {
+        &.completed:before {
+            background-color: #03ff0338;
+            border-color: #78D965;
+            box-shadow: 0px 0px 4px 1px #94E185;
+        }
+
+        &.picked_up:before {
+            background-color: #e9ae004f;
+            border-color: #FFB161;
+            box-shadow: 0px 0px 4px 1px #FFC182;
+        }
+        &:before {
+            content: ' ';
+            display: inline-block;
+            width: 25px;
+            height: 12px;
+            margin-right: 10px;
+            border: 1px solid #000;
+        }
+    }
+    </style>
 @endsection
 
 @section('script')
@@ -287,7 +334,6 @@
                     this.checked = false;
                 });
             }
-
         });
 
 //        function change_status() {

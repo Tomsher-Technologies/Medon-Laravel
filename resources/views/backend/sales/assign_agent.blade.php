@@ -7,7 +7,7 @@
         <div class="col">
             <h5 class="mb-md-0 h6">Available Delivery Agents</h5>
         </div>
-<a href="{{ Session::has('last_url') ? Session::get('last_url') : route('all_orders.index') }}" >Go Back</a>
+        <a class="btn btn-primary" href="{{ Session::has('last_url') ? Session::get('last_url') : route('all_orders.index') }}" >Go Back</a>
     </div>
 
     <div class="card-body">
