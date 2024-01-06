@@ -120,6 +120,9 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('home', [WebsiteController::class, 'websiteHome']);
         Route::get('categories', [WebsiteController::class, 'websiteCategories']);
         Route::get('offers', [WebsiteController::class, 'categoryOffers']);
+
+        Route::get('store-locator', [WebsiteController::class, 'storeLocations']);
+
     });
 
     // Footer

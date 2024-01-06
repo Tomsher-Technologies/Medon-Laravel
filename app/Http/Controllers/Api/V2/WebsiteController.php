@@ -15,6 +15,7 @@ use App\Models\Frontend\Banner;
 use App\Models\Frontend\HomeSlider;
 use App\Models\Subscriber;
 use App\Models\HeaderMenus;
+use App\Models\Shops;
 use App\Http\Resources\V2\WebHomeCategoryCollection;
 use App\Http\Resources\V2\WebHomeBrandCollection;
 use App\Http\Resources\V2\WebHomeOffersCollection;
@@ -307,5 +308,10 @@ class WebsiteController extends Controller
             }
         }
         return response()->json(['success' => true,"message"=>"Success","data" => $result],200);
+    }
+
+    public function storeLocations(){
+        $shops = Shops::where('status',1)->orderBy('name','asc')->get();
+        return response()->json(['status' => true,"message"=>"Success","data" => $shops],200);
     }
 }
