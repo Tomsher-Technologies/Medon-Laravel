@@ -195,7 +195,7 @@
                         @endif
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                             <td class="text-center">
-                                @if (!in_array($status,['pending','delivered','cancelled']))
+                                @if (!in_array($status,['pending','picked_up','delivered','cancelled']))
                                     <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
                                 @endif
                             </td>

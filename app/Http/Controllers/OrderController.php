@@ -767,13 +767,31 @@ class OrderController extends Controller
                 $data['title'] = 'Live Location Request';
                 $data['body'] = $orderDetails->code;
                 $report = sendPushNotification($data);
-
-                $locs = LiveLocations::where('order_id',$order_id)->orderBy('distance','asc')->get();
-                return view('backend.sales.assign_agent', compact('locs'));
+                return view('backend.sales.assign_agent', compact('order_id'));
             }else{
                 flash(translate('No Active Delivery Agents Found'))->error();
                 return redirect()->route('all_orders.index');
             }             
         }
+    }
+
+    public function getOrderDeliveryBoys(Request $request){
+        $order_id = $request->order_id;
+        $locs = LiveLocations::where('order_id',$order_id)->orderBy('distance','asc')->get();
+        
+        $rows = '';
+        foreach ($locs as $key => $loc) {
+            $rows .= '<tr>
+                        <td>'. ($key+1) .'</td>
+                        <td>'. $loc->user->name .'</td>
+                        <td>'. $loc->user->phone .'</td>
+                        <td class="text-center"><span class="badge badge-inline badge-success">'. $loc->distance .' KM</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-success d-innline-block assignDelivery" data-agentid="'.$loc->user_id.'" data-orderid="'.$loc->order_id.'" data-status="1">Assign Delivery</button>
+                        </td>
+                    </tr>';
+        }
+        
+        return $rows;
     }
 }

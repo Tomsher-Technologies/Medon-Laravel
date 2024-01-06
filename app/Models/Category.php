@@ -84,6 +84,12 @@ class Category extends Model
     {
         return $this->hasOne(Upload::class, 'id', 'icon');
     }
+
+    public function iconImage()
+    {
+        return $this->hasOne(Upload::class, 'id', 'icon');
+    }
+   
    
     public function getMainCategory()
     {

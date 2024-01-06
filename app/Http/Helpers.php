@@ -1452,8 +1452,13 @@ function getSidebarCategoryTree()
         'name',
         'level',
         'slug',
-    ])->with(['child'])->withCount('products')->where('parent_id', 0)->get();
-
+        'icon'
+    ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->get();
+    foreach( $all_cats as $categ){
+        $categ->icon = storage_asset($categ->iconImage->file_name);
+        unset($categ->iconImage);
+    }
+// die;
     return $all_cats;
 }
 
