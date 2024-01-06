@@ -9,6 +9,7 @@ use App\Models\Cart;
 use App\Models\OrderTracking;
 use App\Models\Prescriptions;
 use App\Models\Shops;
+use App\Models\Delivery\DeliveryBoy;
 use App\Models\LiveLocations;
 use Illuminate\Http\Request;
 use App\Utility\SendSMSUtility;
