@@ -460,7 +460,9 @@ class ProfileController extends Controller
         $limit = $request->limit ? $request->limit : 10;
         $offset = $request->offset ? $request->offset : 0;
         if($user_id != ''){
-            $prescriptions = Prescriptions::where('user_id', $user_id)->orderBy('id','desc')->skip($offset)->take($limit)->get();
+            $query = Prescriptions::where('user_id', $user_id)->orderBy('id','desc');
+            $total_count = $query->count();
+            $prescriptions = $query->skip($offset)->take($limit)->get();
             
             $details = [];
             foreach($prescriptions as $pre){
@@ -473,6 +475,7 @@ class ProfileController extends Controller
                     "date" => date("d-m-Y H:i a",strtotime($pre->created_at)),
                 ];
             }
+            $data['total_count'] = $total_count;
             $data['prescriptions'] = $details;
             $data['next_offset'] = $offset + $limit;
             return response()->json(['status' => true,'message' => 'Prescriptions fetched successfully', 'data' =>  $data]);   
