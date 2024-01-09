@@ -21,6 +21,7 @@ use App\Models\Order;
 use App\Models\Offers;
 use App\Models\Addon;
 use App\Models\Shops;
+use App\Models\OrderDeliveryBoys;
 use App\Models\Attribute;
 use App\Models\Brand;
 use App\Models\Cart;
@@ -1458,7 +1459,7 @@ function getSidebarCategoryTree()
         $categ->icon = storage_asset($categ->iconImage->file_name);
         unset($categ->iconImage);
     }
-// die;
+
     return $all_cats;
 }
 
@@ -1750,4 +1751,9 @@ function getActiveBuyXgetYOfferProducts(){
                 return $miles;
             }
         }
+    }
+
+    function checkDeliveryAssigned($order_id, $user_id){
+        $count = OrderDeliveryBoys::where('order_id',$order_id)->where('delivery_boy_id', $user_id)->where('status',0)->count();
+        return $count;
     }

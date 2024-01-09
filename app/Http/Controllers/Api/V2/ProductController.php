@@ -159,7 +159,10 @@ class ProductController extends Controller
         if($product_slug != ''){
             $product = Product::with(['tabs','reviews','category','seo'])->where('slug',$product_slug)->where('published',1)->first();
         }
-        $product->user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        if(!empty($product)){
+            $product->user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        }
+        
         //    echo '<pre>';
         //    print_r($product);
         // //    die;
@@ -170,7 +173,7 @@ class ProductController extends Controller
             return new ProductDetailCollection($product);
         }
         
-        return response()->json(['success' => false,"message"=>"No data found","data" => []],200);
+        return response()->json(['status' => false,"message"=>"No data found","data" => []],200);
     }
 
     public function admin()
