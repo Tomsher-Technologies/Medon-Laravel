@@ -188,6 +188,7 @@
                                     {{ single_price($product->unit_price) }} </br>
                                     <strong>{{ translate('Rating') }}:</strong> {{ $product->rating }} </br>
                                     <strong>{{ translate('SKU') }}:</strong> {{ $product->sku }} </br>
+                                    <strong>{{ translate('VAT') }}:</strong> {{ $product->vat }} </br>
                                 </td>
                                 <td>
                                     @php

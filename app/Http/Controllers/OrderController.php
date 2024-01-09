@@ -758,7 +758,7 @@ class OrderController extends Controller
 
     public function getNearByDeliveryAgents($id){
         $order_id = decrypt($id);
-
+        LiveLocations::where('order_id',$order_id)->delete();
         $orderDetails = Order::find($order_id);
         $shop_id = $orderDetails->shop_id;
         if($shop_id){

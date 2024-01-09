@@ -111,7 +111,7 @@
                         @endif
 
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
-                            <th class="text-center" data-breakpoints="lg" width="25%">
+                            <th class="text-center" data-breakpoints="lg" width="20%">
                                 {{translate('Assign Delivery Boy')}}
                             </th>
                         @else
@@ -197,6 +197,29 @@
                             <td class="text-center">
                                 @if (!in_array($status,['pending','picked_up','delivered','cancelled']))
                                     <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
+                                @endif
+
+                                @if (in_array($status,['partial_pick_up','picked_up','confirmed']))
+                                    @php
+                                        $assignedTo = getAssignedDeliveryBoy($order->id);
+                                    @endphp
+                                    @if ($assignedTo != '')
+                                        <br>Assigned to <b> {{ $assignedTo }} </b>
+                                    @endif
+                                @elseif ($status == 'delivered')
+                                    @php
+                                        $deliveredBy = getDeliveryBoy($order->id);
+                                    @endphp
+                                    @if (count($deliveredBy) > 0)
+                                        <br>Delivered by 
+                                        @foreach ($deliveredBy as $k => $dby)
+                                            @if ($k != 0)
+                                                ,
+                                            @endif
+                                            <b> {{ $dby->deliveryBoy->name ?? '' }} </b>
+                                        @endforeach
+                                        
+                                    @endif
                                 @endif
                             </td>
                         @else

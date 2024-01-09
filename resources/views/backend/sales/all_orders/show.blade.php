@@ -276,6 +276,72 @@
 
         </div>
     </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h1 class="h2 fs-16 mb-0">Order Delivery Details</h1>
+        </div>
+        <div class="card-body">
+            @php
+                $delivery = getOrderDeliveryDetails($order->id);
+                // echo '<pre>';
+                // print_r($delivery);
+                // die;
+            @endphp
+            <div class="col-lg-12 table-responsive">
+                <table class="table table-bordered aiz-table invoice-summary">
+                    <thead>
+                        <tr class="bg-trans-dark">
+                            <th data-breakpoints="lg" class="min-col">#</th>
+                            <th width="20%">Delivery Boy</th>
+                            <th class="text-uppercase  text-center">Assigned Date</th>
+                            <th class="text-uppercase  text-center">delivery Status</th>
+                            <th class="min-col text-center text-uppercase">payment status</th>
+                            <th width="25%" class="min-col text-left text-uppercase">
+                                delivery note</th>
+                            <th class="min-col text-center text-uppercase">
+                                delivery image</th>
+                            <th class="min-col text-center text-uppercase">
+                                    delivery date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ( $delivery as $delAs)
+                            <tr>
+                                <td>{{$loop->iteration}}</td>
+                                <td>
+                                   {{ ucwords($delAs['deliveryBoy']['name'] ?? '') }}
+                                </td>
+                                <td class="text-center">
+                                    {{ ($delAs['created_at'] != null) ? date('d-M-Y H:i a', strtotime($delAs['created_at'])) : ''  }}
+                                </td>    
+                                <td class="text-capitalize text-center">
+                                    {{ ($delAs['status'] == 1) ? 'Delivered' : 'Pending'}}
+                                </td>
+                                <td class="text-capitalize text-center">
+                                    {{ ($delAs['payment_status'] == 1) ? 'Paid' : ''}}
+                                </td>
+                                <td class="text-left">
+                                    {{ $delAs['delivery_note'] ?? ''}}
+                                </td>
+                                <td class="text-center">
+                                    @if (!empty($delAs['delivery_image']))
+                                        <a href="{{ asset($delAs['delivery_image']) }}" target="_blank"><img src="{{ asset($delAs['delivery_image']) }}" width="150px" alt="Order Image"/></a>
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    {{ ($delAs['delivery_date'] != null) ? date('d-M-Y H:i a', strtotime($delAs['delivery_date'])) : ''  }}
+                                </td>             
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
 @endsection
 
 @section('styles')

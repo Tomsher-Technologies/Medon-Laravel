@@ -1757,3 +1757,18 @@ function getActiveBuyXgetYOfferProducts(){
         $count = OrderDeliveryBoys::where('order_id',$order_id)->where('delivery_boy_id', $user_id)->where('status',0)->count();
         return $count;
     }
+
+    function getAssignedDeliveryBoy($order_id){
+        $boy = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->where('status',0)->first();
+        return $boy->deliveryBoy->name ?? '';
+    }
+
+    function getDeliveryBoy($order_id){
+        $boys = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->where('status',1)->groupBy('delivery_boy_id')->get();
+        return $boys;
+    }
+
+    function getOrderDeliveryDetails($order_id){
+        $boys = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->orderBy('id','asc')->get();
+        return $boys;
+    }

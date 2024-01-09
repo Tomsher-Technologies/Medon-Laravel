@@ -173,16 +173,19 @@ class DeliveryBoyController extends Controller
 
             $order->save();
 
-            $file_name = NULL;
+            $file_name = $name = NULL;
             $path = NULL;
             if ($request->hasFile('image')) {
                 $file_name = time() . '_' . $request->file('image')->getClientOriginalName();
-                $path = 'delivery_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m') . '/';
-                Storage::disk('public')->putFileAs($path, $request->file('image'),  $file_name);
+                $name = Storage::disk('public')->putFileAs(
+                    'delivery_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m'),
+                    $request->file('image'),
+                    $file_name
+                );
             }
 
-            if ($file_name && $path) {
-                $deliveryOrder->delivery_image =  $path .  $file_name;
+            if ($name) {
+                $deliveryOrder->delivery_image =  Storage::url($name);
             }
 
             if ($deliveryOrder->save()) {
@@ -193,7 +196,7 @@ class DeliveryBoyController extends Controller
                 ]);
             }
         }
-        
+
         return response()->json([
             'status' => false,
             'order_id' => "Order not found",
