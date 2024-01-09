@@ -39,18 +39,45 @@ class DeliveryBoyController extends Controller
 
     public function assigned_delivery(Request $request)
     {
-        $orders = Order::where([
-            'assign_delivery_boy' => $request->user()->id,
-        ])->whereIn('delivery_status', array('picked_up', 'confirmed'))->latest()->get();
-        return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
+        // $orders = Order::where([
+        //     'assign_delivery_boy' => $request->user()->id,
+        // ])->whereIn('delivery_status', array('picked_up', 'confirmed'))->latest()->get();
+
+        $orders = OrderDeliveryBoys::with(['order'])
+                    ->where('delivery_boy_id', $request->user()->id)
+                    ->where('status', 0)
+                    ->orderBy('id','desc')
+                    ->get();
+       
+        if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
+            return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
+        }else {
+            return response()->json([
+                'status' => true,
+                "message" => "No Data Found!"
+                ],200);
+        }
     }
     public function completed_delivery(Request $request)
     {
-        $orders = Order::where([
-            'assign_delivery_boy' => $request->user()->id,
-            'delivery_status' => 'delivered'
-        ])->latest()->get();
-        return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
+        // $orders = Order::where([
+        //     'assign_delivery_boy' => $request->user()->id,
+        //     'delivery_status' => 'delivered'
+        // ])->latest()->get();
+        $orders = OrderDeliveryBoys::with(['order'])
+                    ->where('delivery_boy_id', $request->user()->id)
+                    ->where('status', 1)
+                    ->orderBy('id','desc')
+                    ->get();
+       
+        if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
+            return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
+        }else {
+            return response()->json([
+                'status' => true,
+                "message" => "No Data Found!"
+                ],200);
+        }
     }
 
     /**
