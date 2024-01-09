@@ -118,16 +118,60 @@ class DeliveryBoyController extends Controller
      */
     public function complete_delivery(Request $request)
     {
-        $order = Order::where([
-            'assign_delivery_boy' => $request->user()->id,
-            'delivery_status' => 'picked_up',
-            'id' => $request->order_id
-        ])->firstOrFail();
+        $order_id = $request->order_id ?? '';
+        $user_id = $request->user()->id ;
+        $delivery_note = $request->delivery_note ?? '';
+        $payment_status = $request->payment_status ?? 0;
 
-        if ($order) {
-            $order->delivery_note = $request->delivery_note;
-            $order->delivery_completed_date = Carbon::now();
-            $order->delivery_status = 'delivered';
+        $deliveryOrder = OrderDeliveryBoys::with(['order'])
+                    ->where('delivery_boy_id', $user_id)
+                    ->where('status', 0)
+                    ->where('order_id', $order_id)
+                    ->firstOrFail();
+
+        if ($deliveryOrder) {
+            $deliveryOrder->delivery_note = $request->delivery_note;
+            $deliveryOrder->delivery_date = Carbon::now();
+            $deliveryOrder->status = 1;
+            $deliveryOrder->payment_status = $payment_status;
+
+            // Update order status as delivered
+            $order = Order::find($order_id);
+            if($order->delivery_status == 'partial_pick_up'){
+                $order->delivery_status = 'partial_delivery';
+
+                foreach ($order->orderDetails as $key => $orderDetail) {
+                    if ($orderDetail->delivery_status == 'picked_up') {
+                        $orderDetail->delivery_status = 'delivered';
+                        $orderDetail->delivery_by = $user_id;
+                    } 
+                    
+                    if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                        $orderDetail->payment_status = 'paid';
+                    }
+
+                    $orderDetail->save();
+                }
+
+            }elseif($order->delivery_status == 'picked_up'){
+                $order->delivery_status = 'delivered';
+
+                foreach ($order->orderDetails as $key => $orderDetail) {
+                    $orderDetail->delivery_status = 'delivered';
+                    $orderDetail->delivery_by = $user_id;
+                    
+                    if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                        $orderDetail->payment_status = 'paid';
+                    }
+                    $orderDetail->save();
+                }
+            }
+
+            if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                $order->payment_status = 'paid';
+            }
+
+            $order->save();
 
             $file_name = NULL;
             $path = NULL;
@@ -138,24 +182,21 @@ class DeliveryBoyController extends Controller
             }
 
             if ($file_name && $path) {
-                $order->delivery_image =  $path .  $file_name;
+                $deliveryOrder->delivery_image =  $path .  $file_name;
             }
 
-            if ($order->payment_type == 'cash_on_delivery') {
-                $order->payment_status = 'paid';
-            }
-
-            if ($order->save()) {
+            if ($deliveryOrder->save()) {
                 return response()->json([
                     'status' => true,
-                    'order_id' => $request->order_id,
-                    'message' => "Order Completed",
+                    'order_id' => $order_id,
+                    'message' => "Order Delivery Completed",
                 ]);
             }
         }
+        
         return response()->json([
             'status' => false,
-            'order_id' => "Something went wrong, please try again",
+            'order_id' => "Order not found",
         ]);
     }
 

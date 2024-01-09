@@ -565,7 +565,9 @@ class OrderController extends Controller
        
         $order = Order::findOrFail($request->order_id);
         $order->delivery_viewed = '0';
-        $order->delivery_status = $request->status;
+        if($order->delivery_status != 'partial_delivered' && $order->delivery_status != 'partial_pick_up'){
+            $order->delivery_status = $request->status;
+        }
         $order->save();
 
         $track              = new OrderTracking;
@@ -584,8 +586,10 @@ class OrderController extends Controller
                 $orderDetail->save();
             }else{
                 if($request->status != 'partial_pick_up' && $request->status != 'partial_delivery'){
-                    $orderDetail->delivery_status = $request->status;
-                    $orderDetail->save();
+                    if($orderDetail->delivery_status != 'picked_up' && $orderDetail->delivery_status != 'delivered'){
+                        $orderDetail->delivery_status = $request->status;
+                        $orderDetail->save();
+                    }
                 }
             }
 
