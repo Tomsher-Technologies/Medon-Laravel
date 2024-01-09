@@ -316,6 +316,13 @@
                                 </div>
                             </div>
 
+                            <div class="form-group row">
+                                <label class="col-md-3 col-from-label">VAT (%) </label>
+                                <div class="col-md-6">
+                                    <input type="number" lang="en" min="0" value="{{ $product->vat }}" step="0.01" placeholder="VAT" name="vat" class="form-control">
+                                </div>
+                            </div> 
+
                             <div class="sku_combination" id="sku_combination">
 
                             </div>

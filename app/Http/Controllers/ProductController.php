@@ -124,6 +124,7 @@ class ProductController extends Controller
 
         $product->unit = $request->unit;
         $product->min_qty = $request->min_qty;
+        $product->vat = $request->vat ?? 0;
         $product->sku = cleanSKU($request->sku);
         $product->low_stock_quantity = $request->low_stock_quantity;
         $product->stock_visibility_state = $request->stock_visibility_state;
@@ -555,6 +556,7 @@ class ProductController extends Controller
         // $product->photos                 = $request->photos;
         // $product->thumbnail_img          = $request->thumbnail_img;
         $product->min_qty                = $request->min_qty;
+        $product->vat                   = $request->vat ?? 0;
         $product->low_stock_quantity     = $request->low_stock_quantity;
         $product->stock_visibility_state = $request->stock_visibility_state;
         $product->external_link = $request->external_link;
