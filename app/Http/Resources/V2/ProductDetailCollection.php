@@ -160,8 +160,8 @@ class ProductDetailCollection extends JsonResource
     public function with($request)
     {
         return [
-            'success' => true,
-            'status' => 200
+            'message' => "Data fetched",
+            'status' => true
         ];
     }
 

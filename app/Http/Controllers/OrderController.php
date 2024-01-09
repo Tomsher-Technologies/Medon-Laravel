@@ -17,6 +17,7 @@ use App\Models\Color;
 use App\Models\OrderDetail;
 use App\Models\CouponUsage;
 use App\Models\Coupon;
+use App\Models\OrderDeliveryBoys;
 use App\OtpConfiguration;
 use App\Models\User;
 use App\Models\BusinessSetting;
@@ -781,17 +782,41 @@ class OrderController extends Controller
         
         $rows = '';
         foreach ($locs as $key => $loc) {
+            $checkAssigned = checkDeliveryAssigned($order_id,$loc->user_id);
             $rows .= '<tr>
                         <td>'. ($key+1) .'</td>
                         <td>'. $loc->user->name .'</td>
                         <td>'. $loc->user->phone .'</td>
                         <td class="text-center"><span class="badge badge-inline badge-success">'. $loc->distance .' KM</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-success d-innline-block assignDelivery" data-agentid="'.$loc->user_id.'" data-orderid="'.$loc->order_id.'" data-status="1">Assign Delivery</button>
-                        </td>
+                        <td class="text-center">';
+                        if($checkAssigned == 0){
+                            $rows .='<button class="btn btn-sm btn-success d-innline-block assignDelivery" data-agentid="'.$loc->user_id.'" data-orderid="'.$loc->order_id.'" data-status="1">Assign Delivery</button>';
+                        }else{
+                            $rows .= '<span class="text-danger">Delivery Assigned</span>';
+                        }
+                        $rows .=  '</td>
                     </tr>';
         }
         
         return $rows;
+    }
+
+    public function assignDeliveryAgent(Request $request){
+
+        $order = Order::findOrFail($request->order_id);
+        $order->assign_delivery_boy = $request->agent_id;
+        $order->save();
+
+        $check = OrderDeliveryBoys::where('order_id', $request->order_id)->where('status',0)->count();
+        if($check > 0){
+            $odb = OrderDeliveryBoys::where('order_id', $request->order_id)->where('status', 0)->delete();
+        }
+           
+        $odc = new OrderDeliveryBoys;
+        $odc->order_id = $request->order_id;
+        $odc->delivery_boy_id = $request->agent_id;
+        $odc->status = 0;
+        $odc->save();
+        
     }
 }

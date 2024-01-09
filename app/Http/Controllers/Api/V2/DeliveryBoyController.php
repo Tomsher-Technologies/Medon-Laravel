@@ -9,6 +9,7 @@ use App\Models\DeliveryHistory;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\SmsTemplate;
+use App\Models\OrderDeliveryBoys;
 use App\Utility\SmsUtility;
 use Carbon\Carbon;
 use Storage;
@@ -27,12 +28,12 @@ class DeliveryBoyController extends Controller
     {
         $user_id = $request->user()->id;
 
-        $orders = Order::where('assign_delivery_boy', $user_id)->get();
+        $orders = OrderDeliveryBoys::where('delivery_boy_id', $user_id)->get();
 
         return response()->json([
             'status' => true,
-            'completed_delivery' => $orders->where('delivery_status', 'delivered')->count(),
-            'assigned_delivery' => $orders->whereIn('delivery_status', array('picked_up', 'confirmed'))->count()
+            'completed_delivery' => $orders->where('status', 1)->count(),
+            'assigned_delivery' => $orders->whereIn('status', 0)->count()
         ]);
     }
 

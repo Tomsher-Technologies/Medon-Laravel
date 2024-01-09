@@ -61,8 +61,24 @@
         $(document).on('click','.assignDelivery', function(){
             var agentId = $(this).attr('data-agentid');
             var orderId = $(this).attr('data-orderid');
-            alert(agentId);
-            alert(orderId);
+            
+            $.ajax({
+                url: "{{ route('assign-delivery-boy') }}",
+                type: "POST",
+                data: {
+                    order_id: orderId,
+                    agent_id: agentId,
+                    _token: '{{ @csrf_token() }}',
+                },
+                dataType: "html",
+                success: function(response) {
+                    AIZ.plugins.notify('success', 'Delivery agent has been assigned');
+                    getAvailableDeliveryAgents(orderId);
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    AIZ.plugins.notify('error', 'Something went wrong');
+                }
+            });
         });
     </script>
 @endsection
