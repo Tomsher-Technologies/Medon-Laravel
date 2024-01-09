@@ -299,6 +299,9 @@ class CheckoutController extends Controller
                     'status' => true,
                     'message' => 'Your order has been placed successfully',
                     'data' => array(
+                        'order_id' => $order->id,
+                        'order_code' => $order->code,
+                        'grand_total' => $grand_total,
                         'payment_type' => 'cash_on_delivery',
                         'url' => ''
                     )
@@ -357,6 +360,9 @@ class CheckoutController extends Controller
                         'status' => true,
                         'message' => 'Payment gateway',
                         'data' => array(
+                            'order_id' => $order->id,
+                            'order_code' => $order->code,
+                            'grand_total' => $cardAmount,
                             'payment_type' => 'card',
                             'url' => $url
                         )
@@ -370,6 +376,9 @@ class CheckoutController extends Controller
                         'status' => true,
                         'message' => 'Your order has been placed successfully',
                         'data' => array(
+                            'order_id' => $order->id,
+                            'order_code' => $order->code,
+                            'grand_total' => $cardAmount,
                             'payment_type' => 'wallet',
                             'url' =>''
                         )
@@ -381,6 +390,9 @@ class CheckoutController extends Controller
                 'status' => false,
                 'message' => 'Cart Empty',
                 'data' => array(
+                    'order_id' => '',
+                    'order_code' => '',
+                    'grand_total' => 0,
                     'payment_type' => '',
                     'url' => ''
                 )
