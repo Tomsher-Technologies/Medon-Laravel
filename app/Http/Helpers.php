@@ -1772,3 +1772,8 @@ function getActiveBuyXgetYOfferProducts(){
         $boys = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->orderBy('id','asc')->get();
         return $boys;
     }
+
+    function getDatePlusXDays($date, $days){
+        $result = date("Y-m-d H:i:s", strtotime($date . "+".$days." days"));
+        return $result;
+    }

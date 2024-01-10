@@ -261,7 +261,7 @@ class ProfileController extends Controller
     public function orderDetails(Request $request){
         $order_code = $request->order_code ?? '';
         $user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
-       
+        $default_return_time = get_setting('default_return_time') ?? 0;
         if($order_code != ''){
             $order = Order::where('code',$order_code)->where('user_id',$user_id)->first();
             if($order){
@@ -292,6 +292,11 @@ class ProfileController extends Controller
                 if($order->orderDetails){
                     foreach($order->orderDetails as $product){
                         $requestCount = ($product->refund_request) ? 1 : 0 ;
+                        $return_expiry = null;
+                        if($product->delivery_date != null && $default_return_time != 0 ){
+                            $return_expiry = getDatePlusXDays($product->delivery_date, $default_return_time);
+                        }
+
                         $details['products'][] = array(
                             'id' => $product->id ?? '',
                             'product_id' => $product->product_id ?? '',
@@ -306,7 +311,8 @@ class ProfileController extends Controller
                             'delivery_date'   => $product->delivery_date ?? '',
                             'thumbnail_img' => app('url')->asset($product->product->thumbnail_img ?? ''),
                             'return_refund' => $product->product->return_refund ?? '',
-                            'refund_requested' => $requestCount
+                            'refund_requested' => $requestCount,
+                            'return_expiry' =>  $return_expiry
                         );
                     }
                 }
