@@ -369,6 +369,11 @@
                             <span class="aiz-side-nav-arrow"></span>
                         </a>
                         <ul class="aiz-side-nav-list level-2">
+                             <li class="aiz-side-nav-item">
+                                <a href="{{ route('shipping_configuration.index') }}" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">Shipping and Return</span>
+                                </a>
+                            </li>
                             {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('general_setting.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">General Settings</span>
@@ -438,7 +443,7 @@
 
 
 
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="javascript:void(0);" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Shipping</span>
                                     <span class="aiz-side-nav-arrow"></span>
@@ -450,7 +455,7 @@
                                             <span class="aiz-side-nav-text">Shipping Configuration</span>
                                         </a>
                                     </li>
-                                    {{-- <li class="aiz-side-nav-item">
+                                    <li class="aiz-side-nav-item">
                                         <a href="{{ route('countries.index') }}"
                                             class="aiz-side-nav-link {{ areActiveRoutes(['countries.index', 'countries.edit', 'countries.update']) }}">
                                             <span class="aiz-side-nav-text">Shipping Countries</span>
@@ -467,9 +472,9 @@
                                             class="aiz-side-nav-link {{ areActiveRoutes(['cities.index', 'cities.edit', 'cities.update']) }}">
                                             <span class="aiz-side-nav-text">Shipping Cities</span>
                                         </a>
-                                    </li> --}}
+                                    </li>
                                 </ul>
-                            </li>
+                            </li> --}}
 
                         </ul>
                     </li>

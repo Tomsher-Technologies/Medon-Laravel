@@ -144,6 +144,7 @@ class DeliveryBoyController extends Controller
                     if ($orderDetail->delivery_status == 'picked_up') {
                         $orderDetail->delivery_status = 'delivered';
                         $orderDetail->delivery_by = $user_id;
+                        $orderDetail->delivery_date = date('Y-m-d H:i:s');
                     } 
                     
                     if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
@@ -159,6 +160,7 @@ class DeliveryBoyController extends Controller
                 foreach ($order->orderDetails as $key => $orderDetail) {
                     $orderDetail->delivery_status = 'delivered';
                     $orderDetail->delivery_by = $user_id;
+                    $orderDetail->delivery_date = date('Y-m-d H:i:s');
                     
                     if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
                         $orderDetail->payment_status = 'paid';

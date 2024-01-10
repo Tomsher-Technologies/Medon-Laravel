@@ -61,14 +61,17 @@ class CheckoutController extends Controller
                 ], 200);
             }
 
-            $is_used = CouponUsage::where('user_id', $user['users_id'])->where('coupon_id', $coupon->id)->first() != null;
+            if($coupon->one_time_use == 1){
+                $is_used = CouponUsage::where('user_id', $user['users_id'])->where('coupon_id', $coupon->id)->first() != null;
 
-            if ($is_used) {
-                return response()->json([
-                    'status' => false,
-                    'message' => translate('You already used this coupon!')
-                ], 200);
+                if ($is_used) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => translate('You already used this coupon!')
+                    ], 200);
+                }
             }
+            
             $coupon_details = json_decode($coupon->details);
 
             if ($coupon->type == 'cart_base') {
@@ -77,7 +80,7 @@ class CheckoutController extends Controller
                 $shipping = 0;
                 foreach ($cart_items as $key => $cartItem) {
                     $subtotal += $cartItem['offer_price'] * $cartItem['quantity'];
-                    $tax += $cartItem['tax'] * $cartItem['quantity'];
+                    $tax += $cartItem['tax'] ;
                     $shipping += $cartItem['shipping'] * $cartItem['quantity'];
                 }
                 $sum = $subtotal + $tax + $shipping;
@@ -216,7 +219,7 @@ class CheckoutController extends Controller
                 'shipping_address' => $shipping_address_json,
                 'grand_total' => 0,
             ]);
-            $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = 0;
+            $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = $total_shipping = $total_tax = 0;
             $coupon_code = '';
 
             $order = Order::create([
@@ -234,6 +237,7 @@ class CheckoutController extends Controller
                 'payment_type' => $request->payment_method ?? '',
                 'payment_status' => 'un_paid',
                 'grand_total' =>  0,
+                'tax' => 0,
                 'sub_total' => 0,
                 'offer_discount' => 0,
                 'coupon_discount' => 0,
@@ -253,6 +257,8 @@ class CheckoutController extends Controller
 
             foreach($carts as $data){
                 $sub_total = $sub_total + ($data->price * $data->quantity);
+                $total_tax = $total_tax + $data->tax;
+                $total_shipping = $total_shipping + $data->shipping_cost;
                 $discount = $discount + (($data->price * $data->quantity) - ($data->offer_price * $data->quantity));
                 $coupon_code = $data->coupon_code;
                 $coupon_applied = $data->coupon_applied;
@@ -264,6 +270,8 @@ class CheckoutController extends Controller
                     'product_id' => $data->product_id,
                     'variation' => $data->variation,
                     'og_price' => $data->price,
+                    'tax' => $data->tax,
+                    'shipping_cost' => $data->shipping_cost,
                     'offer_price' => $data->offer_price,
                     'price' => $data->offer_price * $data->quantity,
                     'quantity' => $data->quantity,
@@ -275,7 +283,7 @@ class CheckoutController extends Controller
                 $product->save();
             }
             OrderDetail::insert($orderItems);
-            $grand_total = $sub_total - ($discount + $total_coupon_discount);
+            $grand_total = ($sub_total + $total_tax + $total_shipping)  - ($discount + $total_coupon_discount);
 
             $combined_order->grand_total = $grand_total;
             $combined_order->save();
@@ -283,6 +291,9 @@ class CheckoutController extends Controller
             $order->grand_total         = $grand_total;
             $order->sub_total           = $sub_total;
             $order->offer_discount      = $discount;
+            $order->tax                 = $total_tax;
+            $order->shipping_cost       = $total_shipping;
+            $order->shipping_type       = ($total_shipping == 0) ? 'free_shipping' : 'flat_rate';
             $order->coupon_discount     = $total_coupon_discount;
             $order->save();
 

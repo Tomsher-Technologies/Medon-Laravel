@@ -323,9 +323,10 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/classified_products/published', [CustomerProductController::class, 'updatePublished'])->name('classified_products.published');
 
     //Shipping Configuration
-    Route::get('/shipping_configuration', [BusinessSettingsController::class, 'shipping_configuration'])->name('shipping_configuration.index');
-    Route::post('/shipping_configuration/update', [BusinessSettingsController::class, 'shipping_configuration_update'])->name('shipping_configuration.update');
+    Route::get('/configuration', [BusinessSettingsController::class, 'shipping_configuration'])->name('shipping_configuration.index');
+    Route::post('/configuration/update', [BusinessSettingsController::class, 'shipping_configuration_update'])->name('shipping_configuration.update');
     Route::post('/shipping_configuration/free_shipping', [BusinessSettingsController::class, 'freeshipping_settings'])->name('shipping_configuration.free_shipping');
+    Route::post('/configuration/return', [BusinessSettingsController::class, 'return_settings'])->name('configuration.return_settings');
 
     Route::resource('countries', CountryController::class);
     Route::post('/countries/status', [CountryController::class, 'updateStatus'])->name('countries.status');
