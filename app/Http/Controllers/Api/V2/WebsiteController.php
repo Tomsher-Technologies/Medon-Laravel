@@ -109,7 +109,7 @@ class WebsiteController extends Controller
 
         $home_banners = BusinessSetting::whereIn('type', array('home_banner_1', 'home_banner_2', 'home_banner_3'))->get()->keyBy('type');
         $banners = [];
-        $all_banners = Banner::with(['mainImage'])->where('status', true)->get();
+        $all_banners = Banner::with(['mainImage','mobileImage'])->where('status', true)->get();
         foreach($home_banners as $key => $hb){
             $bannerid = json_decode($hb->value);
             if(!empty($bannerid)){
@@ -121,7 +121,8 @@ class WebsiteController extends Controller
                     'type' => $bannerData->link_type ?? '',
                     'link' => $bannerData->link_type == 'external' ? $bannerData->link : $bannerData->getBannerLink(),
                     'type_id' => $bannerData->link_ref_id,
-                    'image' => storage_asset($bannerData->mainImage->file_name)
+                    'image' => ($bannerData->mainImage) ? storage_asset($bannerData->mainImage->file_name) : '',
+                    'mob_image' => ($bannerData->mobileImage) ? storage_asset($bannerData->mobileImage->file_name) : '',
                 );
             }else{
                 $banners[$key] = array();
