@@ -322,7 +322,7 @@ class CommonController extends Controller
                             // 'image1' => $c_banner,
                             'link_type' => $c_banner->link_type ?? '',
                             'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
-                            'image' => storage_asset($c_banner->mobileImage->file_name)
+                            'image' => $c_banner->mobileImage->file_name ? storage_asset($c_banner->mobileImage->file_name) : '',
                         );
                     }else{
                         $banners[$banner->type][] = null;
