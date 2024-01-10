@@ -501,7 +501,7 @@ class CheckoutController extends Controller
         $reason   = $request->reason ?? '';
         $user = getUser();
         $order_details = explode(',', $products);
-
+        $default_return_time = get_setting('default_return_time') ?? 0;
         if($order_id != ''){
             if(!empty($order_details)){
                 $details = OrderDetail::with(['product'])->whereIn('id', $order_details)->where('order_id',$order_id)->get();
@@ -509,9 +509,15 @@ class CheckoutController extends Controller
                 $data = [];
                 if(!empty($details[0])){
                     foreach($details as $od){
+
+                        $return_expiry = null;
+                        if($od->delivery_date != null && $default_return_time != 0 ){
+                            $return_expiry = getDatePlusXDays($od->delivery_date, $default_return_time);
+                        }
+
                         if($od->product->return_refund == 1){
                             $checkReturn = RefundRequest::where('order_id',$order_id)->where('order_details_id', $od->id)->count();
-                            if($checkReturn == 0){
+                            if($checkReturn == 0 && ($return_expiry != null && $return_expiry > date('Y-m-d H:i:s'))){
                                 $data[] = array(
                                     'order_id' => $order_id,
                                     'order_details_id' => $od->id,
@@ -520,11 +526,12 @@ class CheckoutController extends Controller
                                     'reason' => $reason,
                                     'offer_price' => $od->offer_price,
                                     'quantity' => $od->quantity,
-                                    'refund_amount' => ($od->offer_price * $od->quantity)
+                                    'refund_amount' => ($od->offer_price * $od->quantity) + $od->tax
                                 );
                             }
                         }
                     }
+                   
                     if(!empty($data)){
                         RefundRequest::insert($data);
                         return response()->json([
