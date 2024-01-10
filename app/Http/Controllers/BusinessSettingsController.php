@@ -551,6 +551,7 @@ class BusinessSettingsController extends Controller
 
     public function freeshipping_settings(Request $request)
     {
+       
         BusinessSetting::updateOrCreate([
             'type' => 'free_shipping_status'
         ], [
@@ -564,9 +565,23 @@ class BusinessSettingsController extends Controller
         ]);
 
         BusinessSetting::updateOrCreate([
-            'type' => 'free_shipping_max_amount'
+            'type' => 'default_shipping_amount'
         ], [
-            'value' => $request->free_shipping_max_amount ?? 0
+            'value' => $request->default_shipping_amount ?? 0
+        ]);
+
+        flash(translate('Settings updated successfully'))->success();
+
+        Artisan::call('cache:clear');
+        return back();
+    }
+
+    public function return_settings(Request $request)
+    {
+        BusinessSetting::updateOrCreate([
+            'type' => 'default_return_time'
+        ], [
+            'value' => $request->default_return_time ?? 0
         ]);
 
         flash(translate('Settings updated successfully'))->success();

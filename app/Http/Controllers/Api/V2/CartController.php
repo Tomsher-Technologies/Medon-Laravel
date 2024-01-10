@@ -27,7 +27,6 @@ class CartController extends Controller
             }
             $carts = Cart::where('user_id', $user_id)->orderBy('id','asc')->get();
             
-            $offerCartCount = $carts->whereNotNull('offer_id')->count();
             if(!empty($carts[0])){
                 $carts->load(['product', 'product.stocks']);
             }
@@ -35,12 +34,7 @@ class CartController extends Controller
         } else {
             $temp_user_id = $request->header('UserToken');
             $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->orderBy('id','asc')->get() : [];
-            if(!empty($carts)){
-                $offerCartCount = $carts->whereNotNull('offer_id')->count();
-            }else{
-                $offerCartCount= 0;
-            }
-           
+    
             if(!empty($carts[0])){
                 $carts->load(['product', 'product.stocks']);
             }
@@ -51,9 +45,26 @@ class CartController extends Controller
         $result = [];
         $sub_total = $discount = $shipping = $coupon_display = $coupon_discount = $offerIdCount = $total_coupon_discount = 0;
         $coupon_code = $coupon_applied = null;
+
+        $overall_subtotal = $total_discount = $total_tax = $total_shipping = $cart_coupon_discount = 0;
+        $cart_coupon_code = $cart_coupon_applied = NULL;
         
         if(!empty($carts[0])){
-            
+
+            foreach($carts as $data){
+                $priceData = getProductOfferPrice($data->product);
+                
+                $updateCart = Cart::find($data->id);
+                $updateCart->price = $priceData['original_price'];
+                $updateCart->offer_price = $priceData['discounted_price'];
+                $updateCart->offer_id = ($priceData['offer_id'] >= 0) ? $priceData['offer_id'] : NULL;
+                $updateCart->offer_tag = ($priceData['offer_id'] >= 0) ? $priceData['offer_tag'] : NULL;
+                $updateCart->save();
+            }
+
+            $carts = $carts->fresh();
+            $offerCartCount = $carts->whereNotNull('offer_id')->count();
+
             if($offerCartCount == 0){
                 $coupon_code = $carts[0]->coupon_code;
                 if ($coupon_code) {
@@ -81,7 +92,7 @@ class CartController extends Controller
                             $shipping = 0;
                             foreach ($carts as $key => $cartItem) {
                                 $subtotal += $cartItem['offer_price'] * $cartItem['quantity'];
-                                $tax += $cartItem['tax'] * $cartItem['quantity'];
+                                $tax += $cartItem['tax'];
                                 $shipping += $cartItem['shipping'] * $cartItem['quantity'];
                             }
                             $sum = $subtotal + $tax + $shipping;
@@ -127,55 +138,7 @@ class CartController extends Controller
 
                     }
                 }
-            }
-            $carts = $carts->fresh();
-            $newOfferCartCount = 0;
-            foreach($carts as $data){
-                $priceData = getProductOfferPrice($data->product);
-                
-                $updateCart = Cart::find($data->id);
-                $updateCart->price = $priceData['original_price'];
-                $updateCart->offer_price = $priceData['discounted_price'];
-                $updateCart->offer_id = ($priceData['offer_id'] >= 0) ? $priceData['offer_id'] : NULL;
-                $updateCart->save();
-
-                if($priceData['offer_tag'] != ''){
-                    $coupon_display++;
-                }
-
-                if($priceData['offer_id'] >= 0){
-                    $offerIdCount++;
-                }
-
-                $sub_total = $sub_total + ($priceData['original_price'] * $data->quantity);
-
-                $discount = $discount + (($priceData['original_price'] * $data->quantity) - ($priceData['discounted_price'] * $data->quantity));
-
-                $result['products'][] = [
-                    'id' => $data->id,
-                    'product' => [
-                        'id' => $data->product->id,
-                        'name' => $data->product->name,
-                        'slug' => $data->product->slug,
-                        'sku' => $data->product->sku,
-                        'image' => app('url')->asset($data->product->thumbnail_img)
-                    ],
-                    'variation' => $data->variation,
-                    'stroked_price' => $priceData['original_price'],
-                    'main_price' => $priceData['discounted_price'],
-                    'offer_tag' => $priceData['offer_tag'],
-                    'quantity' => (integer) $data->quantity,
-                    'date' => $data->created_at->diffForHumans(),
-                    'total' => $data->offer_price * $data->quantity
-                ];
-                $coupon_code = $data->coupon_code;
-                $coupon_applied = $data->coupon_applied;
-                if($data->coupon_applied == 1){
-                    $total_coupon_discount += $data->discount;
-                }
-            }
-
-            if($offerIdCount > 0 && $user_id != ''){
+            }elseif($offerCartCount > 0 && $user_id != ''){
                 Cart::where('user_id', $user_id)->update([
                     'discount' => 0.00,
                     'coupon_code' => "",
@@ -185,21 +148,94 @@ class CartController extends Controller
                 $coupon_applied = 0;
                 $total_coupon_discount = 0;
             }
+            $carts = $carts->fresh();
+            $newOfferCartCount = 0;
+
+           
+            foreach($carts as $datas){
+
+                $overall_subtotal = $overall_subtotal + ($datas->price * $datas->quantity);
+
+                $total_discount = $total_discount + (($datas->price * $datas->quantity) - ($datas->offer_price * $datas->quantity));
+                $total_tax = $total_tax + $datas->tax;
+
+                $result['products'][] = [
+                    'id' => $datas->id,
+                    'product' => [
+                        'id' => $datas->product->id,
+                        'name' => $datas->product->name,
+                        'slug' => $datas->product->slug,
+                        'sku' => $datas->product->sku,
+                        'image' => app('url')->asset($datas->product->thumbnail_img)
+                    ],
+                    'variation' => $datas->variation,
+                    'stroked_price' => $datas->price ,
+                    'main_price' => $datas->offer_price ,
+                    'tax' => $datas->tax,
+                    'offer_tag' => $datas->offer_tag,
+                    'quantity' => (integer) $datas->quantity,
+                    'date' => $datas->created_at->diffForHumans(),
+                    'total' => $datas->offer_price * $datas->quantity
+                ];
+                $cart_coupon_code = $datas->coupon_code;
+                $cart_coupon_applied = $datas->coupon_applied;
+                if($datas->coupon_applied == 1){
+                    $cart_coupon_discount += $datas->discount;
+                }
+                if($datas->offer_tag != ''){
+                    $coupon_display++;
+                }
+            }
+
         }else{
             $result['products'] = [];
         }
 
+
+
+        $cart_total = ($overall_subtotal + $total_tax) - ($total_discount + $cart_coupon_discount);
+
+        $freeShippingStatus = get_setting('free_shipping_status');
+        $freeShippingLimit = get_setting('free_shipping_min_amount');
+        $defaultShippingCharge = get_setting('default_shipping_amount');
+        $cartCount = count($carts);
+
+        if($freeShippingStatus == 1){
+            if($cart_total >= $freeShippingLimit){
+                $total_shipping = 0;
+                Cart::where('user_id', $user_id)->update([
+                    'shipping_cost' => 0
+                ]);
+            }else{
+                $total_shipping = $defaultShippingCharge;
+                if($user_id != '' && $defaultShippingCharge > 0 && $cartCount != 0){
+                    Cart::where('user_id', $user_id)->update([
+                        'shipping_cost' => $defaultShippingCharge / $cartCount
+                    ]);
+                }
+            }
+        }else{
+            $total_shipping = $defaultShippingCharge;
+            if($user_id != '' && $defaultShippingCharge > 0 && $cartCount != 0){
+                Cart::where('user_id', $user_id)->update([
+                    'shipping_cost' => $defaultShippingCharge / $cartCount
+                ]);
+            }
+        }
+
+        $cart_total = ($overall_subtotal + $total_shipping + $total_tax) - ($total_discount + $cart_coupon_discount);
+
         $result['summary'] = [
-            'sub_total' => $sub_total,
-            'discount' => $discount, // Discount is in percentage
-            'shipping' => $shipping,
+            'sub_total' => $overall_subtotal,
+            'discount' => $total_discount, // Discount is in percentage
+            'shipping' => $total_shipping,
             'vat_percentage' => 0,
-            'vat_amount' => 0,
-            'total' => $sub_total - ($discount+$total_coupon_discount),
+            'vat_amount' => $total_tax,
+            'total' => $cart_total,
             'coupon_display' => ($coupon_display === 0) ? 1 : 0,
-            'coupon_code' => $coupon_code,
-            'coupon_applied' => $coupon_applied,
-            'coupon_discount' => $total_coupon_discount
+            'coupon_code' => $cart_coupon_code,
+            'coupon_applied' => $cart_coupon_applied,
+            'coupon_discount' => $cart_coupon_discount
         ];
         // echo '<pre>';
         // print_r($carts);
