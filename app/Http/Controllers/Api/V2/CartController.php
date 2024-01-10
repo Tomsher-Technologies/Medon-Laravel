@@ -260,15 +260,24 @@ class CartController extends Controller
                     'variation' => $str,
                 ])->first();
 
+                $tax = 0;
                 if ($carts) {
+                    if($product->vat != 0){
+                        $new_quantity = $carts->quantity + $request->quantity;
+                        $tax = (($cart->offer_price * $new_quantity)/100) * $product->vat;
+                    }
                     $carts->quantity += $request->quantity;
+                    $carts->tax  = $tax;
                     $carts->save();
                     $rtn_msg = 'Cart updated successfully';
                 } else {
                     $price = $product_stock->price;
+                    
 
                     $offerData = getProductOfferPrice($product);
-                    
+                    if($product->vat != 0){
+                        $tax = (($offerData['discounted_price'] * ($request['quantity'] ?? 1))/100) * $product->vat;
+                    }
                     $data[$user['users_id_type']] =  $user['users_id'];
                     $data['product_id'] = $product->id;
                     $data['quantity'] = $request['quantity'] ?? 1;
@@ -276,7 +285,7 @@ class CartController extends Controller
                     $data['offer_price'] = $offerData['discounted_price'];
                     $data['offer_id'] = ($offerData['offer_id'] >= 0) ? $offerData['offer_id'] : NULL;
                     $data['variation'] = $str;
-                    $data['tax'] = 0;
+                    $data['tax'] = $tax;
                     $data['shipping_cost'] = 0;
                     $data['product_referral_code'] = null;
                     $data['cash_on_delivery'] = $product->cash_on_delivery;
@@ -337,6 +346,13 @@ class CartController extends Controller
     
             $min_qty = $cart->product->min_qty;
             $max_qty = $cart->product->stocks->first()->qty;
+
+            $product_vat = $cart->product->vat;
+            $tax = 0;
+            if($product_vat != 0){
+                $tax = (($cart->offer_price * $quantity)/100) * $product_vat;
+            }
+            $cart->tax = $tax;
 
             if ($action == 'plus') {
                 // Increase quantity of a product in the cart.
