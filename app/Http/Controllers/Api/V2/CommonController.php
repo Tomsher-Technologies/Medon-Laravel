@@ -299,7 +299,7 @@ class CommonController extends Controller
 
     public function homeAdBanners()
     {
-        $all_banners = Banner::with(['mainImage'])->where('status', true)->get();
+        $all_banners = Banner::with(['mobileImage'])->where('status', true)->get();
 
         $banner_id = BusinessSetting::whereIn('type', [
             'app_banner_1',
@@ -318,12 +318,14 @@ class CommonController extends Controller
                 foreach ($ids as $id) {
                     $c_banner = $all_banners->where('id', $id)->first();
                     if(!empty($c_banner)){
-                        $banners[$banner->type][] = array(
-                            // 'image1' => $c_banner,
-                            'link_type' => $c_banner->link_type ?? '',
-                            'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
-                            'image' => storage_asset($c_banner->mainImage->file_name)
-                        );
+                        if($c_banner->mobileImage){
+                            $banners[$banner->type][] = array(
+                                // 'image1' => $c_banner,
+                                'link_type' => $c_banner->link_type ?? '',
+                                'link_id' => $c_banner->link_type == 'external' ? $c_banner->link : $c_banner->link_ref_id,
+                                'image' => ($c_banner->mobileImage) ? storage_asset($c_banner->mobileImage->file_name) : ''
+                            );
+                        }
                     }else{
                         $banners[$banner->type][] = null;
                     }
