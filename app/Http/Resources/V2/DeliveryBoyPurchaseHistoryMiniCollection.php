@@ -39,7 +39,8 @@ class DeliveryBoyPurchaseHistoryMiniCollection extends ResourceCollection
                     'grand_total' => ($grand_total != null) ? format_price($grand_total) : '',
                     'date' => ($created_at != null) ? Carbon::createFromFormat('Y-m-d H:i:s', $created_at)->format('d-m-Y') : '',
                     'shipping_address' => $shipping_address,
-                    'type' => $type
+                    'type' => $type,
+                    'delivery_date' => ($type == 'order') ? date('d-m-Y H:i a', strtotime($data->delivery_date)) : (($type == 'return') ? date('d-m-Y H:i a', strtotime($data->delivery_completed_date)) : '')
                 ];
             })
         ];
