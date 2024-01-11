@@ -95,11 +95,18 @@
 
                             @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                                 <td class="text-center">
-                                    <a href="{{route('return-delivery', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
+                                    @if ($order->delivery_status == 0)
+                                        <a href="{{route('return-delivery', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a><br>
+                                        @if ($order->delivery_boy != NULL)
+                                            <b class="">{{ $order->deliveryBoy->name ?? '' }}</b>
+                                        @endif
+                                    @else
+                                        <b>{{ $order->deliveryBoy->name ?? '' }}</b>
+                                    @endif
                                 </td>
 
                                 <td class="text-center">
-                                    2024-01-02
+                                    {{ ($order->delivery_completed_date != NULL) ? date('d-m-Y H:i a',strtotime($order->delivery_completed_date)) : '' }}
                                 </td>
                             @else
                                 <td class="text-center">
@@ -135,13 +142,13 @@
                             
                             @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                                 <td class="text-center">
-                                    @if($order->admin_approval == 0)
-                                        <button class="btn btn-sm btn-success d-innline-block adminApprove" data-id="{{$order->id}}" data-status="1">{{translate('Approve')}}</button>
-                                        <button class="btn btn-sm btn-warning d-innline-block adminApprove" data-id="{{$order->id}}" data-status="2">{{translate('Reject')}}</button>
+                                    @if($order->delivery_approval == 0 && $order->delivery_status == 1)
+                                        <button class="btn btn-sm btn-success d-innline-block deliveryApprove" data-id="{{$order->id}}" data-status="1">{{translate('Approve')}}</button>
+                                        <button class="btn btn-sm btn-warning d-innline-block deliveryApprove" data-id="{{$order->id}}" data-status="2">{{translate('Reject')}}</button>
                                     @else
-                                        @if($order->admin_approval == 1)
+                                        @if($order->delivery_approval == 1)
                                             <span class=" badge-soft-success">Approved</span>
-                                        @elseif($order->admin_approval == 2)
+                                        @elseif($order->delivery_approval == 2)
                                             <span class=" badge-soft-danger">Rejected</span>
                                         @endif
                                     @endif
