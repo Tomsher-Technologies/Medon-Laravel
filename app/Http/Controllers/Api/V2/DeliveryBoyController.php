@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Models\SmsTemplate;
 use App\Models\OrderDeliveryBoys;
+use App\Models\RefundRequest;
 use App\Utility\SmsUtility;
 use Carbon\Carbon;
 use Storage;
@@ -43,11 +44,19 @@ class DeliveryBoyController extends Controller
         //     'assign_delivery_boy' => $request->user()->id,
         // ])->whereIn('delivery_status', array('picked_up', 'confirmed'))->latest()->get();
 
-        $orders = OrderDeliveryBoys::with(['order'])
+        $order = OrderDeliveryBoys::with(['order'])
                     ->where('delivery_boy_id', $request->user()->id)
                     ->where('status', 0)
                     ->orderBy('id','desc')
                     ->get();
+
+        $return = RefundRequest::with(['order'])
+                        ->where('delivery_boy', $request->user()->id)
+                        ->where('delivery_status', 0)
+                        ->orderBy('id','desc')
+                        ->get();
+        $orders = $order->merge($return);
+        
        
         if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
             return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
@@ -119,86 +128,123 @@ class DeliveryBoyController extends Controller
     public function complete_delivery(Request $request)
     {
         $order_id = $request->order_id ?? '';
+        $type = $request->type ?? '';
         $user_id = $request->user()->id ;
         $delivery_note = $request->delivery_note ?? '';
         $payment_status = $request->payment_status ?? 0;
 
-        $deliveryOrder = OrderDeliveryBoys::with(['order'])
-                    ->where('delivery_boy_id', $user_id)
-                    ->where('status', 0)
-                    ->where('order_id', $order_id)
-                    ->firstOrFail();
+        if($type == 'order'){
+            $deliveryOrder = OrderDeliveryBoys::with(['order'])
+                            ->where('delivery_boy_id', $user_id)
+                            ->where('status', 0)
+                            ->where('order_id', $order_id)
+                            ->firstOrFail();
 
-        if ($deliveryOrder) {
-            $deliveryOrder->delivery_note = $request->delivery_note;
-            $deliveryOrder->delivery_date = Carbon::now();
-            $deliveryOrder->status = 1;
-            $deliveryOrder->payment_status = $payment_status;
+            if ($deliveryOrder) {
+                $deliveryOrder->delivery_note = $request->delivery_note;
+                $deliveryOrder->delivery_date = Carbon::now();
+                $deliveryOrder->status = 1;
+                $deliveryOrder->payment_status = $payment_status;
 
-            // Update order status as delivered
-            $order = Order::find($order_id);
-            if($order->delivery_status == 'partial_pick_up'){
-                $order->delivery_status = 'partial_delivery';
+                // Update order status as delivered
+                $order = Order::find($order_id);
+                if($order->delivery_status == 'partial_pick_up'){
+                    $order->delivery_status = 'partial_delivery';
 
-                foreach ($order->orderDetails as $key => $orderDetail) {
-                    if ($orderDetail->delivery_status == 'picked_up') {
+                    foreach ($order->orderDetails as $key => $orderDetail) {
+                        if ($orderDetail->delivery_status == 'picked_up') {
+                            $orderDetail->delivery_status = 'delivered';
+                            $orderDetail->delivery_by = $user_id;
+                            $orderDetail->delivery_date = date('Y-m-d H:i:s');
+                        } 
+                        
+                        if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                            $orderDetail->payment_status = 'paid';
+                        }
+
+                        $orderDetail->save();
+                    }
+
+                }elseif($order->delivery_status == 'picked_up'){
+                    $order->delivery_status = 'delivered';
+
+                    foreach ($order->orderDetails as $key => $orderDetail) {
                         $orderDetail->delivery_status = 'delivered';
                         $orderDetail->delivery_by = $user_id;
                         $orderDetail->delivery_date = date('Y-m-d H:i:s');
-                    } 
-                    
-                    if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
-                        $orderDetail->payment_status = 'paid';
+                        
+                        if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                            $orderDetail->payment_status = 'paid';
+                        }
+                        $orderDetail->save();
                     }
-
-                    $orderDetail->save();
                 }
 
-            }elseif($order->delivery_status == 'picked_up'){
-                $order->delivery_status = 'delivered';
+                if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                    $order->payment_status = 'paid';
+                }
 
-                foreach ($order->orderDetails as $key => $orderDetail) {
-                    $orderDetail->delivery_status = 'delivered';
-                    $orderDetail->delivery_by = $user_id;
-                    $orderDetail->delivery_date = date('Y-m-d H:i:s');
-                    
-                    if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
-                        $orderDetail->payment_status = 'paid';
-                    }
-                    $orderDetail->save();
+                $order->save();
+
+                $file_name = $name = NULL;
+                $path = NULL;
+                if ($request->hasFile('image')) {
+                    $file_name = time() . '_' . $request->file('image')->getClientOriginalName();
+                    $name = Storage::disk('public')->putFileAs(
+                        'delivery_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m'),
+                        $request->file('image'),
+                        $file_name
+                    );
+                }
+
+                if ($name) {
+                    $deliveryOrder->delivery_image =  Storage::url($name);
+                }
+
+                if ($deliveryOrder->save()) {
+                    return response()->json([
+                        'status' => true,
+                        'order_id' => $order_id,
+                        'message' => "Order Delivery Completed",
+                    ]);
                 }
             }
+        }elseif($type == 'return'){
+            $refund = RefundRequest::where('delivery_boy', $user_id)
+                                    ->where('delivery_status', 0)
+                                    ->where('id', $order_id)
+                                    ->firstOrFail();
+            if ($refund) {
+                $refund->delivery_note = $delivery_note;
 
-            if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
-                $order->payment_status = 'paid';
-            }
+                $file_name = $name = NULL;
+                $path = NULL;
+                if ($request->hasFile('image')) {
+                    $file_name = time() . '_' . $request->file('image')->getClientOriginalName();
+                    $name = Storage::disk('public')->putFileAs(
+                        'return_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m'),
+                        $request->file('image'),
+                        $file_name
+                    );
+                }
 
-            $order->save();
+                if ($name) {
+                    $refund->delivery_image =  Storage::url($name);
+                }
 
-            $file_name = $name = NULL;
-            $path = NULL;
-            if ($request->hasFile('image')) {
-                $file_name = time() . '_' . $request->file('image')->getClientOriginalName();
-                $name = Storage::disk('public')->putFileAs(
-                    'delivery_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m'),
-                    $request->file('image'),
-                    $file_name
-                );
-            }
-
-            if ($name) {
-                $deliveryOrder->delivery_image =  Storage::url($name);
-            }
-
-            if ($deliveryOrder->save()) {
-                return response()->json([
-                    'status' => true,
-                    'order_id' => $order_id,
-                    'message' => "Order Delivery Completed",
-                ]);
+                $refund->delivery_status = 1;
+                $refund->delivery_completed_date = date('Y-m-d H:i:s');
+                
+                if ($refund->save()) {
+                    return response()->json([
+                        'status' => true,
+                        'order_id' => $order_id,
+                        'message' => "Order Return Completed",
+                    ]);
+                }
             }
         }
-
+    
         return response()->json([
             'status' => false,
             'order_id' => "Order not found",
