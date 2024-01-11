@@ -145,6 +145,7 @@ Route::group(['prefix' => 'v2'], function () {
 
             Route::get('/pending-orders', [DeliveryBoyController::class, 'assigned_delivery']);
             Route::get('/completed-orders', [DeliveryBoyController::class, 'completed_delivery']);
+            Route::get('/completed-returns', [DeliveryBoyController::class, 'completed_return_delivery']);
         });
     });
     // -----------------------------------------------------------------------------------

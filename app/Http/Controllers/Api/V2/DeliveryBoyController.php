@@ -89,6 +89,24 @@ class DeliveryBoyController extends Controller
         }
     }
 
+    public function completed_return_delivery(Request $request)
+    {
+        $return = RefundRequest::with(['order'])
+                        ->where('delivery_boy', $request->user()->id)
+                        ->where('delivery_status', 1)
+                        ->orderBy('id','desc')
+                        ->get();
+       
+        if(isset($return[0]['order']) && !empty($return[0]['order'])){
+            return new DeliveryBoyPurchaseHistoryMiniCollection($return);
+        }else {
+            return response()->json([
+                'status' => true,
+                "message" => "No Data Found!"
+                ],200);
+        }
+    }
+
     /**
      * Show the list of pickup delivery by the delivery boy.
      *
