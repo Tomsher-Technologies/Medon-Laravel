@@ -270,6 +270,8 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/return-request-status', [OrderController::class, 'returnRequestStatus'])->name('return-request-status');
     Route::post('/return-payment-type', [OrderController::class, 'returnPaymentType'])->name('return-payment-type');
 
+    Route::get('/return-delivery/{id}', [OrderController::class, 'getNearByReturnDeliveryAgents'])->name('return-delivery');
+
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
 
     Route::post('/bulk-order-status', [OrderController::class, 'bulk_order_status'])->name('bulk-order-status');
@@ -278,6 +280,8 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/bulk-order-delete', [OrderController::class, 'bulk_order_delete'])->name('bulk-order-delete');
 
     Route::post('/assign-shop-order', [OrderController::class, 'assign_shop_order'])->name('assign-shop-order');
+
+    Route::post('/assign-shop-refund', [OrderController::class, 'assign_shop_refund'])->name('assign-shop-refund');
     
     Route::get('/test', [OrderController::class, 'test'])->name('test');
     //Reports
@@ -387,5 +391,6 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('get-order-delivery-boys', [OrderController::class, 'getOrderDeliveryBoys'])->name('get-order-delivery-boys');
     Route::post('assign-delivery-boy', [OrderController::class, 'assignDeliveryAgent'])->name('assign-delivery-boy');
 
-    
+    Route::get('get-order-return-delivery-boys', [OrderController::class, 'getOrderReturnDeliveryBoys'])->name('get-order-return-delivery-boys');
+    Route::post('assign-return-delivery-boy', [OrderController::class, 'assignReturnDeliveryAgent'])->name('assign-return-delivery-boy');
 });

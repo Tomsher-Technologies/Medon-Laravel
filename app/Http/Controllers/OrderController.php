@@ -34,6 +34,7 @@ use Mail;
 use App\Mail\InvoiceEmailManager;
 use App\Utility\NotificationUtility;
 use App\Mail\Admin\OrderAssign;
+use App\Mail\Admin\ReturnAssign;
 // use CoreComponentRepository;
 use App\Utility\SmsUtility;
 
@@ -123,6 +124,9 @@ class OrderController extends Controller
          $sort_search = null;
          
          $orders = RefundRequest::with(['order'])->orderBy('id', 'desc');
+         if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
+            $orders->where('shop_id', Auth::user()->shop_id);
+        }
          if ($request->has('search')) {
              $sort_search = $request->search;
              $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
@@ -735,23 +739,49 @@ class OrderController extends Controller
         $shop_id = $request->shop_id;
         $order_id = $request->order_id;
 
+        
         $order = Order::find($order_id);
         $order->shop_id = $shop_id;
         $order->save();
-        //send notification to shop about the order
-        $shop = Shops::find($shop_id);
 
-        $not = new ShopNotifications;
-        $not->shop_id = $shop_id;
-        $not->order_id = $order_id;
-        $not->is_read = 0;
-        $not->message ="A new order has been assigned. Order code : <b>".$order->code ?? ''."</b>";
-        $not->type = 'order_assign';
-        $not->save();
-
-        Mail::to($shop->email)->queue(new OrderAssign($order));
+        if( $shop_id != ''){
+            //send notification to shop about the order
+            $shop = Shops::find($shop_id);
+    
+            $not = new ShopNotifications;
+            $not->shop_id = $shop_id;
+            $not->order_id = $order_id;
+            $not->is_read = 0;
+            $not->message ="A new order has been assigned. Order code : <b>".$order->code ?? ''."</b>";
+            $not->type = 'order_assign';
+            $not->save();
+    
+            Mail::to($shop->email)->queue(new OrderAssign($order));
+        }
     }
 
+    public function assign_shop_refund(Request $request){
+        $shop_id = $request->shop_id;
+        $refund_id = $request->refund_id;
+        
+        $refund = RefundRequest::find($refund_id);
+        $refund->shop_id = $shop_id;
+        $refund->save();
+        if( $shop_id != ''){
+            //send notification to shop about the order
+            $shop = Shops::find($shop_id);
+
+            $not = new ShopNotifications;
+            $not->shop_id = $shop_id;
+            $not->order_id = null;
+            $not->is_read = $refund->order->id;
+            $not->message ="A new order return request has been assigned. Order code : <b>".$refund->order->code ?? ''."</b>";
+            $not->type = 'return_assign';
+            $not->save();
+
+            Mail::to($shop->email)->queue(new ReturnAssign($refund->order));
+        }
+    }
     public function test(){
         return view('emails.admin.order_assign');
     }
@@ -822,5 +852,68 @@ class OrderController extends Controller
         $odc->status = 0;
         $odc->save();
         
+    }
+
+    public function getNearByReturnDeliveryAgents($id){
+        $return_id = decrypt($id);
+        LiveLocations::where('return_id',$return_id)->delete();
+       
+        $deviceTokens = User::where('user_type','delivery_boy')
+                            ->where('shop_id', Auth::user()->shop_id)
+                            ->where('banned',0)
+                            ->whereNotNull('device_token')->pluck('device_token')->all();
+        
+        if(!empty($deviceTokens)){
+            $data['device_tokens'] = $deviceTokens;
+            $data['title'] = 'Live Location Request';
+            $data['body'] = (string)$return_id;
+            $report = sendPushNotification($data);
+            return view('backend.sales.assign_return_agent', compact('return_id'));
+        }else{
+            flash(translate('No Active Delivery Agents Found'))->error();
+            return redirect()->route('return_requests.index');
+        }   
+    }
+
+    public function getOrderReturnDeliveryBoys(Request $request){
+        $return_id = $request->return_id;
+        $locs = LiveLocations::where('return_id',$return_id)->orderBy('distance','asc')->get();
+        
+        $rows = '';
+        foreach ($locs as $key => $loc) {
+            $checkAssigned = checkReturnDeliveryAssigned($return_id,$loc->user_id);
+            $rows .= '<tr>
+                        <td>'. ($key+1) .'</td>
+                        <td>'. $loc->user->name .'</td>
+                        <td>'. $loc->user->phone .'</td>
+                        <td class="text-center"><span class="badge badge-inline badge-success">'. $loc->distance .' KM</span></td>
+                        <td class="text-center">';
+                        if($checkAssigned == 0){
+                            $rows .='<button class="btn btn-sm btn-success d-innline-block assignDelivery" data-agentid="'.$loc->user_id.'" data-return_id="'.$loc->return_id.'" data-status="1">Assign Delivery</button>';
+                        }else{
+                            $rows .= '<span class="text-danger">Delivery Assigned</span>';
+                        }
+                        $rows .=  '</td>
+                    </tr>';
+        }
+        
+        return $rows;
+    }
+
+    public function assignReturnDeliveryAgent(Request $request){
+
+        $refund = RefundRequest::findOrFail($request->return_id);
+        if($refund){
+            if($refund->delivery_status == 0){
+                $refund->delivery_boy = $request->agent_id;
+                $refund->delivery_assigned_date = date('Y-m-d H:i:s');
+                $refund->save();
+                echo 1;
+            }else{
+                echo 0;
+            }
+        }else{
+            echo 2;
+        }
     }
 }

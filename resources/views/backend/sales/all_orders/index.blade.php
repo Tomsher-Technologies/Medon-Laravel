@@ -329,7 +329,7 @@
                         },
                         dataType: "html",
                         success: function() {
-                            swal("Successfully assigned!", {
+                            swal("Successfully updated!", {
                                 icon: "success",
                             });
                             window.location.reload();

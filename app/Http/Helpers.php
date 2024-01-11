@@ -32,6 +32,7 @@ use App\Models\Products\ProductEnquiries;
 use App\Models\Review;
 use App\Models\Shop;
 use App\Models\Wishlist;
+use App\Models\RefundRequest;
 use App\Utility\SendSMSUtility;
 use App\Utility\NotificationUtility;
 use App\Http\Resources\V2\WebHomeBrandCollection;
@@ -1755,6 +1756,11 @@ function getActiveBuyXgetYOfferProducts(){
 
     function checkDeliveryAssigned($order_id, $user_id){
         $count = OrderDeliveryBoys::where('order_id',$order_id)->where('delivery_boy_id', $user_id)->where('status',0)->count();
+        return $count;
+    }
+
+    function checkReturnDeliveryAssigned($return_id, $user_id){
+        $count = RefundRequest::where('id',$return_id)->where('delivery_boy', $user_id)->where('delivery_status',0)->count();
         return $count;
     }
 
