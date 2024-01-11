@@ -44,11 +44,19 @@ class DeliveryBoyController extends Controller
         //     'assign_delivery_boy' => $request->user()->id,
         // ])->whereIn('delivery_status', array('picked_up', 'confirmed'))->latest()->get();
 
-        $orders = OrderDeliveryBoys::with(['order'])
+        $order = OrderDeliveryBoys::with(['order'])
                     ->where('delivery_boy_id', $request->user()->id)
                     ->where('status', 0)
                     ->orderBy('id','desc')
                     ->get();
+
+        $return = RefundRequest::with(['order'])
+                        ->where('delivery_boy', $request->user()->id)
+                        ->where('delivery_status', 0)
+                        ->orderBy('id','desc')
+                        ->get();
+        $orders = $order->merge($return);
+        
        
         if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
             return new DeliveryBoyPurchaseHistoryMiniCollection($orders);

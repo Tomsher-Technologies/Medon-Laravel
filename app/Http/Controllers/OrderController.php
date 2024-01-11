@@ -800,7 +800,7 @@ class OrderController extends Controller
             if(!empty($deviceTokens)){
                 $data['device_tokens'] = $deviceTokens;
                 $data['title'] = 'Live Location Request';
-                $data['body'] = $orderDetails->code;
+                $data['body'] = $orderDetails->code. ',order';
                 $report = sendPushNotification($data);
                 return view('backend.sales.assign_agent', compact('order_id'));
             }else{
@@ -866,7 +866,7 @@ class OrderController extends Controller
         if(!empty($deviceTokens)){
             $data['device_tokens'] = $deviceTokens;
             $data['title'] = 'Live Location Request';
-            $data['body'] = (string)$return_id;
+            $data['body'] = (string)$return_id. ',return';
             $report = sendPushNotification($data);
             return view('backend.sales.assign_return_agent', compact('return_id'));
         }else{

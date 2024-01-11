@@ -11,6 +11,7 @@ use App\Models\Prescriptions;
 use App\Models\Shops;
 use App\Models\Delivery\DeliveryBoy;
 use App\Models\LiveLocations;
+use App\Models\RefundRequest;
 use Illuminate\Http\Request;
 use App\Utility\SendSMSUtility;
 use Carbon\Carbon;
@@ -500,41 +501,88 @@ class ProfileController extends Controller
         $order_code = $request->order_code;
         $latitude = $request->latitude;
         $longitude = $request->longitude;
+        $type = $request->type ?? '';
 
         if($user_id != '' && $order_code != '' && $latitude != '' && $longitude != ''){
-            $order = Order::where('code', $order_code)->first();
-            if(!$order) {
-                return response()->json([
-                    'status'=>false,
-                    'message'=>'Order Not Found!'
-                    ],404);
-            }else{
-                $shop = Shops::find(auth('sanctum')->user()->shop_id);
-                $shop_latitude = $shop->delivery_pickup_latitude;
-                $shop_longitude = $shop->delivery_pickup_longitude;
-
-                $deliveryBoyStatus = DeliveryBoy::where('user_id',$user_id)->where('status',1)->count();
-                if($deliveryBoyStatus != 0){
-                    $checkLoc = LiveLocations::where('user_id', $user_id)->where('order_id', $order->id)->first();
-                
-                    if(!empty($checkLoc)){
-                        $checkLoc->latitude = $latitude;
-                        $checkLoc->longitude = $longitude;
-                        $checkLoc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude,'km');
-                        $checkLoc->save();
-                    }else{
-                        $loc = new LiveLocations;
-                        $loc->user_id = $user_id;
-                        $loc->order_id = $order->id;
-                        $loc->latitude = $latitude;
-                        $loc->longitude = $longitude;
-                        $loc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude, 'km');
-                        $loc->save();
-                    }
-    
-                    return response()->json(['status' => true,'message' => 'Live location saved']); 
+            if($type == 'order'){
+                $order = Order::where('code', $order_code)->first();
+                if(!$order) {
+                    return response()->json([
+                        'status'=>false,
+                        'message'=>'Order Not Found!'
+                        ],200);
                 }else{
-                    return response()->json(['status' => false ,'message'=>"Delivery boy not available"]);
+                    $shop = Shops::find(auth('sanctum')->user()->shop_id);
+                    $shop_latitude = $shop->delivery_pickup_latitude;
+                    $shop_longitude = $shop->delivery_pickup_longitude;
+    
+                    $deliveryBoyStatus = DeliveryBoy::where('user_id',$user_id)->where('status',1)->count();
+                    if($deliveryBoyStatus != 0){
+                        $checkLoc = LiveLocations::where('user_id', $user_id)->where('order_id', $order->id)->first();
+                    
+                        if(!empty($checkLoc)){
+                            $checkLoc->latitude = $latitude;
+                            $checkLoc->longitude = $longitude;
+                            $checkLoc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude,'km');
+                            $checkLoc->save();
+                        }else{
+                            $loc = new LiveLocations;
+                            $loc->user_id = $user_id;
+                            $loc->order_id = $order->id;
+                            $loc->latitude = $latitude;
+                            $loc->longitude = $longitude;
+                            $loc->distance = distanceCalculator($shop_latitude, $shop_longitude, $latitude, $longitude, 'km');
+                            $loc->save();
+                        }
+        
+                        return response()->json(['status' => true,'message' => 'Live location saved']); 
+                    }else{
+                        return response()->json(['status' => false ,'message'=>"Delivery boy not available"]);
+                    }
+                }
+            }elseif($type == 'return'){
+                $return = RefundRequest::where('id', $order_code)->firstOrFail();
+                $order_latitude = $order_longitude = '';
+                if($return->order->shipping_address){
+                    $shipping_address = json_decode($return->order->shipping_address);
+                    $order_latitude = $shipping_address->latitude ?? '';
+                    $order_longitude = $shipping_address->longitude ?? '';
+                }
+
+                if(!$return) {
+                    return response()->json([
+                        'status'=>false,
+                        'message'=>'Request Not Found!'
+                        ],200);
+                }else{
+                    if($order_latitude != '' && $order_longitude != ''){
+                        $deliveryBoyStatus = DeliveryBoy::where('user_id',$user_id)->where('status',1)->count();
+                        if($deliveryBoyStatus != 0){
+                            $checkLoc = LiveLocations::where('user_id', $user_id)->where('return_id', $return->id)->first();
+                            if(!empty($checkLoc)){
+                                $checkLoc->latitude = $latitude;
+                                $checkLoc->longitude = $longitude;
+                                $checkLoc->distance = distanceCalculator($order_latitude, $order_longitude, $latitude, $longitude,'km');
+                                $checkLoc->save();
+                            }else{
+                                $loc = new LiveLocations;
+                                $loc->user_id = $user_id;
+                                $loc->return_id = $return->id;
+                                $loc->latitude = $latitude;
+                                $loc->longitude = $longitude;
+                                $loc->distance = distanceCalculator($order_latitude, $order_longitude, $latitude, $longitude, 'km');
+                                $loc->save();
+                            }
+                            return response()->json(['status' => true,'message' => 'Live location saved']); 
+                        }else{
+                            return response()->json(['status' => false ,'message'=>"Delivery boy not available"]);
+                        }
+                    }else{
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Order shipping address not correct'
+                        ]);
+                    }   
                 }
             }
         }else{

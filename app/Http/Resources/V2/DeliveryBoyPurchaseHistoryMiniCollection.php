@@ -19,11 +19,16 @@ class DeliveryBoyPurchaseHistoryMiniCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($data) {
+                if(isset($data->delivery_approval)){
+                    $type = 'return';
+                }else{
+                    $type = 'order';
+                }
                 $shipping_address = json_decode($data->order->shipping_address ?? '', true);
                 $grand_total = $data->order->grand_total ?? null;
                 $created_at = $data->order->created_at ?? null;
                 return [
-                    'id' => $data->order->id ?? '',
+                    'id' => ($type == 'order') ? $data->order->id  : $data->id ,
                     'code' => $data->order->code ?? '' ,
                     'user_id' => intval($data->order->user_id ?? ''),
                     'payment_type' => ucwords(str_replace('_', ' ', $data->order->payment_type ?? '')),
@@ -34,6 +39,7 @@ class DeliveryBoyPurchaseHistoryMiniCollection extends ResourceCollection
                     'grand_total' => ($grand_total != null) ? format_price($grand_total) : '',
                     'date' => ($created_at != null) ? Carbon::createFromFormat('Y-m-d H:i:s', $created_at)->format('d-m-Y') : '',
                     'shipping_address' => $shipping_address,
+                    'type' => $type
                 ];
             })
         ];
