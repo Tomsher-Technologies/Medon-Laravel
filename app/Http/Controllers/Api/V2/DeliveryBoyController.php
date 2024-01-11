@@ -30,11 +30,12 @@ class DeliveryBoyController extends Controller
         $user_id = $request->user()->id;
 
         $orders = OrderDeliveryBoys::where('delivery_boy_id', $user_id)->get();
-
+        $returns = RefundRequest::where('delivery_boy', $user_id)->get();
         return response()->json([
             'status' => true,
-            'completed_delivery' => $orders->where('status', 1)->count(),
-            'assigned_delivery' => $orders->whereIn('status', 0)->count()
+            'completed_delivery' => $orders->where('status', 1)->count() ,
+            'completed_returns' => $returns->where('delivery_status', 1)->count(),
+            'assigned_delivery' => $orders->whereIn('status', 0)->count() + $returns->where('delivery_status', 0)->count()
         ]);
     }
 
