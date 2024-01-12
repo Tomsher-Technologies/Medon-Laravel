@@ -121,7 +121,7 @@
                             @if (userHasPermision(5))
                                 <li class="aiz-side-nav-item">
                                     <a href="{{ route('cancel_requests.index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['cancel_requests.index', 'all_orders.show']) }}">
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['cancel_requests.index', 'cancel_orders.show']) }}">
                                         <span class="aiz-side-nav-text">Cancel Requests</span>
                                     </a>
                                 </li>

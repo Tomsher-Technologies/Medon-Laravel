@@ -104,7 +104,7 @@ class OrderController extends Controller
             $delivery_status = $request->delivery_status;
         }
         if ($date != null) {
-            $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+            $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
         }
         $orders = $orders->paginate(15);
         return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'delivery_status', 'date'));
@@ -122,6 +122,13 @@ class OrderController extends Controller
         $order = RefundRequest::with(['order'])->findOrFail(decrypt($id));
         return view('backend.sales.return_orders_show', compact('order'));
     }
+
+    public function cancel_orders_show($id)
+    {
+        $order = Order::findOrFail(decrypt($id));
+        return view('backend.sales.cancel_orders_show', compact('order'));
+    }
+
 
      // All Orders
      public function allReturnRequests(Request $request)
@@ -170,7 +177,7 @@ class OrderController extends Controller
         }
          
         if ($date != null) {
-            $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+            $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
         }
          $orders = $orders->paginate(15);
          return view('backend.sales.return_requests', compact('orders', 'search','shop_search','ra_search','da_search','refund_search','date','agent_search'));
@@ -184,6 +191,21 @@ class OrderController extends Controller
         $refund_search  = ($request->has('refund_search')) ? $request->refund_search : '';
 
         $orders = Order::where('cancel_request',1)->orderBy('cancel_request_date','DESC');
+        if($search){
+            $orders = $orders->where('code', 'like', '%' . $search . '%');
+        }
+        if($ca_search){
+            $ca_search = ($ca_search == 10) ? 0 : $ca_search;
+            $orders = $orders->where('cancel_approval', $ca_search);
+        }
+
+        if ($date != null) {
+            $orders = $orders->whereDate('cancel_request_date', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('cancel_request_date', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+        }
+        if ($refund_search) {
+            $orders = $orders->where('cancel_refund_type', $refund_search);
+        }
+
         $orders = $orders->paginate(15);
         // echo '<pre>';
         // print_r($orders);

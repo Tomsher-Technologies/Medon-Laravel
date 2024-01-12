@@ -24,7 +24,7 @@
 
                         <div class="col-lg-4 mt-2">
                             <div class="form-group mb-2">
-                                <label>Cancel Approval Status</label>
+                                <label>Request Approval Status</label>
                                 <select id="ca_search" name="ca_search" class="form-control" >
                                     <option {{ ($ca_search == '') ? 'selected' : '' }} value="">Select status</option>
                                     <option {{ ($ca_search == '0') ? 'selected' : '' }} value="10">Pending</option>
@@ -125,7 +125,7 @@
                             </td>
 
                             <td class="text-center">
-                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('return_orders.show', encrypt($order->id))}}" title="View">
+                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('cancel_orders.show', encrypt($order->id))}}" title="View">
                                     <i class="las la-eye"></i>
                                 </a>
                             </td>
