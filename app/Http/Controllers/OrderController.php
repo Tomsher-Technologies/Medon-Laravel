@@ -87,6 +87,8 @@ class OrderController extends Controller
         //CoreComponentRepository::instantiateShopRepository();
         $request->session()->put('last_url', url()->full());
 
+        $shop_search    = ($request->has('shop_search')) ? $request->shop_search : '';
+        
         $date = $request->date;
         $sort_search = null;
         $delivery_status = null;
@@ -99,6 +101,9 @@ class OrderController extends Controller
             $sort_search = $request->search;
             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
         }
+        if ($shop_search) {
+            $orders = $orders->where('shop_id', $shop_search);
+        }
         if ($request->delivery_status != null) {
             $orders = $orders->where('delivery_status', $request->delivery_status);
             $delivery_status = $request->delivery_status;
@@ -107,7 +112,7 @@ class OrderController extends Controller
             $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
         }
         $orders = $orders->paginate(15);
-        return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'delivery_status', 'date'));
+        return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'delivery_status', 'date','shop_search'));
     }
 
     public function all_orders_show($id)
