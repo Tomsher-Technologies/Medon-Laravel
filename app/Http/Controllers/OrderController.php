@@ -176,6 +176,21 @@ class OrderController extends Controller
          return view('backend.sales.return_requests', compact('orders', 'search','shop_search','ra_search','da_search','refund_search','date','agent_search'));
      }
 
+     public function allCancelRequests(Request $request){
+        $request->session()->put('last_url', url()->full());
+        $search         = ($request->has('search')) ? $request->search : '';
+        $ca_search      = ($request->has('ca_search')) ? $request->ca_search : '';
+        $date           = ($request->has('date')) ? $request->date : ''; //
+        $refund_search  = ($request->has('refund_search')) ? $request->refund_search : '';
+
+        $orders = Order::where('cancel_request',1)->orderBy('cancel_request_date','DESC');
+        $orders = $orders->paginate(15);
+        // echo '<pre>';
+        // print_r($orders);
+        // die;
+        return view("backend.sales.cancel_requests",compact('orders', 'search', 'ca_search', 'date', 'refund_search'));
+     }
+
      public function returnRequestStatus(Request $request){
         $id = $request->id;
         $status = $request->status;
@@ -190,6 +205,25 @@ class OrderController extends Controller
             $refund_request->update([
                 'delivery_approval' => $status,
             ]);
+        }
+     }
+
+     public function cancelRequestStatus(Request $request){
+        $id = $request->id;
+        $status = $request->status;
+        
+        $cancel_request = Order::findOrFail($id);
+        if($cancel_request->cancel_request == 1 ){
+            $cancel_request->cancel_approval = $status;
+            if($status == 1){
+                $cancel_request->delivery_status = 'cancelled';
+                OrderDeliveryBoys::where('order_id',$id)->delete();
+            }
+            $cancel_request->cancel_approval_date = date('Y-m-d H:i:s');
+            $cancel_request->save();
+            echo 1;
+        }else{
+            echo 0;
         }
      }
 
@@ -211,6 +245,25 @@ class OrderController extends Controller
             $refund_request->update([
                 'refund_type' => $type,
             ]);
+        } 
+     }
+
+     public function cancelPaymentType(Request $request){
+        $id = $request->id;
+        $type = $request->type;
+
+        $order = Order::findOrFail($id);
+        if($order){
+            if($type == 'wallet'){
+                $user = User::findOrFail($order->user_id);
+                if($user){
+                    $user->wallet +=  $order->grand_total;
+                    $user->save();
+                }
+            } 
+            $order->cancel_refund_type = $type;
+            $order->cancel_refund_status = 1;
+            $order->save();
         } 
      }
     // Inhouse Orders
