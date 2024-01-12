@@ -142,12 +142,18 @@ class OrderController extends Controller
      public function returnRequestStatus(Request $request){
         $id = $request->id;
         $status = $request->status;
+        $type = $request->type;
         
         $refund_request = RefundRequest::findOrFail($id);
-        $refund_request->update([
-            'admin_approval' => $status,
-        ]);
-
+        if($type == 'admin'){
+            $refund_request->update([
+                'admin_approval' => $status,
+            ]);
+        }elseif($type == 'delivery'){
+            $refund_request->update([
+                'delivery_approval' => $status,
+            ]);
+        }
      }
 
      public function returnPaymentType(Request $request){
@@ -155,9 +161,20 @@ class OrderController extends Controller
         $type = $request->type;
 
         $refund_request = RefundRequest::findOrFail($id);
-        $refund_request->update([
-            'refund_type' => $type,
-        ]);
+        if($type == 'cash'){
+            $refund_request->update([
+                'refund_type' => $type,
+            ]);
+        }elseif($type == 'wallet'){
+            $user = User::findOrFail($refund_request->user_id);
+            if($user){
+                $user->wallet +=  $refund_request->refund_amount;
+                $user->save();
+            }
+            $refund_request->update([
+                'refund_type' => $type,
+            ]);
+        } 
      }
     // Inhouse Orders
     public function admin_orders(Request $request)

@@ -32,7 +32,11 @@
                     <tr>
                         <th>#</th>
                         <th>Order Code</th>
-                        <th class="w-10">Order Shop</th>
+                        @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
+                            
+                        @else
+                            <th class="w-10">Order Shop</th>
+                        @endif
                         <th data-breakpoints="xl">Customer</th>
                         <th data-breakpoints="xl">Product</th>
                         <th data-breakpoints="xl">Reason</th>
@@ -70,9 +74,13 @@
                             <td>
                                 {{ $order->order->code ?? '' }}
                             </td>
-                            <td>
-                                {{ $order->order->shop->name ?? '' }}
-                            </td>
+                            @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
+                            
+                            @else
+                                <td>
+                                    {{ $order->order->shop->name ?? '' }}
+                                </td>
+                            @endif
                             <td>
                                 {{ $order->user->name }}
                             </td>
@@ -111,8 +119,8 @@
                             @else
                                 <td class="text-center">
                                     @if($order->admin_approval == 0)
-                                        <button class="btn btn-sm btn-success d-innline-block adminApprove" data-id="{{$order->id}}" data-status="1">{{translate('Approve')}}</button>
-                                        <button class="btn btn-sm btn-warning d-innline-block adminApprove" data-id="{{$order->id}}" data-status="2">{{translate('Reject')}}</button>
+                                        <button class="btn btn-sm btn-success d-innline-block adminApprove" data-id="{{$order->id}}" data-status="1" data-type="admin">{{translate('Approve')}}</button>
+                                        <button class="btn btn-sm btn-warning d-innline-block adminApprove" data-id="{{$order->id}}" data-status="2" data-type="admin">{{translate('Reject')}}</button>
                                     @else
                                         @if($order->admin_approval == 1)
                                             <span class=" badge-soft-success">Approved</span>
@@ -143,8 +151,8 @@
                             @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                                 <td class="text-center">
                                     @if($order->delivery_approval == 0 && $order->delivery_status == 1)
-                                        <button class="btn btn-sm btn-success d-innline-block deliveryApprove" data-id="{{$order->id}}" data-status="1">{{translate('Approve')}}</button>
-                                        <button class="btn btn-sm btn-warning d-innline-block deliveryApprove" data-id="{{$order->id}}" data-status="2">{{translate('Reject')}}</button>
+                                        <button class="btn btn-sm btn-success d-innline-block deliveryApprove" data-id="{{$order->id}}" data-status="1" data-type="delivery">{{translate('Approve')}}</button>
+                                        <button class="btn btn-sm btn-warning d-innline-block deliveryApprove" data-id="{{$order->id}}" data-status="2" data-type="delivery">{{translate('Reject')}}</button>
                                     @else
                                         @if($order->delivery_approval == 1)
                                             <span class=" badge-soft-success">Approved</span>
@@ -154,7 +162,7 @@
                                     @endif
                                 </td>
                             @else
-                                <td class="table-action text-right">
+                                <td class="table-action text-center">
                                     @if($order->delivery_approval == 1)
                                     <span class=" badge-soft-success">Approved</span>
                                     @elseif($order->delivery_approval == 2)
@@ -162,9 +170,11 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    @if($order->delivery_approval == 1)
+                                    @if($order->delivery_approval == 1 && $order->refund_type == NULL)
                                         <button class="btn btn-sm btn-success d-innline-block adminPaymentType" data-id="{{$order->id}}" data-type="wallet">{{translate('Wallet')}}</button>
                                         <button class="btn btn-sm btn-warning d-innline-block adminPaymentType" data-id="{{$order->id}}" data-type="cash">{{translate('Cash')}}</button>
+                                    @elseif ($order->refund_type != NULL)
+                                        {{ ucfirst($order->refund_type) }}
                                     @endif
                                 </td>
                             @endif
@@ -202,6 +212,7 @@
         $(document).on("click", ".adminApprove", function(e) {
             var status = $(this).attr('data-status');
             var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
             var msg = (status == '1') ? "Do you want to approve this request?" : "Do you want to reject this request?";
             e.preventDefault();
             if (confirm(msg)) {
@@ -211,6 +222,34 @@
                     data: {
                         id: id,
                         status:status,
+                        type:type,
+                        _token: '{{ @csrf_token() }}',
+                    },
+                    dataType: "html",
+                    success: function() {
+                        window.location.reload();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert("Error deleting! Please try again");
+                    }
+                });
+            }
+        });
+
+        $(document).on("click", ".deliveryApprove", function(e) {
+            var status = $(this).attr('data-status');
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+            var msg = (status == '1') ? "Do you want to approve this request?" : "Do you want to reject this request?";
+            e.preventDefault();
+            if (confirm(msg)) {
+                $.ajax({
+                    url: "{{ route('return-request-status') }}",
+                    type: "POST",
+                    data: {
+                        id: id,
+                        status:status,
+                        type:type,
                         _token: '{{ @csrf_token() }}',
                     },
                     dataType: "html",
@@ -271,24 +310,38 @@
             var id = $(this).attr('data-id');
             
             e.preventDefault();
-            if (confirm("Are you sure?")) {
-                $.ajax({
-                    url: "{{ route('return-payment-type') }}",
-                    type: "POST",
-                    data: {
-                        id: id,
-                        type:type,
-                        _token: '{{ @csrf_token() }}',
-                    },
-                    dataType: "html",
-                    success: function() {
-                        window.location.reload();
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        alert("Error deleting! Please try again");
-                    }
-                });
-            }
+            swal({
+                title: "Are you sure?",
+                text: "",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    $.ajax({
+                        url: "{{ route('return-payment-type') }}",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            type:type,
+                            _token: '{{ @csrf_token() }}',
+                        },
+                        dataType: "html",
+                        success: function() {
+                            swal("Successfully updated!", {
+                                    icon: "success",
+                                });
+                            
+                            window.location.reload();
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+                            alert("Error deleting! Please try again");
+                        }
+                    });
+                }
+            });
+         
         });
 
 //        function change_status() {
