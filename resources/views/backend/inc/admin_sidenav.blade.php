@@ -113,7 +113,7 @@
                             @if (userHasPermision(4))
                                 <li class="aiz-side-nav-item">
                                     <a href="{{ route('return_requests.index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['return_requests.index', 'all_orders.show']) }}">
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['return_requests.index', 'return_orders.show']) }}">
                                         <span class="aiz-side-nav-text">Return Requests</span>
                                     </a>
                                 </li>

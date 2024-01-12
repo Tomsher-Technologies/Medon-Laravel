@@ -117,26 +117,63 @@ class OrderController extends Controller
         return view('backend.sales.all_orders.show', compact('order'));
     }
 
+    public function return_orders_show($id)
+    {
+        $order = RefundRequest::with(['order'])->findOrFail(decrypt($id));
+        return view('backend.sales.return_orders_show', compact('order'));
+    }
+
      // All Orders
      public function allReturnRequests(Request $request)
      {
-         $date = $request->date;
-         $sort_search = null;
-         
-         $orders = RefundRequest::with(['order'])->orderBy('id', 'desc');
-         if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
+        $request->session()->put('last_url', url()->full());
+        $date           = ($request->has('date')) ? $request->date : ''; //
+        $search         = ($request->has('search')) ? $request->search : '';
+        $shop_search    = ($request->has('shop_search')) ? $request->shop_search : '';
+        $ra_search      = ($request->has('ra_search')) ? $request->ra_search : '';
+        $da_search      = ($request->has('da_search')) ? $request->da_search : '';
+        $refund_search  = ($request->has('refund_search')) ? $request->refund_search : '';
+        $agent_search   = ($request->has('agent_search')) ? $request->agent_search : '';
+        $sort_search = null;
+        
+        $orders = RefundRequest::with(['order'])->orderBy('id', 'desc');
+
+        if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
             $orders->where('shop_id', Auth::user()->shop_id);
         }
-         if ($request->has('search')) {
-             $sort_search = $request->search;
-             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
+         if ($search) {
+            $orders = $orders->whereHas('order', function ($q) use ($search) {
+                $q->where('code', 'like', '%' . $search . '%');
+            });
          }
+
+        if ($shop_search) {
+            $orders = $orders->where('shop_id', $shop_search);
+        }
+
+        if ($agent_search) {
+            $orders = $orders->where('delivery_boy', $agent_search);
+        }
+
+        if ($ra_search) {
+            $ra_search = ($ra_search == 10) ? 0 : $ra_search;
+            $orders = $orders->where('admin_approval', $ra_search);
+        }
+
+        if ($da_search) {
+            $da_search = ($da_search == 10) ? 0 : $da_search;
+            $orders = $orders->where('delivery_approval', $da_search);
+        }
+
+        if ($refund_search) {
+            $orders = $orders->where('refund_type', $refund_search);
+        }
          
-         if ($date != null) {
-             $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-         }
+        if ($date != null) {
+            $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+        }
          $orders = $orders->paginate(15);
-         return view('backend.sales.return_requests', compact('orders', 'sort_search', 'date'));
+         return view('backend.sales.return_requests', compact('orders', 'search','shop_search','ra_search','da_search','refund_search','date','agent_search'));
      }
 
      public function returnRequestStatus(Request $request){

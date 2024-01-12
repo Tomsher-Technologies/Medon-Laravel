@@ -1783,3 +1783,13 @@ function getActiveBuyXgetYOfferProducts(){
         $result = date("Y-m-d H:i:s", strtotime($date . "+".$days." days"));
         return $result;
     }
+
+    function getShopDeliveryAgents($shop_id){
+        $agents = [];
+        if($shop_id){
+            $agents = User::where('user_type', 'delivery_boy')->where('shop_id', $shop_id)->select('id','name')
+                            ->orderBy('name','ASC')->get()->toArray();
+        }
+    
+        return $agents;
+    }

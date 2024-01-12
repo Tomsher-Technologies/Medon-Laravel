@@ -3,31 +3,122 @@
 @section('content')
 
 <div class="card">
-    <form class="" action="" id="sort_orders" method="GET">
+    
         <div class="card-header row gutters-5">
             <div class="col">
                 <h5 class="mb-md-0 h6">All Return Requests</h5>
             </div>
-
-            <div class="col-lg-2">
-                <div class="form-group mb-0">
-                    <input type="text" class="aiz-date-range form-control" value="{{ $date }}" name="date" placeholder="Filter by date" data-format="DD-MM-Y" data-separator=" to " data-advanced-range="true" autocomplete="off">
-                </div>
-            </div>
-            <div class="col-lg-2">
-                <div class="form-group mb-0">
-                    <input type="text" class="form-control" id="search" name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset placeholder="Type Order code & hit Enter">
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="form-group mb-0">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </div>
-            </div>
         </div>
 
+        @php
+            $shops = getActiveShops();
+        @endphp
+        
         <div class="card-body">
-            <table class="table aiz-table mb-0">
+            
+                <form class="" action="" id="sort_orders" method="GET">
+                    <div class="row">
+                        
+                        <div class="col-lg-3 mt-2">
+                            <div class="form-group mb-2">
+                                <label>Order Code</label>
+                                <input type="text" class="form-control" id="search" name="search"@isset($search) value="{{ $search }}" @endisset placeholder="Type Order code & hit Enter">
+                            </div>
+                        </div>
+
+                        @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
+                            @php 
+                                $shopAgents = getShopDeliveryAgents(Auth::user()->shop_id);
+                            @endphp
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Delivery Boy</label>
+                                    <select id="agent_search" name="agent_search" class="form-control" >
+                                        <option value="">Select delivery boy</option>
+                                        @foreach ($shopAgents as $agent)
+                                            <option {{ ($agent_search == $agent['id']) ? 'selected' : '' }} value="{{$agent['id']}}">{{ $agent['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Delivery Approval Status</label>
+                                    <select id="da_search" name="da_search" class="form-control" >
+                                        <option {{ ($da_search == '') ? 'selected' : '' }} value="">Select status</option>
+                                        <option {{ ($da_search == '0') ? 'selected' : '' }} value="10">Pending</option>
+                                        <option {{ ($da_search == '1') ? 'selected' : '' }} value="1">Approved</option>
+                                        <option {{ ($da_search == '2') ? 'selected' : '' }} value="2">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+                        @else
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Request Date</label>
+                                    <input type="text" class="aiz-date-range form-control" value="{{ $date }}" name="date" placeholder="Filter by request date" data-format="DD-MM-Y" data-separator=" to " data-advanced-range="true" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Request Approval Status</label>
+                                    <select id="ra_search" name="ra_search" class="form-control" >
+                                        <option {{ ($ra_search == '') ? 'selected' : '' }} value="">Select status</option>
+                                        <option {{ ($ra_search == '0') ? 'selected' : '' }} value="10">Pending</option>
+                                        <option {{ ($ra_search == '1') ? 'selected' : '' }} value="1">Approved</option>
+                                        <option {{ ($ra_search == '2') ? 'selected' : '' }} value="2">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Assigned Shop</label>
+                                    <select id="shop_search" name="shop_search" class="form-control" >
+                                        <option value="">Select Shop</option>
+                                        @foreach ($shops as $shop)
+                                            <option {{ ($shop_search == $shop->id) ? 'selected' : '' }} value="{{$shop->id}}">{{ $shop->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Delivery Approval Status</label>
+                                    <select id="da_search" name="da_search" class="form-control" >
+                                        <option {{ ($da_search == '') ? 'selected' : '' }} value="">Select status</option>
+                                        <option {{ ($da_search == '0') ? 'selected' : '' }} value="10">Pending</option>
+                                        <option {{ ($da_search == '1') ? 'selected' : '' }} value="1">Approved</option>
+                                        <option {{ ($da_search == '2') ? 'selected' : '' }} value="2">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 mt-2">
+                                <div class="form-group mb-2">
+                                    <label>Refund Type</label>
+                                    <select id="refund_search" name="refund_search" class="form-control" >
+                                        <option {{ ($refund_search == '') ? 'selected' : '' }} value="">Select type</option>
+                                        <option {{ ($refund_search == 'wallet') ? 'selected' : '' }} value="wallet">Wallet</option>
+                                        <option {{ ($refund_search == 'cash') ? 'selected' : '' }} value="cash">Cash</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        @endif
+
+                        <div class="col-auto mt-4">
+                            <div class="form-group mb-0">
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            <hr>
+
+            <table class="table aiz-table mb-2">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -37,6 +128,7 @@
                         @else
                             <th class="w-10">Order Shop</th>
                         @endif
+                        <th data-breakpoints="xl">Request Date</th>
                         <th data-breakpoints="xl">Customer</th>
                         <th data-breakpoints="xl">Product</th>
                         <th data-breakpoints="xl">Reason</th>
@@ -63,9 +155,7 @@
                 </thead>
                 <tbody>
                     @foreach ($orders as $key => $order)
-                        @php
-                            $shops = getActiveShops();
-                        @endphp
+                        
                         <tr>
                             <td>
                                 {{ ($key+1) + ($orders->currentPage() - 1)*$orders->perPage() }}
@@ -81,6 +171,11 @@
                                     {{ $order->order->shop->name ?? '' }}
                                 </td>
                             @endif
+
+                            <td>
+                                {{ ($order->created_at) ? date('d-m-Y H:i a', strtotime($order->created_at)) : ''}}
+                            </td>
+
                             <td>
                                 {{ $order->user->name }}
                             </td>
@@ -182,7 +277,7 @@
                             
                     
                             <td class="text-center">
-                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('all_orders.show', encrypt($order->order_id))}}" title="View">
+                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('return_orders.show', encrypt($order->id))}}" title="View">
                                     <i class="las la-eye"></i>
                                 </a>
                             
@@ -197,7 +292,7 @@
             </div>
 
         </div>
-    </form>
+    
 </div>
 
 @endsection
