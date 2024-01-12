@@ -269,6 +269,7 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/cancel_requests', [OrderController::class, 'allCancelRequests'])->name('cancel_requests.index');
     Route::post('/cancel-request-status', [OrderController::class, 'cancelRequestStatus'])->name('cancel-request-status');
     Route::post('/cancel-payment-type', [OrderController::class, 'cancelPaymentType'])->name('cancel-payment-type');
+    Route::get('/cancel_orders/{id}/show', [OrderController::class, 'cancel_orders_show'])->name('cancel_orders.show');
 
     Route::get('/return_requests', [OrderController::class, 'allReturnRequests'])->name('return_requests.index');
     Route::get('/return_orders/{id}/show', [OrderController::class, 'return_orders_show'])->name('return_orders.show');
