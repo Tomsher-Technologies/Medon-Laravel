@@ -51,15 +51,26 @@
                     </div>
                 </div>
             </div>
-
+            @php
+                $shops = getActiveShops();
+            @endphp
+            <div class="col-lg-3 ml-auto">
+                <select id="shop_search" name="shop_search" class="form-control aiz-selectpicker" >
+                    <option value="">Select Shop</option>
+                    @foreach ($shops as $shop)
+                        <option {{ ($shop_search == $shop->id) ? 'selected' : '' }} value="{{$shop->id}}">{{ $shop->name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="col-lg-2 ml-auto">
                 <select class="form-control aiz-selectpicker" name="delivery_status" id="delivery_status">
                     <option value="">{{translate('Filter by Delivery Status')}}</option>
                     <option value="pending" @if ($delivery_status == 'pending') selected @endif>{{translate('Pending')}}</option>
                     <option value="confirmed" @if ($delivery_status == 'confirmed') selected @endif>{{translate('Confirmed')}}</option>
                     <option value="picked_up" @if ($delivery_status == 'picked_up') selected @endif>{{translate('Picked Up')}}</option>
-                    <option value="on_the_way" @if ($delivery_status == 'on_the_way') selected @endif>{{translate('On The Way')}}</option>
-                    <option value="delivered" @if ($delivery_status == 'delivered') selected @endif>{{translate('Delivered')}}</option>
+                    <option value="partial_pick_up" @if ($delivery_status == 'partial_pick_up') selected @endif>{{translate('Partial Pick Up')}}</option>
+                    <option value="partial_delivery" @if ($delivery_status == 'partial_delivery') selected @endif>{{translate('Partial Delivery')}}</option>
+                    <option value="delivered" @if ($delivery_status == 'delivered') selected @endif> *-{{translate('Delivered')}}</option>
                     <option value="cancelled" @if ($delivery_status == 'cancelled') selected @endif>{{translate('Cancel')}}</option>
                 </select>
             </div>
@@ -201,7 +212,7 @@
                         @endif
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                             <td class="text-center">
-                                @if (!in_array($status,['pending','picked_up','delivered','cancelled']) && ($order->cancel_request == 1 && $order->cancel_approval == 2))
+                                @if (!in_array($status,['pending','picked_up','delivered','cancelled']) && ($order->cancel_request == 0 || ($order->cancel_request == 1 && $order->cancel_approval == 2)))
                                     <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
                                 @endif
 
