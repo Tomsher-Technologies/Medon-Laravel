@@ -267,6 +267,7 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/shops/update/{id}', [ShopsController::class, 'update'])->name('admin.shops.update');
 
     Route::get('/return_requests', [OrderController::class, 'allReturnRequests'])->name('return_requests.index');
+    Route::get('/return_orders/{id}/show', [OrderController::class, 'return_orders_show'])->name('return_orders.show');
     Route::post('/return-request-status', [OrderController::class, 'returnRequestStatus'])->name('return-request-status');
     Route::post('/return-payment-type', [OrderController::class, 'returnPaymentType'])->name('return-payment-type');
 
