@@ -84,6 +84,8 @@
             <ul class="status_indicator">
                 <li class="status completed" style="float:left">Delivered</li>
                 <li class="status picked_up ml-2" style="float:left">Partial Delivery</li>
+                <li class="status cancel_requested ml-2" style="float:left">Cancel Requested</li>
+                <li class="status cancelled ml-2" style="float:left">Cancelled</li>
             </ul>
             <br>
             <table class="table aiz-table mb-0">
@@ -134,6 +136,10 @@
                                 $statusColor = '#e9ae004f';
                             }elseif ($order->delivery_status == 'delivered') {
                                 $statusColor = '#03ff0338';
+                            }elseif ($order->delivery_status == 'cancelled') {
+                                $statusColor = '#fd79798a';
+                            }elseif ($order->cancel_request == 1 && $order->cancel_approval == 0) {
+                                $statusColor = '#ffbebe30';
                             }
                             
                         @endphp
@@ -195,7 +201,7 @@
                         @endif
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
                             <td class="text-center">
-                                @if (!in_array($status,['pending','picked_up','delivered','cancelled']))
+                                @if (!in_array($status,['pending','picked_up','delivered','cancelled']) && ($order->cancel_request == 1 && $order->cancel_approval == 2))
                                     <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
                                 @endif
 
@@ -231,12 +237,14 @@
                                         $color = 'border:2px solid red';
                                     }
                                 @endphp
-                                <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
-                                    <option value="">Select Shop</option>
-                                    @foreach ($shops as $shop)
-                                        <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
-                                    @endforeach
-                                </select>
+                                @if($order->cancel_request == 0 || ($order->cancel_request == 1 && $order->cancel_approval == 2))
+                                    <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
+                                        <option value="">Select Shop</option>
+                                        @foreach ($shops as $shop)
+                                            <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </td>
                         @endif
 
@@ -278,6 +286,7 @@
         list-style: none;
     }
     .status {
+
         &.completed:before {
             background-color: #03ff0338;
             border-color: #78D965;
@@ -288,6 +297,18 @@
             background-color: #e9ae004f;
             border-color: #FFB161;
             box-shadow: 0px 0px 4px 1px #FFC182;
+        }
+
+        &.cancelled:before {
+            background-color: #e756568a;
+            border-color: #e51e1e8a;
+            box-shadow: 0px 0px 4px 1px #a61d1d8a;
+        }
+
+        &.cancel_requested:before {
+            background-color: #ffbebe7a;
+            border-color: #e147477a;
+            box-shadow: 0px 0px 4px 1px #ee64647a;
         }
         &:before {
             content: ' ';
