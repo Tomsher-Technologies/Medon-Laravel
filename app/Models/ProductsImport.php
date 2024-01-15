@@ -42,7 +42,15 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
         $brands = Brand::all();
         $categories = Category::all();
         foreach ($rows as $row) {
-            // print_r($row);die;
+
+            $sku = $this->cleanSKU($row['product_code']); 
+
+            $imageArray = array_filter($row->toArray(), function($value,$key) {
+                return (strpos($key, 'url') === 0 && trim($value) !== '' );
+            }, ARRAY_FILTER_USE_BOTH);
+            // print_r($imageArray);
+            // // print_r($row);
+            // echo '******************************************************************************************';
             $tabArray = array_filter($row->toArray(), function($key) {
                 return strpos($key, 'tab') === 0;
             }, ARRAY_FILTER_USE_KEY);
@@ -199,6 +207,31 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 ]);
              
             }
+
+            $mainImage = $galleryImage = $mainImageUploaded = $galleryImageUploaded ='';
+            if(!empty($imageArray)){
+                if(isset($imageArray['url_1'])){
+                    $mainImage = $imageArray['url_1'];
+                    unset($imageArray['url_1']);
+                }
+                $galleryImage = $imageArray;
+            }
+            if($mainImage != ''){
+                $mainImage = base_path('product_images').'/'.$mainImage;
+                $mainImageUploaded = $this->downloadAndResizeImage($mainImage, $sku, true);
+            }
+
+            if (!empty($galleryImage)) {
+                $galleryImage = $this->downloadGallery($galleryImage, $sku);
+                $galleryImageUploaded = implode(',', $galleryImage);
+            }
+
+            if ($mainImageUploaded) {
+                $productId->thumbnail_img = $mainImageUploaded;
+            }
+            if ($galleryImageUploaded) {
+                $productId->photos = $galleryImageUploaded;
+            }
             $productId->save();
             if ($productId) {
                 ProductStock::updateOrCreate([
@@ -231,35 +264,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 $productId->description = $productDescription;
                 $productId->save();
             }
-
-        /*
-            
-            $mainImage = null;
-            $galleryImage = null;
-
-            if (isset($row['main_image'])) {
-                $mainImage = $this->downloadAndResizeImage($row['main_image'], $sku, true);
-            }
-
-            if (isset($row['gallery_images'])) {
-                $galleryImage = $this->downloadGallery($row['gallery_images'], $sku);
-                $galleryImage = implode(',', $galleryImage);
-            }
-
-          
-
-            if ($mainImage) {
-                $productId->thumbnail_img = $mainImage;
-            }
-            if ($galleryImage) {
-                $productId->photos = $galleryImage;
-            }
-
-            $productId->save();
-        
-
-           /* */
         }
+
         flash(translate('Products imported successfully'))->success();
     }
 
@@ -306,10 +312,15 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
 
     public function downloadGallery($urls, $sku)
     {
-        foreach (explode(',', str_replace(' ', '', $urls)) as $index => $url) {
-            $data[] = $this->downloadAndResizeImage($url, $sku, false, $index + 1);
+        $i = 0;
+        $data = [];
+        foreach ($urls as $index => $url) {
+            $url = base_path('product_images').'/'.$url;
+            if(file_exists($url)){
+                $data[] = $this->downloadAndResizeImage($url, $sku, false, $i + 1);
+                $i++;
+            }
         }
-
         return $data;
     }
 
@@ -329,34 +340,36 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 $filename = $path . $n . '.' . $ext;
             }
 
-            // Download the image from the given URL
-            $imageContents = file_get_contents($imageUrl);
+            if(file_exists($imageUrl)){
+                // Download the image from the given URL
+                $imageContents = file_get_contents($imageUrl);
+                
+                // Save the original image in the storage folder
+                Storage::disk('public')->put($filename, $imageContents);
+                $data_url = Storage::url($filename);
+                // Create an Intervention Image instance for the downloaded image
+                $image = Image::make($imageContents);
 
-            // Save the original image in the storage folder
-            Storage::disk('public')->put($filename, $imageContents);
-            $data_url = Storage::url($filename);
-            // Create an Intervention Image instance for the downloaded image
-            $image = Image::make($imageContents);
+                // Resize and save three additional copies of the image with different sizes
+                $sizes = config('app.img_sizes'); // Specify the desired sizes in pixels
 
-            // Resize and save three additional copies of the image with different sizes
-            $sizes = config('app.img_sizes'); // Specify the desired sizes in pixels
+                foreach ($sizes as $size) {
+                    $resizedImage = $image->resize($size, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                    });
 
-            foreach ($sizes as $size) {
-                $resizedImage = $image->resize($size, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                    if ($mainImage) {
+                        $filename2 = $path . $sku . "_{$size}px" . '.' . $ext;
+                    } else {
+                        $n = $sku . '_gallery_' .  $count . "_{$size}px";
+                        $filename2 = $path . $n . '.' . $ext;
+                    }
 
-                if ($mainImage) {
-                    $filename2 = $path . $sku . "_{$size}px" . '.' . $ext;
-                } else {
-                    $n = $sku . '_gallery_' .  $count . "_{$size}px";
-                    $filename2 = $path . $n . '.' . $ext;
+                    // Save the resized image in the storage folder
+                    Storage::disk('public')->put($filename2, $resizedImage->encode('jpg'));
+
+                    // $data_url[] = Storage::url($filename2);
                 }
-
-                // Save the resized image in the storage folder
-                Storage::disk('public')->put($filename2, $resizedImage->encode('jpg'));
-
-                // $data_url[] = Storage::url($filename2);
             }
         } catch (Exception $e) {
         }
