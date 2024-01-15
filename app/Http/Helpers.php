@@ -1027,7 +1027,7 @@ if (!function_exists('get_product_image')) {
             }
         }
 
-        return frontendAsset('img/placeholder.webp');
+        return app('url')->asset('admin_assets/assets/img/placeholder.jpg');
     }
 }
 

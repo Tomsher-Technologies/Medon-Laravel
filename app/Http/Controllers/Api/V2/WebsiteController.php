@@ -190,7 +190,7 @@ class WebsiteController extends Controller
                         $tempProducts = array();
                         $tempProducts['id'] = $prod->id;
                         $tempProducts['name'] = $prod->name;
-                        $tempProducts['image'] = app('url')->asset($prod->thumbnail_img);
+                        $tempProducts['image'] = get_product_image($prod->thumbnail_img,'300');
                         $tempProducts['sku'] = $prod->sku;
                         $tempProducts['main_price'] = home_discounted_base_price_wo_currency($prod);
                         $tempProducts['min_qty'] = $prod->min_qty;

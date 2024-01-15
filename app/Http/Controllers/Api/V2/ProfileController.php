@@ -310,7 +310,7 @@ class ProfileController extends Controller
                             'total_price' => $product->price ?? '',
                             'delivery_status' => $product->delivery_status ?? '',
                             'delivery_date'   => $product->delivery_date ?? '',
-                            'thumbnail_img' => app('url')->asset($product->product->thumbnail_img ?? ''),
+                            'thumbnail_img' => get_product_image($product->product->thumbnail_img ?? '','300'),
                             'return_refund' => $product->product->return_refund ?? '',
                             'refund_requested' => $requestCount,
                             'return_expiry' =>  $return_expiry

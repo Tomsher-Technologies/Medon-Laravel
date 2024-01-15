@@ -25,7 +25,7 @@ class ProductDetailCollection extends JsonResource
                 if ($photo_paths[$i] != "") {
                     $item = array();
                     $item['variant'] = "";
-                    $item['path'] = app('url')->asset($photo_paths[$i]);
+                    $item['path'] = get_product_image($photo_paths[$i]);
                     $photos[] = $item;
                 }
             }
@@ -77,7 +77,7 @@ class ProductDetailCollection extends JsonResource
             'slug' => $this->slug,
             'sku' => $this->sku,
             'photos' => $photos,
-            'thumbnail_image' => ($this->thumbnail_img != NULL) ? app('url')->asset($this->thumbnail_img) : asset('admin_assets/assets/img/placeholder.jpg'),
+            'thumbnail_image' => get_product_image($this->thumbnail_img),
             'tags' => explode(',', $this->tags),
             'price_high_low' => (float)explode('-', home_discounted_base_price($this, false))[0] == (float)explode('-', home_discounted_price($this, false))[1] ? format_price((float)explode('-', home_discounted_price($this, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($this, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($this, false))[1]),
             // 'choice_options' => $this->convertToChoiceOptions(json_decode($this->choice_options)),

@@ -166,7 +166,7 @@ class CartController extends Controller
                         'name' => $datas->product->name,
                         'slug' => $datas->product->slug,
                         'sku' => $datas->product->sku,
-                        'image' => app('url')->asset($datas->product->thumbnail_img)
+                        'image' => get_product_image($datas->product->thumbnail_img,'300')
                     ],
                     'variation' => $datas->variation,
                     'stroked_price' => $datas->price ,
