@@ -20,6 +20,8 @@ use App\Models\OrderTracking;
 use App\Models\RefundRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use App\Utility\NotificationUtility;
+
 
 class CheckoutController extends Controller
 {
@@ -307,6 +309,7 @@ class CheckoutController extends Controller
             if($request->payment_method == 'cash_on_delivery'){
                 reduceProductQuantity($productQuantities);
                 Cart::where('user_id', $user_id)->delete();
+                NotificationUtility::sendOrderPlacedNotification($order);
                 return response()->json([
                     'status' => true,
                     'message' => 'Your order has been placed successfully',
@@ -384,6 +387,7 @@ class CheckoutController extends Controller
                     $order->save();
                     reduceProductQuantity($productQuantities);
                     Cart::where('user_id', $user_id)->delete();
+                    NotificationUtility::sendOrderPlacedNotification($order);
                     return response()->json([
                         'status' => true,
                         'message' => 'Your order has been placed successfully',
@@ -438,6 +442,7 @@ class CheckoutController extends Controller
             }
             $order->payment_details = $payment_details;
             $order->save();
+            NotificationUtility::sendOrderPlacedNotification($order);
 
             $orderDetails = OrderDetail::where('order_id', $order->id)->get();
 
