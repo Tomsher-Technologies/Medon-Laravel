@@ -19,7 +19,7 @@ class ProductFilterCollection extends ResourceCollection
                 'name' => $data->name,
                 'sku' => $data->sku,
                 'tags' => $data->tags,
-                'thumbnail_image' => app('url')->asset($data->thumbnail_img),
+                'thumbnail_image' => get_product_image($data->thumbnail_img,'300'),
                 'has_discount' => home_base_price($data, false) != home_discounted_base_price($data, false),
                 'stroked_price' => $priceData['original_price'],
                 'main_price' => $priceData['discounted_price'],

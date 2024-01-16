@@ -456,369 +456,727 @@
             </div>
 
         </div>
+
+        <div class="card">
+            <div class="card-header row gutters-5">
+                <div class="col">
+                    <h6 class="mb-0">Latest User Searches</h6>
+                </div>
+    
+                <a href="{{ route('cache.clear', ['type' => 'searches']) }}"
+                    class="btn btn-sm btn-soft-secondary btn-circle mr-2">
+                    <i class="la la-refresh fs-24"></i>
+                </a>
+    
+                <a href="{{ route('user_search_report.index') }}" class="btn btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <table aria-describedby="" class="table table-bordered aiz-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Search Key</th>
+                            <th>User</th>
+                            <th>IP Address</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($searches as $key => $searche)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $searche->query }}</td>
+                                <td>
+                                    @if ($searche->user_id)
+                                        <a href="{{ route('user_search_report.index', ['user_id' => $searche->user_id]) }}">
+                                            {{ $searche->user->name }}
+                                        </a>
+                                    @else
+                                        GUEST
+                                    @endif
+                                </td>
+                                <td>{{ $searche->ip_address }}</td>
+                                <td>{{ $searche->created_at->format('d-m-Y h:i:s A') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Top Selling Products</h6>
+    
+                <a href="{{ route('cache.clear', ['type' => 'topProducts']) }}"
+                    class="btn btn-sm btn-soft-secondary btn-circle mr-2">
+                    <i class="la la-refresh fs-24"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="6" data-xl-items="5" data-lg-items="4"
+                    data-md-items="3" data-sm-items="2" data-arrows='true'>
+                    @foreach ($topProducts as $key => $product)
+                        <div class="carousel-box">
+                            <div
+                                class="aiz-card-box border border-light rounded shadow-sm hov-shadow-md mb-2 has-transition bg-white">
+                                <div class="position-relative">
+                                    <img class="img-fit lazyload mx-auto h-210px"
+                                        src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                                        data-src="{{ uploaded_asset($product->thumbnail_img) }}" alt="{{ $product->name }}"
+                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                </div>
+                                <div class="p-md-3 p-2 text-left">
+                                    <div class="fs-15">
+                                        @if (home_base_price($product) != home_discounted_base_price($product))
+                                            <del class="fw-600 opacity-50 mr-1">{{ home_base_price($product) }}</del>
+                                        @endif
+                                        <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
+                                    </div>
+                                    <h3 class="fw-600 fs-14 text-truncate-2 lh-1-4 mb-0">
+                                        <a href="javascript:void(0)" class="d-block text-reset">{{ $product->name }}</a>
+                                    </h3>
+                                    <div class="fs-13">
+                                        Total sales: {{ $product->order_details_sum_quantity }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
     @endif
 
+    @if (Auth::user()->user_type == 'staff' && Auth::user()->shop_id != null)
+        <div class="row">
+            <div class="col-md-12 col-lg-12">
+                <div class="row">
 
-    <div class="card">
-        <div class="card-header row gutters-5">
-            <div class="col">
-                <h6 class="mb-0">Latest User Searches</h6>
+                    <div class="col-lg-3 col-md-3 col-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title d-flex align-items-start justify-content-between">
+                                    <div class="avatar flex-shrink-0">
+                                        <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon2.svg') }}"
+                                            alt="Credit Card" class="rounded">
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="cardOpt6">
+                                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="d-block">Total Orders</span>
+                                <h4 class="card-title mb-1">{{ $counts['shopOrderCount'] }}</h4>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-3 col-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title d-flex align-items-start justify-content-between">
+                                    <div class="avatar flex-shrink-0">
+                                        <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon4.svg') }}"
+                                            alt="Credit Card" class="rounded">
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="cardOpt6">
+                                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="d-block">Today Orders</span>
+                                <h4 class="card-title mb-1">{{ $counts['shopTodayOrderCount'] }}</h4>
+                                {{-- <small class="text-success fw-medium"><i class='bx bx-up-arrow-alt'></i> +10%</small> --}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-3 col-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title d-flex align-items-start justify-content-between">
+                                    <div class="avatar flex-shrink-0">
+                                        <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon.svg') }}"
+                                            alt="Credit Card" class="rounded">
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="cardOpt6">
+                                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="d-block">Pending Orders</span>
+                                <h4 class="card-title mb-1">{{ $counts['shopPendingCount'] }}</h4>
+                                {{-- <small class="text-danger text-nowrap fw-medium"><i class="bx bx-down-arrow-alt"></i>
+                                    -13.24%</small> --}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-3 col-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title d-flex align-items-start justify-content-between">
+                                    <div class="avatar flex-shrink-0">
+                                        <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon3.svg') }}"
+                                            alt="Credit Card" class="rounded">
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="cardOpt6">
+                                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="d-block">Completed Orders</span>
+                                <h4 class="card-title mb-1">{{ $counts['shopCompletedCount'] }}</h4>
+                                {{-- <small class="text-success fw-medium"><i class='bx bx-up-arrow-alt'></i> +8.42%</small> --}}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
-            <a href="{{ route('cache.clear', ['type' => 'searches']) }}"
-                class="btn btn-sm btn-soft-secondary btn-circle mr-2">
-                <i class="la la-refresh fs-24"></i>
-            </a>
-
-            <a href="{{ route('user_search_report.index') }}" class="btn btn-primary">View All</a>
-        </div>
-        <div class="card-body">
-            <table aria-describedby="" class="table table-bordered aiz-table mb-0">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Search Key</th>
-                        <th>User</th>
-                        <th>IP Address</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($searches as $key => $searche)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $searche->query }}</td>
-                            <td>
-                                @if ($searche->user_id)
-                                    <a href="{{ route('user_search_report.index', ['user_id' => $searche->user_id]) }}">
-                                        {{ $searche->user->name }}
-                                    </a>
-                                @else
-                                    GUEST
-                                @endif
-                            </td>
-                            <td>{{ $searche->ip_address }}</td>
-                            <td>{{ $searche->created_at->format('d-m-Y h:i:s A') }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h6 class="mb-0">Top Selling Products</h6>
-
-            <a href="{{ route('cache.clear', ['type' => 'topProducts']) }}"
-                class="btn btn-sm btn-soft-secondary btn-circle mr-2">
-                <i class="la la-refresh fs-24"></i>
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="6" data-xl-items="5" data-lg-items="4"
-                data-md-items="3" data-sm-items="2" data-arrows='true'>
-                @foreach ($topProducts as $key => $product)
-                    <div class="carousel-box">
-                        <div
-                            class="aiz-card-box border border-light rounded shadow-sm hov-shadow-md mb-2 has-transition bg-white">
-                            <div class="position-relative">
-                                <img class="img-fit lazyload mx-auto h-210px"
-                                    src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                    data-src="{{ uploaded_asset($product->thumbnail_img) }}" alt="{{ $product->name }}"
-                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+            <!-- Total Income -->
+            <div class="col-md-12 col-lg-12 mb-4">
+                <div class="card">
+                    <div class="row row-bordered g-0">
+                        <div class="col-md-9">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Total Orders<small class="card-subtitle">Yearly report overview</small></h5><br>
+                                <input type="text" class="form-control col-3" placeholder="Select Year" name="yearFilter" id="yearFilter" value="{{ $year }}" readonly>
                             </div>
-                            <div class="p-md-3 p-2 text-left">
-                                <div class="fs-15">
-                                    @if (home_base_price($product) != home_discounted_base_price($product))
-                                        <del class="fw-600 opacity-50 mr-1">{{ home_base_price($product) }}</del>
-                                    @endif
-                                    <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
+                            <div class="card-body">
+                                <canvas id="totalOrdersChart" class="w-100" height="310"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card-header d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title mb-0">Order Report</h5>
                                 </div>
-                                <h3 class="fw-600 fs-14 text-truncate-2 lh-1-4 mb-0">
-                                    <a href="javascript:void(0)"
-                                        class="d-block text-reset">{{ $product->name }}</a>
-                                </h3>
-                                <div class="fs-13">
-                                    Total sales: {{ $product->order_details_sum_quantity }}
+
+                            </div>
+                            <div class="card-body">
+                                <div class="report-list">
+                                    <div class="report-list-item rounded-2 mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="report-list-icon shadow-sm me-2">
+                                                <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon2.svg') }}"
+                                                    width="22" height="22" alt="Paypal">
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-end w-100 flex-wrap gap-2">
+                                                <div class="d-flex flex-column">
+                                                    <span>This Week</span>
+                                                    <h5 class="mb-0">{{ $counts['shopWeekOrderCount'] }}</h5>
+                                                </div>
+                                                {{-- <small class="text-success">+2.34k</small> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="report-list-item rounded-2 mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="report-list-icon shadow-sm me-2">
+                                                <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon2.svg') }}"
+                                                    width="22" height="22" alt="Shopping Bag">
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-end w-100 flex-wrap gap-2">
+                                                <div class="d-flex flex-column">
+                                                    <span>This Month</span>
+                                                    <h5 class="mb-0">{{ $counts['shopMonthOrderCount'] }}</h5>
+                                                </div>
+                                                {{-- <small class="text-danger">-1.15k</small> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="report-list-item rounded-2 mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="report-list-icon shadow-sm me-2">
+                                                <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon2.svg') }}"
+                                                    width="22" height="22" alt="Wallet">
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-end w-100 flex-wrap gap-2">
+                                                <div class="d-flex flex-column">
+                                                    <span>This Year</span>
+                                                    <h5 class="mb-0">{{ $counts['shopYearOrderCount'] }}</h5>
+                                                </div>
+                                                {{-- <small class="text-success">+1.35k</small> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="report-list-item rounded-2 mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="report-list-icon shadow-sm me-2">
+                                                <img src="{{ asset('admin_assets/assets/svg/icons/shopping-bag-icon2.svg') }}"
+                                                    width="22" height="22" alt="Wallet">
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-end w-100 flex-wrap gap-2">
+                                                <div class="d-flex flex-column">
+                                                    <span>Last Year</span>
+                                                    <h5 class="mb-0">{{ $counts['shopLYearOrderCount'] }}</h5>
+                                                </div>
+                                                {{-- <small class="text-success">+1.35k</small> --}}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                </div>
+                <!--/ Total Income -->
             </div>
         </div>
-    </div>
+    @endif
+
+
+    
+@endsection
+@section('styles')
+<style>
+    .card-body-after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -1px;
+        display: block;
+        width: 0;
+        border-left: 1px solid #d9dee3;
+    }
+    .card-header, .card-footer {
+        border-color: #d9dee3;
+    }
+    .avatar {
+        position: relative;
+        width: 2.375rem;
+        height: 2.375rem;
+        cursor: pointer;
+    }
+    .flex-shrink-0 {
+        flex-shrink: 0 !important;
+    }
+
+    .card-subtitle {
+        margin-top: calc(-0.5*var(--bs-card-title-spacer-y));
+        margin-bottom: 0;
+        color: grey;
+        font-size: 12px;
+        margin-left: 10px;
+    }
+
+    .report-list .report-list-item {
+        background-color: #f5f5f9;
+    }
+    .report-list .report-list-item {
+        padding: 0.75rem;
+    }
+    .rounded-2 {
+        border-radius: 0.375rem !important;
+    }
+        
+    .report-list .report-list-icon {
+        background-color: #fff;
+        border-radius: 0.375rem;
+    }
+    html:not([dir=rtl]) .me-2 {
+        margin-right: 0.5rem !important;
+    }
+    .report-list .report-list-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        min-width: 44px;
+    }
+    .shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(161,172,184,.4) !important;
+    }
+    .gap-2 {
+        gap: 0.5rem !important;
+    }
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/>
 @endsection
 @section('script')
-    <script type="text/javascript">
-        AIZ.plugins.chart('#graph-1', {
-            type: 'bar',
-            data: {
-                labels: [
-                    @foreach ($days as $day)
-                        '{{ $day }}',
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js"></script>
+
+<script type="text/javascript">
+    $("#yearFilter").datepicker({
+        format: "yyyy",
+        viewMode: "years", 
+        minViewMode: "years"
+    });
+    $("#yearFilter").on('change',function(){
+        window.location.href = "{{ route('admin.dashboard') }}?year="+$("#yearFilter").val();
+    });
+
+    AIZ.plugins.chart('#totalOrdersChart', {
+        type: 'bar',
+        data: {
+            labels: {!! $shopOrderYearGraph['all']['months'] !!},
+            datasets: [{
+                type: 'bar',
+                label: 'No:of orders recived',
+                data: {{ $shopOrderYearGraph['all']['counts'] }},
+                backgroundColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(55, 125, 255, 0.4)',
+                    @endfor
+                ],
+                borderColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(55, 125, 255, 1)',
+                    @endfor
+                ],
+                borderWidth: 1
+            }, {
+                type: 'bar',
+                label: 'No:of orders completed',
+                data: {{ $shopOrderYearGraph['completed']['counts'] }},
+                backgroundColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(43, 255, 112, 0.4)',
+                    @endfor
+                ],
+                borderColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(43, 255, 112, 1)',
+                    @endfor
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8',
+                        zeroLineColor: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10
+                    }
+                }]
+            },
+            legend: {
+                labels: {
+                    fontFamily: 'Poppins',
+                    boxWidth: 10,
+                    usePointStyle: true
+                }
+            }
+        }
+    });
+
+
+
+
+    AIZ.plugins.chart('#graph-1', {
+        type: 'bar',
+        data: {
+            labels: [
+                @foreach ($days as $day)
+                    '{{ $day }}',
+                @endforeach
+            ],
+            datasets: [{
+                label: 'No:of orders recived this month',
+                data: [
+                    {{ $orderMonthGraph['monthOrdersData'] }}
+                ],
+                backgroundColor: [
+                    @foreach ($days as $key => $day)
+                        'rgba(55, 125, 255, 0.4)',
                     @endforeach
                 ],
-                datasets: [{
-                    label: 'No:of orders recived this month',
-                    data: [
-                        {{ $orderMonthGraph['monthOrdersData'] }}
-                    ],
-                    backgroundColor: [
-                        @foreach ($days as $key => $day)
-                            'rgba(55, 125, 255, 0.4)',
-                        @endforeach
-                    ],
-                    borderColor: [
-                        @foreach ($days as $key => $day)
-                            'rgba(55, 125, 255, 1)',
-                        @endforeach
-                    ],
-                    borderWidth: 1
-                }, {
-                    label: 'No:of orders completed this month',
-                    data: [
-                        {{ $orderMonthGraph['monthOrdersCompletedData'] }}
-                    ],
-                    backgroundColor: [
-                        @foreach ($days as $key => $day)
-                            'rgba(43, 255, 112, 0.4)',
-                        @endforeach
-                    ],
-                    borderColor: [
-                        @foreach ($days as $key => $day)
-                            'rgba(43, 255, 112, 1)',
-                        @endforeach
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8',
-                            zeroLineColor: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10,
-                            beginAtZero: true,
-                            precision: 0
-                        }
-                    }],
-                    xAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10
-                        }
-                    }]
-                },
-                legend: {
-                    labels: {
-                        fontFamily: 'Poppins',
-                        boxWidth: 10,
-                        usePointStyle: true
-                    }
-                }
-            }
-        });
-
-
-        AIZ.plugins.chart('#graph-2', {
-            type: 'bar',
-            data: {
-                labels: {!! $orderYearGraph['all']['months'] !!},
-                datasets: [{
-                    type: 'bar',
-                    label: 'No:of orders recived',
-                    data: {{ $orderYearGraph['all']['counts'] }},
-                    backgroundColor: [
-                        @for ($i = 0; $i < 12; $i++)
-                            'rgba(55, 125, 255, 0.4)',
-                        @endfor
-                    ],
-                    borderColor: [
-                        @for ($i = 0; $i < 12; $i++)
-                            'rgba(55, 125, 255, 1)',
-                        @endfor
-                    ],
-                    borderWidth: 1
-                }, {
-                    type: 'bar',
-                    label: 'No:of orders completed',
-                    data: {{ $orderYearGraph['completed']['counts'] }},
-                    backgroundColor: [
-                        @for ($i = 0; $i < 12; $i++)
-                            'rgba(43, 255, 112, 0.4)',
-                        @endfor
-                    ],
-                    borderColor: [
-                        @for ($i = 0; $i < 12; $i++)
-                            'rgba(43, 255, 112, 1)',
-                        @endfor
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8',
-                            zeroLineColor: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10,
-                            beginAtZero: true,
-                            precision: 0
-                        }
-                    }],
-                    xAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10
-                        }
-                    }]
-                },
-                legend: {
-                    labels: {
-                        fontFamily: 'Poppins',
-                        boxWidth: 10,
-                        usePointStyle: true
-                    }
-                }
-            }
-        });
-
-        AIZ.plugins.chart('#graph-3', {
-            type: 'bar',
-            data: {
-                labels: [
-                    @foreach ($days as $day)
-                        '{{ $day }}',
+                borderColor: [
+                    @foreach ($days as $key => $day)
+                        'rgba(55, 125, 255, 1)',
                     @endforeach
                 ],
-                datasets: [{
-                    label: 'Sales this month',
-                    data: [
-                        {{ $salesMonthGraph['monthSalesData'] }}
-                    ],
-                    backgroundColor: [
-                        @foreach ($days as $key => $day)
-                            'rgba(55, 125, 255, 0.4)',
-                        @endforeach
-                    ],
-                    borderColor: [
-                        @foreach ($days as $key => $day)
-                            'rgba(55, 125, 255, 1)',
-                        @endforeach
-                    ],
-                    borderWidth: 1
+                borderWidth: 1
+            }, {
+                label: 'No:of orders completed this month',
+                data: [
+                    {{ $orderMonthGraph['monthOrdersCompletedData'] }}
+                ],
+                backgroundColor: [
+                    @foreach ($days as $key => $day)
+                        'rgba(43, 255, 112, 0.4)',
+                    @endforeach
+                ],
+                borderColor: [
+                    @foreach ($days as $key => $day)
+                        'rgba(43, 255, 112, 1)',
+                    @endforeach
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8',
+                        zeroLineColor: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10
+                    }
                 }]
             },
-            options: {
-                scales: {
-                    yAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8',
-                            zeroLineColor: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10,
-                            beginAtZero: true,
-                            precision: 0
-                        }
-                    }],
-                    xAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10
-                        }
-                    }]
-                },
-                legend: {
-                    labels: {
-                        fontFamily: 'Poppins',
-                        boxWidth: 10,
-                        usePointStyle: true
-                    }
+            legend: {
+                labels: {
+                    fontFamily: 'Poppins',
+                    boxWidth: 10,
+                    usePointStyle: true
                 }
             }
-        });
+        }
+    });
 
-        AIZ.plugins.chart('#graph-4', {
-            type: 'line',
-            data: {
-                labels: {!! $orderYearGraph['all']['months'] !!},
-                datasets: [{
-                    type: 'line',
-                    label: 'Total sales',
-                    data: {{ $salesYearGraph['counts'] }},
-                    backgroundColor: [
-                        @for ($i = 0; $i < 12; $i++)
-                            'rgba(43, 255, 112, 0.4)',
-                        @endfor
-                    ],
-                    borderColor: [
-                        @for ($i = 0; $i < 12; $i++)
-                            'rgba(43, 255, 112, 1)',
-                        @endfor
-                    ],
+
+    AIZ.plugins.chart('#graph-2', {
+        type: 'bar',
+        data: {
+            labels: {!! $orderYearGraph['all']['months'] !!},
+            datasets: [{
+                type: 'bar',
+                label: 'No:of orders recived',
+                data: {{ $orderYearGraph['all']['counts'] }},
+                backgroundColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(55, 125, 255, 0.4)',
+                    @endfor
+                ],
+                borderColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(55, 125, 255, 1)',
+                    @endfor
+                ],
+                borderWidth: 1
+            }, {
+                type: 'bar',
+                label: 'No:of orders completed',
+                data: {{ $orderYearGraph['completed']['counts'] }},
+                backgroundColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(43, 255, 112, 0.4)',
+                    @endfor
+                ],
+                borderColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(43, 255, 112, 1)',
+                    @endfor
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8',
+                        zeroLineColor: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10
+                    }
                 }]
             },
-            options: {
-                scales: {
-                    yAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8',
-                            zeroLineColor: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10,
-                            beginAtZero: true,
-                            precision: 0
-                        }
-                    }],
-                    xAxes: [{
-                        gridLines: {
-                            color: '#f2f3f8'
-                        },
-                        ticks: {
-                            fontColor: "#8b8b8b",
-                            fontFamily: 'Poppins',
-                            fontSize: 10
-                        }
-                    }]
-                },
-                legend: {
-                    labels: {
-                        fontFamily: 'Poppins',
-                        boxWidth: 10,
-                        usePointStyle: true
-                    }
+            legend: {
+                labels: {
+                    fontFamily: 'Poppins',
+                    boxWidth: 10,
+                    usePointStyle: true
                 }
             }
-        });
-    </script>
+        }
+    });
+
+    AIZ.plugins.chart('#graph-3', {
+        type: 'bar',
+        data: {
+            labels: [
+                @foreach ($days as $day)
+                    '{{ $day }}',
+                @endforeach
+            ],
+            datasets: [{
+                label: 'Sales this month',
+                data: [
+                    {{ $salesMonthGraph['monthSalesData'] }}
+                ],
+                backgroundColor: [
+                    @foreach ($days as $key => $day)
+                        'rgba(55, 125, 255, 0.4)',
+                    @endforeach
+                ],
+                borderColor: [
+                    @foreach ($days as $key => $day)
+                        'rgba(55, 125, 255, 1)',
+                    @endforeach
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8',
+                        zeroLineColor: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10
+                    }
+                }]
+            },
+            legend: {
+                labels: {
+                    fontFamily: 'Poppins',
+                    boxWidth: 10,
+                    usePointStyle: true
+                }
+            }
+        }
+    });
+
+    AIZ.plugins.chart('#graph-4', {
+        type: 'line',
+        data: {
+            labels: {!! $orderYearGraph['all']['months'] !!},
+            datasets: [{
+                type: 'line',
+                label: 'Total sales',
+                data: {{ $salesYearGraph['counts'] }},
+                backgroundColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(43, 255, 112, 0.4)',
+                    @endfor
+                ],
+                borderColor: [
+                    @for ($i = 0; $i < 12; $i++)
+                        'rgba(43, 255, 112, 1)',
+                    @endfor
+                ],
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8',
+                        zeroLineColor: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: '#f2f3f8'
+                    },
+                    ticks: {
+                        fontColor: "#8b8b8b",
+                        fontFamily: 'Poppins',
+                        fontSize: 10
+                    }
+                }]
+            },
+            legend: {
+                labels: {
+                    fontFamily: 'Poppins',
+                    boxWidth: 10,
+                    usePointStyle: true
+                }
+            }
+        }
+    });
+</script>
 @endsection

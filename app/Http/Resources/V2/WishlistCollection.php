@@ -16,7 +16,7 @@ class WishlistCollection extends ResourceCollection
                         'id' => $data->product->id,
                         'name' => $data->product->name,
                         'slug' => $data->product->slug,
-                        'thumbnail_image' => $data->product->thumbnail_img,
+                        'thumbnail_image' => get_product_image($data->product->thumbnail_img,'300'),
                         'has_discount' => home_base_price($data->product, false) != home_discounted_base_price($data->product, false),
                         'stroked_price' => home_base_price($data->product),
                         'main_price' => home_discounted_base_price($data->product),

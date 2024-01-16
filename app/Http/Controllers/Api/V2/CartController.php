@@ -166,7 +166,7 @@ class CartController extends Controller
                         'name' => $datas->product->name,
                         'slug' => $datas->product->slug,
                         'sku' => $datas->product->sku,
-                        'image' => app('url')->asset($datas->product->thumbnail_img)
+                        'image' => get_product_image($datas->product->thumbnail_img,'300')
                     ],
                     'variation' => $datas->variation,
                     'stroked_price' => $datas->price ,
@@ -300,7 +300,7 @@ class CartController extends Controller
                 if ($carts) {
                     if($product->vat != 0){
                         $new_quantity = $carts->quantity + $request->quantity;
-                        $tax = (($cart->offer_price * $new_quantity)/100) * $product->vat;
+                        $tax = (($carts->offer_price * $new_quantity)/100) * $product->vat;
                     }
                     $carts->quantity += $request->quantity;
                     $carts->tax  = $tax;

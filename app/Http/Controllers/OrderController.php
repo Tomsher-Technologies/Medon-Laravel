@@ -876,6 +876,7 @@ class OrderController extends Controller
         
         $order = Order::find($order_id);
         $order->shop_id = $shop_id;
+        $order->shop_assigned_date = date('Y-m-d');
         $order->save();
 
         if( $shop_id != ''){
