@@ -1051,7 +1051,7 @@ if (!function_exists('load_seo_tags')) {
                 ->addImage($image)
                 ->setTitle($seo->og_title)
                 ->setDescription($seo->og_description)
-                ->setSiteName(env('APP_NAME', 'Industry Tech Store'));
+                ->setSiteName(env('APP_NAME', 'Medon'));
 
             TwitterCard::setType('summary_large_image')
                 ->setImage($image)
@@ -1062,12 +1062,12 @@ if (!function_exists('load_seo_tags')) {
             JsonLd::setImage($image)
                 ->setTitle($seo->meta_title)
                 ->setDescription($seo->meta_description)
-                ->setSite(env('APP_NAME', 'Industry Tech Store'));
+                ->setSite(env('APP_NAME', 'Medon'));
 
             JsonLdMulti::setImage($image)
                 ->setTitle($seo->meta_title)
                 ->setDescription($seo->meta_description)
-                ->setSite(env('APP_NAME', 'Industry Tech Store'));
+                ->setSite(env('APP_NAME', 'Medon'));
         }
     }
 }
