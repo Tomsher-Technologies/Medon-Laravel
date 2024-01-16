@@ -210,7 +210,7 @@
                                                 <td align="center" valign="middle">
                                                     <a href="{{ env('WEB_URL') }}">
                                                         <img src="{{ asset('admin_assets/assets/img/logo.jpg') }}"
-                                                            height="54" alt="Medon"></a>
+                                                            height="100" alt="Medon"></a>
                                                 </td>
                                             </tr>
                                             <tr></tr>
@@ -274,7 +274,7 @@
                                             cellpadding="0"
                                             style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;text-align: center;">
                                             <tr>
-                                                <td align="center" bgcolor="#b5e3f9" style="border-radius: 28px; font-size: 25px;font-weight: bold;"
+                                                <td align="center" bgcolor="#03a8df" style="border-radius: 28px; font-size: 25px;font-weight: bold;"
                                                     height="51">
                                                     {{ $user->verification_code }}
                                                 </td>
