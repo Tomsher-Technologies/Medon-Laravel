@@ -295,6 +295,7 @@ class CheckoutController extends Controller
             $order->shipping_cost       = $total_shipping;
             $order->shipping_type       = ($total_shipping == 0) ? 'free_shipping' : 'flat_rate';
             $order->coupon_discount     = $total_coupon_discount;
+            $order->coupon_code         = $coupon_code;
             $order->save();
 
             if($coupon_code != ''){
@@ -484,13 +485,13 @@ class CheckoutController extends Controller
         $payment_details = json_encode($details);
         
         if($order_code != ''){
-            $orderDetails = Order::where('code','=',$order_code)->firstOrFail();
+            $orderDetails = Order::where('code','=',$order_code)->delete();
 
-            $orderPayments = new OrderPayments();
-            $orderPayments->order_id = $orderDetails->id;
-            $orderPayments->payment_status = $order_status;
-            $orderPayments->payment_details = $payment_details;
-            $orderPayments->save();
+            // $orderPayments = new OrderPayments();
+            // $orderPayments->order_id = $orderDetails->id;
+            // $orderPayments->payment_status = $order_status;
+            // $orderPayments->payment_details = $payment_details;
+            // $orderPayments->save();
         }
         return redirect(env('MEDON_PAYMENT_CANCEL').'?status='.$order_status.'&code='.$order_code);
     }

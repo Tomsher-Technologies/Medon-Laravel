@@ -300,7 +300,7 @@ class CartController extends Controller
                 if ($carts) {
                     if($product->vat != 0){
                         $new_quantity = $carts->quantity + $request->quantity;
-                        $tax = (($cart->offer_price * $new_quantity)/100) * $product->vat;
+                        $tax = (($carts->offer_price * $new_quantity)/100) * $product->vat;
                     }
                     $carts->quantity += $request->quantity;
                     $carts->tax  = $tax;
