@@ -181,108 +181,14 @@
             }
 
             @media only screen and (max-width: 320px) {}
-
-            #new-tbs table,
-            #new-tbs thead,
-            #new-tbs tbody,
-            #new-tbs tfoot,
-            #new-tbs tr,
-            #new-tbs td,
-            #new-tbs th {
-                text-align: center;
-                margin: auto;
-                border: 1px solid #dedede;
-                padding: 1rem;
-                font-family: Arial, Helvetica, sans-serif
-            }
-
-            #new-tbs .table {
-                display: table;
-                width: 95%;
-                margin: auto;
-
-            }
-
-            #new-tbs .tr {
-                display: table-row;
-            }
-
-            #new-tbs .thead {
-                display: table-header-group;
-            }
-
-            #new-tbs .tbody {
-                display: table-row-group;
-            }
-
-            #new-tbs .tfoot {
-                display: table-footer-group;
-            }
-
-            #new-tbs .col {
-                display: table-column;
-            }
-
-            #new-tbs .colgroup {
-                display: table-column-group;
-            }
-
-            #new-tbs .td,
-            #new-tbs .th {
-                display: table-cell;
-
-            }
-
-            #new-tbs .caption {
-                display: table-caption;
-            }
-
-            #new-tbs.table,
-            #new-tbs.thead,
-            #new-tbs.tbody,
-            #new-tbs.tfoot,
-            #new-tbs .tr,
-            #new-tbs .td,
-            #new-tbs .th {
-                text-align: center;
-                margin: auto;
-                padding: 1rem;
-            }
-
-            #new-tbs .table {
-                background: #fff;
-                margin: auto;
-                border: none;
-                padding: 0;
-                margin-bottom: 5rem;
-            }
-
-            #new-tbs .th {
-                font-weight: 700;
-                border: 1px solid #dedede;
-
-                &:nth-child(odd) {
-                    border-right: none;
-                }
-            }
-
-            #new-tbs .td {
-                font-weight: 300;
-                border: 1px solid #dedede;
-                border-top: none;
-
-                &:nth-child(odd) {
-                    border-right: none;
-                }
-            }
         </style>
     </head>
 
 <body style="background-color: #cecece;">
-
+    <!-- ----------------- Header Start Here ------------------------- -->
     <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="full">
-        <tr class="mhide">
-            <td height="100">&nbsp;</td>
+        <tr>
+            <td class="heightsmalldevices" height="60">&nbsp;</td>
         </tr>
         <tr>
             <td align="center">
@@ -291,24 +197,23 @@
                         <td>
                             <table width="100%" bgcolor="#ffffff" border="0" cellspacing="0" cellpadding="0"
                                 align="center" class="full"
-                                style="background-color:#ffffff; border-radius:5px 5px 0 0;">
+                                style="background-color: #ffffff; border-radius: 5px 5px 0 0">
                                 <tr>
                                     <td>
                                         <table align="center" border="0" cellspacing="0" cellpadding="0"
-                                            class="inner" style="text-align:center;">
+                                            class="inner" style="text-align: center">
                                             <tr>
                                                 <td width="28" height="52">&nbsp;</td>
                                                 <td>&nbsp;</td>
                                             </tr>
                                             <tr>
                                                 <td align="center" valign="middle">
-                                                    <a href="{{ route('home') }}">
-                                                        <img src="{{ frontendAsset('img/logo_new.webp') }}"
+                                                    <a href="{{ env('WEB_URL') }}">
+                                                        <img src="{{ asset('admin_assets/assets/img/logo.svg') }}"
                                                             height="54" alt="Medon"></a>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                            </tr>
+                                            <tr></tr>
                                         </table>
 
                                     </td>
@@ -320,7 +225,6 @@
             </td>
         </tr>
     </table>
-
     <!-- ----------------- Header End Here ------------------------- -->
     <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="full">
         <tr>
@@ -328,105 +232,65 @@
                 <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" class="devicewidth">
                     <tr>
                         <td>
-                            <table width="100%" bgcolor="#fff" border="0" cellspacing="0" cellpadding="0"
+                            <table width="100%" bgcolor="#ffffff" border="0" cellspacing="0" cellpadding="0"
                                 align="center" class="full"
-                                style="text-align:center; border-bottom:1px solid #e5e5e5;">
+                                style="text-align: center; border-bottom: 1px solid #e5e5e5;padding:0 15px">
                                 <tr>
-                                    <td class="heightsmalldevices" height="78">&nbsp;</td>
+                                    <td class="heightsmalldevices" height="40">&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td
-                                        style="font:700 30px 'Montserrat', Helvetica, Arial, sans-serif; color:#eb6228; text-transform:uppercase;">
-                                        New Product Enquiry
+                                        style="font: 700 30px 'Montserrat', Helvetica, Arial, sans-serif;color: #64a644;text-transform: uppercase;">
+                                        Password Reset Request
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td class="heightSDBottom" height="47">&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <table width="100%" border="0" cellspacing="0" cellpadding="0"
-                                            style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; text-align:center;">
-                                            <tr>
-                                                <td width="26">&nbsp;</td>
-                                                <td height="21">&nbsp;</td>
-                                                <td width="26">&nbsp;</td>
-                                            </tr>
-                                            <tr>
-                                                <td width="26">&nbsp;</td>
-                                                <td align="left"
-                                                    style="font:bold 18px Arial, Helvetica, sans-serif; color:#eb6228;">
-                                                    Name: {{ $enquiry->name }}</td>
-                                                <td width="26">&nbsp;</td>
-                                            </tr>
-                                            <tr>
-                                                <td width="26"></td>
-                                                <td height="10"></td>
-                                                <td width="26"></td>
-                                            </tr>
-                                            <tr>
-                                                <td width="26">&nbsp;</td>
-                                                <td align="left"
-                                                    style="font:18px Arial, Helvetica, sans-serif; color:#404040;">
-                                                    Email: {{ $enquiry->email }}
-                                                </td>
-                                                <td width="26">&nbsp;</td>
-                                            </tr>
-                                            <tr>
-                                                <td width="26"></td>
-                                                <td height="10"></td>
-                                                <td width="26"></td>
-                                            </tr>
-                                            <tr>
-                                                <td width="26">&nbsp;</td>
-                                                <td align="left"
-                                                    style="font:18px Arial, Helvetica, sans-serif; color:#404040;">
-                                                    Phone: {{ $enquiry->phone_number }}
-                                                </td>
-                                                <td width="26">&nbsp;</td>
-                                            </tr>
-                                            <tr>
-                                                <td width="26"></td>
-                                                <td height="10"></td>
-                                                <td width="26"></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        @if ($enquiry->products)
 
                                 <tr>
-                                    <td colspan="2">
-                                        <b style="font-size: 22px;font-family: Arial, Helvetica, sans-serif">Products</b>
+                                    <td height="21">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="font: 18px Arial, Helvetica, sans-serif;color: #404040;">
+                                        You have submitted a password change request.
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td id="new-tbs">
-                                        <table width="100%" cellspacing="0" cellpadding="0"
-                                            style=" mso-table-lspace:0pt; mso-table-rspace:0pt; text-align:left;">
+                                    <td height="21">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="font: 18px Arial, Helvetica, sans-serif;color: #404040;">
+                                        If it wasn't you please ignore this email and make sure you can still login
+                                        to your account, If it was you, then change your password by using the
+                                        verification code bellow.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td height="32">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <table width="250" align="center" border="0" cellspacing="0"
+                                            cellpadding="0"
+                                            style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;text-align: center;">
                                             <tr>
-                                                <td><b>Product</b></td>
-                                                <td><b>Quantity</b></td>
+                                                <td align="center" bgcolor="#b5e3f9" style="border-radius: 28px; font-size: 25px;font-weight: bold;"
+                                                    height="51">
+                                                    {{ $user->verification_code }}
+                                                </td>
                                             </tr>
-                                            @foreach ($enquiry->products as $product)
-                                                <tr>
-                                                    <td width="26">{{ $product->name }}</td>
-                                                    <td width="10">{{ $product->pivot->quantity }}</td>
-                                                </tr>
-                                            @endforeach
                                         </table>
                                     </td>
                                 </tr>
-                                @endif
+                                <tr>
+                                    <td class="heightsmalldevices" height="60">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
                     </tr>
+                </table>
             </td>
         </tr>
-    </table>
-    </td>
-    </tr>
-    </table>
-    </td>
-    </tr>
     </table>
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="full">
@@ -436,7 +300,7 @@
                     class="devicewidth">
                     <tr>
                         <td>
-                            <table width="100%" bgcolor="#eb6228" border="0" cellspacing="0" cellpadding="0"
+                            <table width="100%" bgcolor="#64a644" border="0" cellspacing="0" cellpadding="0"
                                 align="center" class="full" style="border-radius:0 0 5px 5px;">
                                 <tr>
                                     <td height="18">&nbsp;</td>

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V2\WishlistController;
 use App\Http\Controllers\Api\V2\WebsiteController;
 use App\Http\Controllers\Api\V2\CheckoutController;
 use App\Http\Controllers\Api\V2\ErpController;
+use App\Http\Controllers\Api\V2\PasswordResetController;
 
 Route::group(['prefix' => 'v2/auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -24,6 +25,7 @@ Route::group(['prefix' => 'v2/auth'], function () {
     Route::post('verify-opt', [AuthController::class, 'verify_otp']);
     Route::post('resend-opt', [AuthController::class, 'resend_otp']);
     Route::post('check-user-exist', [AuthController::class, 'check_user_exist']);
+    Route::post('forgot-password', [PasswordResetController::class, 'forgetRequest']);
 
     // Route::post('password/forget_request', 'Api\V2\PasswordResetController@forgetRequest');
     // Route::post('password/confirm_reset', 'Api\V2\PasswordResetController@confirmReset');

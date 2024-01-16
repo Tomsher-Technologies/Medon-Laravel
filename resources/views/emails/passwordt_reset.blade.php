@@ -210,7 +210,7 @@
                                                 <td align="center" valign="middle">
                                                     <a href="{{ route('home') }}">
                                                         <img src="{{ frontendAsset('img/logo_new.webp') }}"
-                                                            height="54" alt="Industry Tech Store"></a>
+                                                            height="54" alt="Medon"></a>
                                                 </td>
                                             </tr>
                                             <tr></tr>
