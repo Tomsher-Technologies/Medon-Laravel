@@ -26,6 +26,7 @@ Route::group(['prefix' => 'v2/auth'], function () {
     Route::post('resend-opt', [AuthController::class, 'resend_otp']);
     Route::post('check-user-exist', [AuthController::class, 'check_user_exist']);
     Route::post('forgot-password', [PasswordResetController::class, 'forgetRequest']);
+    Route::post('reset-password', [PasswordResetController::class, 'resetRequest']);
 
     // Route::post('password/forget_request', 'Api\V2\PasswordResetController@forgetRequest');
     // Route::post('password/confirm_reset', 'Api\V2\PasswordResetController@confirmReset');

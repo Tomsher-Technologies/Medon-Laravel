@@ -274,7 +274,7 @@
                                             cellpadding="0"
                                             style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;text-align: center;">
                                             <tr>
-                                                <td align="center" bgcolor="#03a8df" style="border-radius: 28px; font-size: 25px;font-weight: bold;"
+                                                <td align="center" bgcolor="#06b2f4f2" style="border-radius: 28px; font-size: 25px;font-weight: bold;"
                                                     height="51">
                                                     {{ $user->verification_code }}
                                                 </td>

@@ -39,22 +39,35 @@ class PasswordResetController extends Controller
         }
     }
 
-    public function confirmReset(Request $request)
+    public function resetRequest(Request $request)
     {
-        $user = User::where('verification_code', $request->verification_code)->first();
+        $request->validate([
+            'password' => 'required|string|min:6'
+        ]);
+        $code = $request->has('code') ? $request->code : '';
+        $email = $request->has('email') ? $request->email : '';
+        $password = $request->has('password')? trim($request->password): '';
 
-        if ($user != null) {
-            $user->verification_code = null;
-            $user->password = Hash::make($request->password);
-            $user->save();
+        if($code != '' && $email != '' &&  $password != ''){
+            $user = User::where('email', $email)->where('verification_code', $code)->first();
+            if ($user != null) {
+                $user->verification_code = null;
+                $user->password = Hash::make($password);
+                $user->save();
+                return response()->json([
+                    'status' => true,
+                    'message' => translate('Your password is reset.Please login'),
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => translate('Invalid verification code'),
+                ], 200);
+            }
+        }else {
             return response()->json([
-                'result' => true,
-                'message' => translate('Your password is reset.Please login'),
-            ], 200);
-        } else {
-            return response()->json([
-                'result' => false,
-                'message' => translate('No user is found'),
+                'status' => false,
+                'message' => translate('Please fill all the fields'),
             ], 200);
         }
     }
