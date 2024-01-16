@@ -209,7 +209,7 @@
                                             <tr>
                                                 <td align="center" valign="middle">
                                                     <a href="{{ env('WEB_URL') }}">
-                                                        <img src="{{ asset('admin_assets/assets/img/logo.svg') }}"
+                                                        <img src="{{ asset('admin_assets/assets/img/logo.jpg') }}"
                                                             height="54" alt="Medon"></a>
                                                 </td>
                                             </tr>
