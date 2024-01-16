@@ -1472,6 +1472,13 @@ function getProductIdFromSlug($slug){
     }
     return null;
 }
+function getProductIdsFromMultipleSlug($slug){
+    if($slug != null){
+        $product = Product::whereIn('slug', $slug)->pluck('id')->toArray();
+        return $product;
+    }
+    return null;
+}
 
 
 function getCountryId($countryid){

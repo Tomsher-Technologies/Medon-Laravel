@@ -248,89 +248,99 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $product_slug = $request->has('product_slug') ? $request->product_slug : '';
-        $product_id = getProductIdFromSlug($product_slug);
-        $product = Product::findOrFail($product_id);
+        $product_slug = explode(',', $product_slug);
+        $product_id = getProductIdsFromMultipleSlug($product_slug);
+        $products = Product::findOrFail($product_id);
 
         $str = null;
 
         $user = getUser();
      
+        $outStock = $added = 0;
         if($user['users_id'] != ''){
-            if ($product) {
-                $product->load('stocks');
-                if ($product->variant_product) {
-
-                    $variations =  $request->variations;
-
-                    foreach (json_decode($product->choice_options) as $key => $choice) {
-                        if ($str != null) {
-                            $str .= '-' . str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
-                        } else {
-                            $str .= str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
+            if ($products) {
+                foreach($products as $product){
+                    $product->load('stocks');
+                    if ($product->variant_product) {
+    
+                        $variations =  $request->variations;
+    
+                        foreach (json_decode($product->choice_options) as $key => $choice) {
+                            if ($str != null) {
+                                $str .= '-' . str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
+                            } else {
+                                $str .= str_replace(' ', '', $variations['attribute_id_' . $choice->attribute_id]);
+                            }
+                        }
+    
+                        $product_stock = $product->stocks->where('variant', $str)->first();
+    
+                        if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'This item is out of stock!',
+                                'cart_count' => $this->cartCount()
+                            ], 200);
+                        }
+                    } else {
+                        $product_stock = $product->stocks->first();
+                        if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
+                            $outStock++;
                         }
                     }
-
-                    $product_stock = $product->stocks->where('variant', $str)->first();
-
-                    if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'This item is out of stock!',
-                            'cart_count' => $this->cartCount()
-                        ], 200);
-                    }
-                } else {
-                    $product_stock = $product->stocks->first();
-                    if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'This item is out of stock!',
-                            'cart_count' => $this->cartCount()
-                        ], 200);
+    
+                    $carts = Cart::where([
+                        $user['users_id_type'] => $user['users_id'],
+                        'product_id' => $product->id,
+                        'variation' => $str,
+                    ])->first();
+    
+                    $tax = 0;
+                    if ($carts) {
+                        if($product->vat != 0){
+                            $new_quantity = $carts->quantity + $request->quantity;
+                            $tax = (($carts->offer_price * $new_quantity)/100) * $product->vat;
+                        }
+                        $carts->quantity += $request->quantity;
+                        $carts->tax  = $tax;
+                        $carts->save();
+                        $added++;
+                    } else {
+                        $price = $product_stock->price;
+                        
+    
+                        $offerData = getProductOfferPrice($product);
+                        if($product->vat != 0){
+                            $tax = (($offerData['discounted_price'] * ($request['quantity'] ?? 1))/100) * $product->vat;
+                        }
+                        $data[$user['users_id_type']] =  $user['users_id'];
+                        $data['product_id'] = $product->id;
+                        $data['quantity'] = $request['quantity'] ?? 1;
+                        $data['price'] = $offerData['original_price'];
+                        $data['offer_price'] = $offerData['discounted_price'];
+                        $data['offer_id'] = ($offerData['offer_id'] >= 0) ? $offerData['offer_id'] : NULL;
+                        $data['variation'] = $str;
+                        $data['tax'] = $tax;
+                        $data['shipping_cost'] = 0;
+                        $data['product_referral_code'] = null;
+                        $data['cash_on_delivery'] = $product->cash_on_delivery;
+                        $data['digital'] = $product->digital;
+                        // print_r($data);
+                        // die;
+                        $added++;
+    
+                        Cart::create($data);
                     }
                 }
 
-                $carts = Cart::where([
-                    $user['users_id_type'] => $user['users_id'],
-                    'product_id' => $product->id,
-                    'variation' => $str,
-                ])->first();
-
-                $tax = 0;
-                if ($carts) {
-                    if($product->vat != 0){
-                        $new_quantity = $carts->quantity + $request->quantity;
-                        $tax = (($carts->offer_price * $new_quantity)/100) * $product->vat;
-                    }
-                    $carts->quantity += $request->quantity;
-                    $carts->tax  = $tax;
-                    $carts->save();
-                    $rtn_msg = 'Cart updated successfully';
-                } else {
-                    $price = $product_stock->price;
-                    
-
-                    $offerData = getProductOfferPrice($product);
-                    if($product->vat != 0){
-                        $tax = (($offerData['discounted_price'] * ($request['quantity'] ?? 1))/100) * $product->vat;
-                    }
-                    $data[$user['users_id_type']] =  $user['users_id'];
-                    $data['product_id'] = $product->id;
-                    $data['quantity'] = $request['quantity'] ?? 1;
-                    $data['price'] = $offerData['original_price'];
-                    $data['offer_price'] = $offerData['discounted_price'];
-                    $data['offer_id'] = ($offerData['offer_id'] >= 0) ? $offerData['offer_id'] : NULL;
-                    $data['variation'] = $str;
-                    $data['tax'] = $tax;
-                    $data['shipping_cost'] = 0;
-                    $data['product_referral_code'] = null;
-                    $data['cash_on_delivery'] = $product->cash_on_delivery;
-                    $data['digital'] = $product->digital;
-                    // print_r($data);
-                    // die;
-                    $rtn_msg = 'Item added to cart';
-
-                    Cart::create($data);
+                if($outStock == 0 && $added != 0){
+                    $rtn_msg = "Cart updated successfully";
+                }elseif($outStock == 0 && $added == 0){
+                    $rtn_msg = "Items not added to cart";
+                }elseif($outStock != 0 && $added == 0){
+                    $rtn_msg = "Items are out of stock";
+                }elseif($outStock != 0 && $added != 0){
+                    $rtn_msg = "Cart updated successfully. Some of the items are out of stock";
                 }
 
                 return response()->json([
@@ -338,8 +348,13 @@ class CartController extends Controller
                     'message' => $rtn_msg,
                     'cart_count' =>  $this->cartCount()
                 ], 200);
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => "Failed to add item to the cart",
+                    'cart_count' => $this->cartCount()
+                ], 200);
             }
-
         }
        
         return response()->json([
