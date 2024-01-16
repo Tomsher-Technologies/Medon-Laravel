@@ -32,11 +32,12 @@ class NotificationUtility
                 }
             }
 
-            if (getAdminEmail()) {
-                $array['view'] = 'admin.emails.invoice';
+            if (env('MAIL_ADMIN')) {
+                $array['view'] = 'emails.invoice';
                 $array['subject'] = translate('A new order has been placed') . ' - ' . $order->code;
-
-                Mail::to(getAdminEmail())->queue(new InvoiceEmailManager($array));
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['order'] = $order;
+                Mail::to(env('MAIL_ADMIN'))->queue(new InvoiceEmailManager($array));
             }
         } catch (\Exception $e) {
         }

@@ -250,14 +250,35 @@
                                 {{ single_price($order->shipping_cost) }}
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <strong class="text-muted">Coupon :</strong>
-                            </td>
-                            <td>
-                                {{ single_price($order->coupon_discount) }}
-                            </td>
-                        </tr>
+                        @if ($order->coupon_discount)
+                            <tr>
+                                <td>
+                                    <strong class="text-muted">Coupon Discount :</strong>
+                                </td>
+                                <td>
+                                    {{ single_price($order->coupon_discount) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong class="text-muted">Coupon Code :</strong>
+                                </td>
+                                <td>
+                                    {{ $order->coupon_code }}
+                                </td>
+                            </tr>
+                        @endif
+                        {{-- @if ($order->offer_discount)
+                            <tr>
+                                <td>
+                                    <strong class="text-muted">Offer Discount :</strong>
+                                </td>
+                                <td>
+                                    {{ single_price($order->offer_discount) }}
+                                </td>
+                            </tr>
+                        @endif --}}
+                        
                         <tr>
                             <td>
                                 <strong class="text-muted">TOTAL :</strong>
