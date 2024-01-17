@@ -21,6 +21,7 @@ use App\Models\RefundRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Utility\NotificationUtility;
+use App\Utility\SendSMSUtility;
 use App\Mail\EmailManager;
 use Mail;
 class CheckoutController extends Controller
@@ -184,16 +185,29 @@ class CheckoutController extends Controller
         // print_r($user);
         if($user_id != ''){
             $address = Address::where('id', $address_id)->first();
-
-            $shipping_address['name']        = $address->name;
-            $shipping_address['email']       = auth('sanctum')->user()->email;
-            $shipping_address['address']     = $address->address;
-            $shipping_address['country']     = $address->country_name;
-            $shipping_address['state']       = $address->state_name;
-            $shipping_address['city']        = $address->city;
-            $shipping_address['phone']       = $address->phone;
-            $shipping_address['longitude']   = $address->longitude;
-            $shipping_address['latitude']    = $address->latitude;
+            if($address){
+                $shipping_address['name']        = $address->name;
+                $shipping_address['email']       = auth('sanctum')->user()->email;
+                $shipping_address['address']     = $address->address;
+                $shipping_address['country']     = $address->country_name;
+                $shipping_address['state']       = $address->state_name;
+                $shipping_address['city']        = $address->city;
+                $shipping_address['phone']       = $address->phone;
+                $shipping_address['longitude']   = $address->longitude;
+                $shipping_address['latitude']    = $address->latitude;
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Shipping address not exist',
+                    'data' => array(
+                        'order_id' => '',
+                        'order_code' => '',
+                        'grand_total' => 0,
+                        'payment_type' => '',
+                        'url' => ''
+                    )
+                ], 200);
+            }
         }
 
         if ($billing_shipping_same == 0) {
@@ -309,7 +323,15 @@ class CheckoutController extends Controller
             if($request->payment_method == 'cash_on_delivery'){
                 reduceProductQuantity($productQuantities);
                 Cart::where('user_id', $user_id)->delete();
+
                 NotificationUtility::sendOrderPlacedNotification($order);
+
+                $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                $userPhone = $order->user->phone ?? '';
+                if($userPhone != '' && $message['order_placed'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
+                }
+            
                 return response()->json([
                     'status' => true,
                     'message' => 'Your order has been placed successfully',
@@ -388,6 +410,13 @@ class CheckoutController extends Controller
                     reduceProductQuantity($productQuantities);
                     Cart::where('user_id', $user_id)->delete();
                     NotificationUtility::sendOrderPlacedNotification($order);
+
+                    $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                    $userPhone = $order->user->phone ?? '';
+                    if($userPhone != '' && $message['order_placed'] != ''){
+                        SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
+                    }
+
                     return response()->json([
                         'status' => true,
                         'message' => 'Your order has been placed successfully',
@@ -443,6 +472,12 @@ class CheckoutController extends Controller
             $order->payment_details = $payment_details;
             $order->save();
             NotificationUtility::sendOrderPlacedNotification($order);
+
+            $message = getOrderStatusMessageTest($order->user->name, $order->code);
+            $userPhone = $order->user->phone ?? '';
+            if($userPhone != '' && $message['order_placed'] != ''){
+                SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
+            }
 
             $orderDetails = OrderDetail::where('order_id', $order->id)->get();
 
