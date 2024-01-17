@@ -21,8 +21,8 @@ use App\Models\RefundRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Utility\NotificationUtility;
-
-
+use App\Mail\EmailManager;
+use Mail;
 class CheckoutController extends Controller
 {
     public function apply_coupon_code(Request $request)
@@ -540,6 +540,25 @@ class CheckoutController extends Controller
                    
                     if(!empty($data)){
                         RefundRequest::insert($data);
+
+                        $order = Order::find($order_id);
+                        if($order){
+                            $array['view'] = 'emails.commonmail';
+                            $array['subject'] = "New Order Return Request - ".$order->code;
+                            $array['from'] = env('MAIL_FROM_ADDRESS');
+                            $array['content'] = "<p>Hi,</p>
+                                            <p>We have received a new return request. Below are the details of the return:</p><br>
+                                            <p><b>Order Code : </b>".$order->code."</p>
+                                            <p><b>Customer Name : </b>".$order->user->name ."</p>
+                                            <p><b>Reason for Return: </b>".$reason ."</p>
+                                            <p><b>Return Request Date: </b>".date('d-M-Y H:i a')."</p><br>
+                                            <p>Thank you for your cooperation.</p>
+                                            <p>Best regards,</p>
+                                            <p>Team ".env('APP_NAME')."</p>";
+                            Mail::to(env('MAIL_ADMIN'))->queue(new EmailManager($array));
+                        }
+                        
+
                         return response()->json([
                             'status' => true,
                             'message' => 'Refund request sent successfully'
@@ -584,9 +603,24 @@ class CheckoutController extends Controller
                     $order->cancel_refund_amount = $order->grand_total;
                     $order->cancel_reason = $reason;
                     $order->save();
+
+                    $array['view'] = 'emails.commonmail';
+                    $array['subject'] = "New Order Cancel Request - ".$order->code;
+                    $array['from'] = env('MAIL_FROM_ADDRESS');
+                    $array['content'] = "<p>Hi,</p>
+                                    <p style='line-height: 25px;'>We have received a new order cancel request. Below are the details of the order:</p>
+                                    <p><b>Order Code : </b>".$order->code."</p>
+                                    <p><b>Customer Name : </b>".$order->user->name ."</p>
+                                    <p style='line-height: 25px;'><b>Reason for cancel: </b>".$reason ."</p>
+                                    <p><b>Cancel Request Date: </b>".date('d-M-Y H:i a')."</p><br>
+                                    <p>Thank you for your cooperation.</p>
+                                    <p>Best regards,</p>
+                                    <p>Team ".env('APP_NAME')."</p>";
+                    Mail::to(env('MAIL_ADMIN'))->queue(new EmailManager($array));
+                    
                     return response()->json([
                         'status' => true,
-                        'message' => 'Order cancelled successfully'
+                        'message' => 'Order cancel request send successfully'
                     ], 200);
                 }else{
                     return response()->json([
