@@ -185,10 +185,10 @@
     </head>
 
 <body style="background-color: #cecece;">
-
+    <!-- ----------------- Header Start Here ------------------------- -->
     <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="full">
-        <tr class="mhide">
-            <td height="100">&nbsp;</td>
+        <tr>
+            <td class="heightsmalldevices" height="60">&nbsp;</td>
         </tr>
         <tr>
             <td align="center">
@@ -197,24 +197,24 @@
                         <td>
                             <table width="100%" bgcolor="#ffffff" border="0" cellspacing="0" cellpadding="0"
                                 align="center" class="full"
-                                style="background-color:#ffffff; border-radius:5px 5px 0 0;">
+                                style="background-color: #ffffff; border-radius: 5px 5px 0 0">
                                 <tr>
                                     <td>
                                         <table align="center" border="0" cellspacing="0" cellpadding="0"
-                                            class="inner" style="text-align:center;">
+                                            class="inner" style="text-align: center">
                                             <tr>
                                                 <td width="28" height="52">&nbsp;</td>
                                                 <td>&nbsp;</td>
                                             </tr>
                                             <tr>
                                                 <td align="center" valign="middle">
-                                                    <a href="{{ route('home') }}">
+                                                    <a href="{{ env('WEB_URL') }}">
                                                         <img src="{{ asset('admin_assets/assets/img/logo.jpg') }}"
-                                                            height="80" alt="{{env('APP_NAME')}}"></a>
+                                                            height="100" alt="Medon">
+                                                    </a>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                            </tr>
+                                            <tr></tr>
                                         </table>
 
                                     </td>
@@ -226,7 +226,6 @@
             </td>
         </tr>
     </table>
-
     <!-- ----------------- Header End Here ------------------------- -->
     <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="full">
         <tr>
@@ -234,33 +233,33 @@
                 <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" class="devicewidth">
                     <tr>
                         <td>
-                            <table width="100%" bgcolor="#fff" border="0" cellspacing="0" cellpadding="0"
+                            <table width="100%" bgcolor="#ffffff" border="0" cellspacing="0" cellpadding="0"
                                 align="center" class="full"
-                                style="text-align:center; border-bottom:1px solid #e5e5e5;">
+                                style="text-align: center; border-bottom: 1px solid #e5e5e5;padding:0 30px">
+                                
+                                {{-- <tr>
+                                    <td style="font: 700 30px 'Montserrat', Helvetica, Arial, sans-serif;color: #64a644;text-transform: uppercase;">
+                                        Password Reset Request
+                                    </td>
+                                </tr> --}}
+
                                 <tr>
-                                    <td class="heightsmalldevices" height="40">&nbsp;</td>
+                                    <td height="21">&nbsp;</td>
                                 </tr>
                                 <tr>
-                                    <td
-                                        style="font:700 30px 'Montserrat', Helvetica, Arial, sans-serif; color:#64a644; text-transform:uppercase;">
-                                        New Order Return Request Assigned</td>
-                                </tr>
-                                <tr>
-                                    <td class="heightSDBottom" height="30">&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    
-                                    <td>
-                                        <p>Hi,</p>
-                                        <p> New order return request has been assigned.</p>
-                                        <p> Order Code : <b>{{ $order->code ?? '' }}</b></p>
-                                        
-                                        <p>Thank You,<br/>Team {{env('APP_NAME')}}</p>
-                                        
-                                        <br>
+                                    <td style="font: 18px Arial, Helvetica, sans-serif;color: #64a644;">
+                                       {!! $subject !!}
                                     </td>
                                 </tr>
-                             
+                                <tr>
+                                    <td height="21">&nbsp;</td>
+                                </tr>
+                                <tr style="text-align: left;">
+                                    <td style="font: 16px Arial, Helvetica, sans-serif;color: #404040;">
+                                        {!! $content !!}
+                                    </td>
+                                </tr>
+                                
                             </table>
                         </td>
                     </tr>
@@ -276,7 +275,7 @@
                     class="devicewidth">
                     <tr>
                         <td>
-                            <table width="100%" bgcolor="#03a6de" border="0" cellspacing="0" cellpadding="0"
+                            <table width="100%" bgcolor="#64a644" border="0" cellspacing="0" cellpadding="0"
                                 align="center" class="full" style="border-radius:0 0 5px 5px;">
                                 <tr>
                                     <td height="18">&nbsp;</td>
