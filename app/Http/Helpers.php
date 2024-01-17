@@ -1800,3 +1800,31 @@ function getActiveBuyXgetYOfferProducts(){
     
         return $agents;
     }
+
+    function getOrderStatusMessage($user, $code){
+        return [
+            'order_placed' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been placed successfully.",
+            'confirmed' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been confirmed.",
+            'picked_up' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been picked up by the delivery agent.",
+            'partial_pick_up' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been picked up by the delivery agent.",
+            'cancelled' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been cancelled.",
+            'partial_delivery' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been delivered.",
+            'delivered' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been delivered.",
+            'order_assign' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! New order (".$code.") delivery has been assigned to you.",
+            'return_assign' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! New return order (".$code.") delivery has been assigned to you.",
+            ];
+    }
+
+    function getOrderStatusMessageTest($user, $code){
+        return [
+            'order_placed' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'confirmed' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'picked_up' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'partial_pick_up' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'cancelled' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'partial_delivery' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'delivered' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'order_assign' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'return_assign' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            ];
+    }
