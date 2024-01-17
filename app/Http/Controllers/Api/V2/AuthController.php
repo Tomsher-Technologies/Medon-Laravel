@@ -282,6 +282,7 @@ class AuthController extends Controller
                     'is_password' => true,
                     'is_otp' => false,
                     'user_id' => $user->id,
+                    'user_exist' => true,
                     'message' => "User exists"
                 ]);
             } else {
@@ -293,6 +294,7 @@ class AuthController extends Controller
                     'is_password' => false,
                     'is_otp' =>  true,
                     'user_id' => $user->id,
+                    'user_exist' => true,
                 ];
 
                 if (env('APP_DEBUG') == true) {
