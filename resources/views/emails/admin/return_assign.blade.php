@@ -184,7 +184,7 @@
         </style>
     </head>
 
-<body style="background-color: #cecece;">
+<body style="background-color: #b7e3f978;">
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" class="full">
         <tr class="mhide">

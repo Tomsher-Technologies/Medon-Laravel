@@ -76,7 +76,7 @@
         @php
             $logo = get_setting('header_logo');
         @endphp
-        <div style="background: #eceff4;padding: 1.5rem;">
+        <div style="background: #b7e3f978;padding: 1.5rem;">
             <table>
                 <tr>
                     <td>
