@@ -37,6 +37,7 @@ use App\Mail\Admin\OrderAssign;
 use App\Mail\Admin\ReturnAssign;
 // use CoreComponentRepository;
 use App\Utility\SmsUtility;
+use App\Utility\SendSMSUtility;
 
 class OrderController extends Controller
 {
@@ -241,13 +242,25 @@ class OrderController extends Controller
         
         $cancel_request = Order::findOrFail($id);
         if($cancel_request->cancel_request == 1 ){
+
+            $message = getOrderStatusMessageTest($cancel_request->user->name, $cancel_request->code);
+            $userPhone = $cancel_request->user->phone ?? '';
+
             $cancel_request->cancel_approval = $status;
             if($status == 1){
                 $cancel_request->delivery_status = 'cancelled';
                 OrderDeliveryBoys::where('order_id',$id)->delete();
+                if($userPhone != '' && isset($message['cancelled']) && $message['cancelled'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['cancelled']);
+                }
+            }else{
+                if($userPhone != '' && isset($message['cancel_reject']) && $message['cancel_reject'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['cancel_reject']);
+                }
             }
             $cancel_request->cancel_approval_date = date('Y-m-d H:i:s');
-            $cancel_request->save();
+            $cancel_request->save(); 
+            
             echo 1;
         }else{
             echo 0;
@@ -750,7 +763,13 @@ class OrderController extends Controller
         
         //sends Notifications to user
         NotificationUtility::sendNotification($order, $request->status);
-     
+        $message = getOrderStatusMessageTest($order->user->name, $order->code);
+        $userPhone = $order->user->phone ?? '';
+        
+        if($userPhone != '' && isset($message[$request->status]) && $message[$request->status] != ''){
+            SendSMSUtility::sendSMS($userPhone, $message[$request->status]);
+        }
+
         return 1;
     }
 
@@ -986,6 +1005,12 @@ class OrderController extends Controller
         $odc->delivery_boy_id = $request->agent_id;
         $odc->status = 0;
         $odc->save();
+
+        $message = getOrderStatusMessageTest($odc->deliveryBoy->name, $odc->order->code);
+        $userPhone = $odc->deliveryBoy->phone ?? '';
+        if($userPhone != '' && $message['order_assign'] != ''){
+            SendSMSUtility::sendSMS($userPhone, $message['order_assign']);
+        }
         
     }
 
@@ -1043,6 +1068,12 @@ class OrderController extends Controller
                 $refund->delivery_boy = $request->agent_id;
                 $refund->delivery_assigned_date = date('Y-m-d H:i:s');
                 $refund->save();
+
+                $message = getOrderStatusMessageTest($refund->deliveryBoy->name, $refund->order->code);
+                $userPhone = $refund->deliveryBoy->phone ?? '';
+                if($userPhone != '' && $message['return_assign'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['return_assign']);
+                }
                 echo 1;
             }else{
                 echo 0;

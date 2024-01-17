@@ -12,6 +12,7 @@ use App\Models\SmsTemplate;
 use App\Models\OrderDeliveryBoys;
 use App\Models\RefundRequest;
 use App\Utility\SmsUtility;
+use App\Utility\SendSMSUtility;
 use Carbon\Carbon;
 use Storage;
 
@@ -330,6 +331,13 @@ class DeliveryBoyController extends Controller
             }
 
             $delivery_boy->save();
+
+            $message = getOrderStatusMessageTest($order->user->name, $order->code);
+            $userPhone = $order->user->phone ?? '';
+            
+            if($userPhone != '' && isset($message['delivered']) && $message['delivered'] != ''){
+                SendSMSUtility::sendSMS($userPhone, $message['delivered']);
+            }
         }
         $order->delivery_history_date = date("Y-m-d H:i:s");
 
