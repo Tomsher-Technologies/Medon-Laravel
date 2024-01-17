@@ -10,7 +10,7 @@
 
     <!-- Favicon -->
   	<title>{{ config('app.name', 'eCommerce') }}</title>
-
+      <link rel="icon" href="{{ asset('admin_assets/assets/img/favicon.ico') }}">
     <!-- google font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 

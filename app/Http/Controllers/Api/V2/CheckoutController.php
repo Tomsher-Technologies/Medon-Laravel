@@ -325,7 +325,7 @@ class CheckoutController extends Controller
                 Cart::where('user_id', $user_id)->delete();
 
                 NotificationUtility::sendOrderPlacedNotification($order);
-
+                NotificationUtility::sendNotification($order, 'created');
                 $message = getOrderStatusMessageTest($order->user->name, $order->code);
                 $userPhone = $order->user->phone ?? '';
                 if($userPhone != '' && $message['order_placed'] != ''){
@@ -410,7 +410,7 @@ class CheckoutController extends Controller
                     reduceProductQuantity($productQuantities);
                     Cart::where('user_id', $user_id)->delete();
                     NotificationUtility::sendOrderPlacedNotification($order);
-
+                    NotificationUtility::sendNotification($order, 'created');
                     $message = getOrderStatusMessageTest($order->user->name, $order->code);
                     $userPhone = $order->user->phone ?? '';
                     if($userPhone != '' && $message['order_placed'] != ''){
@@ -472,7 +472,7 @@ class CheckoutController extends Controller
             $order->payment_details = $payment_details;
             $order->save();
             NotificationUtility::sendOrderPlacedNotification($order);
-
+            NotificationUtility::sendNotification($order, 'created');
             $message = getOrderStatusMessageTest($order->user->name, $order->code);
             $userPhone = $order->user->phone ?? '';
             if($userPhone != '' && $message['order_placed'] != ''){

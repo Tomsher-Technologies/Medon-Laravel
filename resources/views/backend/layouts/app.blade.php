@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ frontendAsset('img/fav_icon.png') }}">
+    <link rel="icon" href="{{ asset('admin_assets/assets/img/favicon.ico') }}">
     <title>{{ get_setting('website_name') . ' | ' . get_setting('site_motto') }}</title>
 
     <!-- google font -->

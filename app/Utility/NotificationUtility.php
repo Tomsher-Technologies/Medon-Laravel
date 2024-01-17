@@ -48,7 +48,8 @@ class NotificationUtility
         if ($order->seller_id == \App\Models\User::where('user_type', 'admin')->first()->id) {
             $users = User::findMany([$order->user->id, $order->seller_id]);
         } else {
-            $users = User::findMany([$order->user->id, $order->seller_id, \App\Models\User::where('user_type', 'admin')->first()->id]);
+            // $order->user->id, $order->seller_id,
+            $users = User::findMany([\App\Models\User::where('user_type', 'admin')->first()->id]);
         }
 
         $order_notification = array();
