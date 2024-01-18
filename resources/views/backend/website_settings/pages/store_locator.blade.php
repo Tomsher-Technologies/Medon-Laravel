@@ -29,16 +29,15 @@
                             <input type="hidden" name="type" value="{{ $page->type }}">
                     </div>
                 </div>
-
                 <div class="form-group row">
-                    <label class="col-sm-2 col-from-label" for="name">{{ translate('Add Content') }} <span
-                            class="text-danger">*</span></label>
+                    <label class="col-sm-2 col-from-label" for="sub_title">{{ translate('Sub Title') }} <span
+                            class="text-danger">*</span> </label>
                     <div class="col-sm-10">
-                        <textarea class="aiz-text-editor form-control" placeholder="{{ translate('Content..') }}"
-                            data-buttons='[["font", ["bold", "underline", "italic", "clear"]],["para", ["ul", "ol", "paragraph"]],["style", ["style"]],["color", ["color"]],["table", ["table"]],["insert", ["link", "picture", "video"]],["view", ["fullscreen", "codeview", "undo", "redo"]]]'
-                            data-min-height="300" name="content" required>{!! $page->getTranslation('content') !!}</textarea>
+                        <input type="text" class="form-control" placeholder="{{ translate('Sub Title') }}" name="sub_title"
+                            value="{{ $page->sub_title }}">
                     </div>
                 </div>
+                
             </div>
 
             <div class="card-header px-0">

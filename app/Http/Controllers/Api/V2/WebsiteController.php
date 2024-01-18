@@ -16,6 +16,8 @@ use App\Models\Frontend\HomeSlider;
 use App\Models\Subscriber;
 use App\Models\HeaderMenus;
 use App\Models\Shops;
+use App\Models\Page;
+use App\Models\Faqs;
 use App\Http\Resources\V2\WebHomeCategoryCollection;
 use App\Http\Resources\V2\WebHomeBrandCollection;
 use App\Http\Resources\V2\WebHomeOffersCollection;
@@ -49,8 +51,46 @@ class WebsiteController extends Controller
             $brands = Brand::whereIn('id', json_decode($header_brands))->get();
             return new WebHomeBrandCollection($brands);
         });
+
+        $data['footer'] = $this->websiteFooter();
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     } 
+
+    public function websiteFooter(){
+        $data = [];
+
+        $pageData['facebook']   = get_setting('facebook_link');
+        $pageData['instagram']  = get_setting('instagram_link');
+        $pageData['twitter']    = get_setting('twitter_link');
+        $pageData['youtube']    = get_setting('youtube_link');
+        $pageData['linkedin']   = get_setting('linkedin_link');
+        $pageData['whatsapp']   = get_setting('whatsapp_link');
+        $pageData['dribbble']   = get_setting('dribbble_link');
+
+        
+        $data['newsletter_title'] = get_setting('newsletter_title');
+        $data['app_section_title'] = get_setting('app_title');
+        $data['play_store_link'] = get_setting('play_store_link');
+        $data['app_store_link'] = get_setting('app_store_link');
+        $data['social_title'] = get_setting('social_title');
+        $data['social_links'] = $pageData;
+        $data['address'] = get_setting('contact_address');
+        $data['phone1'] = get_setting('contact_phone');
+        $data['phone2'] = get_setting('contact_phone2');
+        $data['email'] = get_setting('contact_email');
+        $data['copyright'] = get_setting('frontend_copyright_text');
+
+        $payments = explode(',',get_setting('payment_method_images'));
+        $images = [];
+        if(!empty($payments)){
+            foreach($payments as $pay){
+                $images[] = uploaded_asset($pay);
+            }
+        }
+        $data['payment_methods'] = $images;
+
+        return $data;
+    }
 
     public function websiteHome(){
         $data['slider'] = Cache::rememberForever('homeSlider', function () {
@@ -161,8 +201,6 @@ class WebsiteController extends Controller
             'contact_address' => get_setting('contact_address'),
         ]);
     }
-
-   
 
     public function offerDetails(Request $request){
         $offerid = $request->offer_id;
@@ -313,6 +351,50 @@ class WebsiteController extends Controller
 
     public function storeLocations(){
         $shops = Shops::where('status',1)->orderBy('name','asc')->get();
-        return response()->json(['status' => true,"message"=>"Success","data" => $shops],200);
+
+        $query = Page::where('type', 'store_locator')->select('title', 'sub_title', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        // $shops['page_data'] = $query;
+        return response()->json(['status' => true,"message"=>"Success","data" => $shops,"page_data" => $query],200);
+    }
+
+    public function pageContents(Request $request){
+        $page_type = $request->has('page') ? $request->page : null;
+        $faqs = [];
+        if($page_type){
+            $query = Page::where('type', $page_type);
+
+            if($page_type == 'terms_conditions' || $page_type == 'privacy_policy' || $page_type == 'return_refund' || $page_type == 'shipping_delivery'){
+                $query->select('title', 'content', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
+            }
+
+            if($page_type == 'store_locator'){
+                $query->select('title', 'sub_title', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
+            }
+            
+            if($page_type == 'faq'){
+                $query->select('title', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
+                $faqs = Faqs::select('question','answer','sort_order')->orderBy('sort_order','asc')->get();
+            }
+            if($page_type == 'contact_us'){
+                $query->select('title', 'sub_title', 'content as working_hours', 'heading1 as phone', 'heading2 as email', 'heading3 as form_heading', 'heading4 as latitude', 'heading5 as longitude', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
+            }
+
+            $pageData = $query->first();
+            if($page_type == 'faq'){
+                $pageData['faqs'] = $faqs;
+            }
+            if($page_type == 'contact_us'){
+                $pageData['facebook']   = get_setting('facebook_link');
+                $pageData['instagram']  = get_setting('instagram_link');
+                $pageData['twitter']    = get_setting('twitter_link');
+                $pageData['youtube']    = get_setting('youtube_link');
+                $pageData['linkedin']   = get_setting('linkedin_link');
+                $pageData['whatsapp']   = get_setting('whatsapp_link');
+                $pageData['dribbble']   = get_setting('dribbble_link');
+            }
+            return response()->json(['status' => true,"message"=>"Success","data" => $pageData],200);
+        }else{
+            return response()->json(['status' => false,"message"=>"No data found","data" => []],200);
+        }
     }
 }
