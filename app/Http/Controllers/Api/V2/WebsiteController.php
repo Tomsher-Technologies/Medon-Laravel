@@ -18,12 +18,15 @@ use App\Models\HeaderMenus;
 use App\Models\Shops;
 use App\Models\Page;
 use App\Models\Faqs;
+use App\Models\Contacts;
 use App\Http\Resources\V2\WebHomeCategoryCollection;
 use App\Http\Resources\V2\WebHomeBrandCollection;
 use App\Http\Resources\V2\WebHomeOffersCollection;
 use App\Http\Resources\V2\WebHomeProductsCollection;
 use Illuminate\Http\Request;
+use App\Mail\ContactEnquiry;
 use Cache;
+use Mail;
 
 class WebsiteController extends Controller
 {
@@ -401,5 +404,30 @@ class WebsiteController extends Controller
         }else{
             return response()->json(['status' => false,"message"=>"No data found","data" => []],200);
         }
+    }
+
+    public function contactUs(Request $request){
+        $validate = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required|numeric',
+            'message' => 'required'
+        ], [
+            'name.required' => 'Please enter your name',
+            'email.required' => 'Please enter your email',
+            'phone.required' => 'Please enter your phone',
+            'message.required' => 'Please enter your message'
+        ]);
+
+        $con                = new Contacts;
+        $con->name          = $request->name;
+        $con->email         = $request->email;
+        $con->phone  = $request->phone;
+        $con->message       = $request->message;
+        $con->save();
+
+        Mail::to(env('MAIL_ADMIN'))->queue(new ContactEnquiry($con));
+
+        return response()->json(['status' => true,"message"=>"Thank you for getting in touch. Our team will contact you shortly.","data" => []],200);
     }
 }

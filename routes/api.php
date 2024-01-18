@@ -129,6 +129,7 @@ Route::group(['prefix' => 'v2'], function () {
         // Route::get('footer', [WebsiteController::class, 'websiteFooter']);
         Route::get('store-locator', [WebsiteController::class, 'storeLocations']);
         Route::get('page-contents', [WebsiteController::class, 'pageContents']);
+        Route::post('contact-us', [WebsiteController::class, 'contactUs']);
     });
 
     // Footer
