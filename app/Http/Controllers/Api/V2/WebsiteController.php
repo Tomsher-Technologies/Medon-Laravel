@@ -51,6 +51,11 @@ class WebsiteController extends Controller
             $brands = Brand::whereIn('id', json_decode($header_brands))->get();
             return new WebHomeBrandCollection($brands);
         });
+        $data['header'] = [
+            'show_top_offer' => get_setting('show_top_header_offer'),
+            'top_offer_content' => get_setting('top_header_offer_title'),
+            'header_phone' =>  get_setting('header_phone') 
+        ];
 
         $data['footer'] = $this->websiteFooter();
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);

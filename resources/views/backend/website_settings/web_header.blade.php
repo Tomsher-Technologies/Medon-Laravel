@@ -11,6 +11,61 @@
 </div>
 <div class="row">
 	<div class="col-md-12 mx-auto">
+		<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+			<div class="card shadow-none">
+				<div class="card-header">
+					<h6 class="mb-0">Top Header Offer</h6>
+				</div>
+				<div class="card-body">
+					<div class="form-group row ">
+						<label class="col-md-2 col-from-label">{{ translate('Show Top Header Offer?') }}</label>
+						<div class="col-md-9">
+							<label class="aiz-switch aiz-switch-success mb-0">
+								<input type="hidden" name="types[]" value="show_top_header_offer">
+								<input type="checkbox" name="show_top_header_offer"
+									@if (get_setting('show_top_header_offer') == 'on') checked @endif>
+								<span></span>
+							</label>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label>Top Header Offer Content</label>
+						<div class="input-group form-group">
+							<input type="hidden" name="types[]" value="top_header_offer_title">
+							<input type="text" class="form-control" placeholder="" name="top_header_offer_title"
+								value="{{ get_setting('top_header_offer_title') }}">
+							
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="card shadow-none">
+				<div class="card-header">
+					<h6 class="mb-0">Top Header Content</h6>
+				</div>
+				<div class="card-body">
+					<div class="form-group">
+						<label> Header Phone Number</label>
+						<div class="input-group form-group">
+							<input type="hidden" name="types[]" value="header_phone">
+							<input type="text" class="form-control" placeholder="" name="header_phone"
+								value="{{ get_setting('header_phone') }}">
+							
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="text-left mb-3">
+				<button type="submit" class="btn btn-primary">Update</button>
+			</div>
+		</form>
+
 		<div class="card">
 			<div class="card-header">
 				<h6 class="mb-0">Header Category Menu Setting</h6>
