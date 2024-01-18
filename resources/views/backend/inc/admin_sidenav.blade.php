@@ -228,6 +228,16 @@
                     </li>
                 @endif
 
+                @if (userHasPermision(29))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('enquiries.contact') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['enquiries.contact']) }}">
+                            <i class="las la-mail-bulk aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Contact Enquiries</span>
+                        </a>
+                    </li>
+                @endif
+
                 <!-- marketing -->
                 @if (userHasPermision(11))
                     <li class="aiz-side-nav-item">
