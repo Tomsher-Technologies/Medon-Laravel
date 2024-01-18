@@ -29,16 +29,66 @@
                             <input type="hidden" name="type" value="{{ $page->type }}">
                     </div>
                 </div>
-
                 <div class="form-group row">
-                    <label class="col-sm-2 col-from-label" for="name">{{ translate('Add Content') }} <span
-                            class="text-danger">*</span></label>
+                    <label class="col-sm-2 col-from-label" for="sub_title">{{ translate('Sub Title') }} <span
+                            class="text-danger">*</span> </label>
                     <div class="col-sm-10">
-                        <textarea class="aiz-text-editor form-control" placeholder="{{ translate('Content..') }}"
-                            data-buttons='[["font", ["bold", "underline", "italic", "clear"]],["para", ["ul", "ol", "paragraph"]],["style", ["style"]],["color", ["color"]],["table", ["table"]],["insert", ["link", "picture", "video"]],["view", ["fullscreen", "codeview", "undo", "redo"]]]'
-                            data-min-height="300" name="content" required>{!! $page->getTranslation('content') !!}</textarea>
+                        <input type="text" class="form-control" placeholder="{{ translate('Sub Title') }}" name="sub_title"
+                            value="{{ $page->sub_title }}">
                     </div>
                 </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-from-label" for="heading1">{{ translate('Phone') }} <span
+                            class="text-danger">*</span> </label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" placeholder="{{ translate('Phone') }}" name="heading1"
+                            value="{{ $page->heading1 }}">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-from-label" for="heading2">{{ translate('Email') }} <span
+                            class="text-danger">*</span> </label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" placeholder="{{ translate('Email') }}" name="heading2"
+                            value="{{ $page->heading2 }}">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-from-label" for="content">{{ translate('Working Hours') }} <span
+                            class="text-danger">*</span> </label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" name="content">{{ $page->content }}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-from-label" for="heading3">{{ translate('Contact Form Heading') }} <span
+                            class="text-danger">*</span> </label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" placeholder="{{ translate('Contact Form Heading') }}" name="heading3" value="{{ $page->heading3 }}">
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-from-label" for="email">{{ translate('Location') }}<span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="us3-address" />
+                    </div>
+                    <div class="col-sm-2">
+                        
+                    </div>
+                    <div class="col-sm-10 mt-3">
+                        <div id="us3" style="height: 400px;"></div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="heading4" class="form-control" id="us3-lat" value="{{ $page->heading4 }}" />
+                <input type="hidden" name="heading5" class="form-control" id="us3-lon" value="{{ $page->heading5 }}" />
+                
             </div>
 
             <div class="card-header px-0">
@@ -125,4 +175,55 @@
             </div>
         </form>
     </div>
+@endsection
+
+@section('script')
+    <script type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_API_KEY') }}&libraries=places&v=weekly"></script>
+    <script src="https://rawgit.com/Logicify/jquery-locationpicker-plugin/master/dist/locationpicker.jquery.js"></script>
+
+    <script>
+        function showPosition(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            loadMap(lat, lng)
+        }
+
+        function showPositionerror() {
+            loadMap(25.2048, 55.2708)
+        }
+
+        function loadMap(lat, lng) {
+            $('#us3').locationpicker({
+                zoom: 12,
+                location: {
+                    latitude: lat,
+                    longitude: lng
+                },
+                radius: 0,
+                inputBinding: {
+                    latitudeInput: $('#us3-lat'),
+                    longitudeInput: $('#us3-lon'),
+                    radiusInput: $('#us3-radius'),
+                    locationNameInput: $('#us3-address')
+                },
+                enableAutocomplete: true,
+                onchanged: function(currentLocation, radius, isMarkerDropped) {
+                    // Uncomment line below to show alert on each Location Changed event
+                    //alert("Location changed. New location (" + currentLocation.latitude + ", " + currentLocation.longitude + ")");
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            loadMap({{ $page->heading4 ?? '25.2048' }}, {{ $page->heading5 ?? '55.2708' }})
+            // if (navigator.geolocation) {
+            //     console.log(navigator.geolocation);
+            //     navigator.geolocation.watchPosition(showPosition, showPositionerror);
+            // } else {
+            //     console.log("asas");
+            //     loadMap(25.2048, 55.2708)
+            // }
+        });
+    </script>
 @endsection

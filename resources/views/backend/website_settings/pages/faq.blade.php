@@ -11,7 +11,7 @@
     <div class="card">
 
 
-        <form class="p-4" action="{{ route('custom-pages.update', $page->id) }}" method="POST"
+        <form class="p-4 repeater" action="{{ route('custom-pages.update', $page->id) }}" method="POST"
             enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="PATCH">
@@ -31,14 +31,50 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-sm-2 col-from-label" for="name">{{ translate('Add Content') }} <span
-                            class="text-danger">*</span></label>
-                    <div class="col-sm-10">
-                        <textarea class="aiz-text-editor form-control" placeholder="{{ translate('Content..') }}"
-                            data-buttons='[["font", ["bold", "underline", "italic", "clear"]],["para", ["ul", "ol", "paragraph"]],["style", ["style"]],["color", ["color"]],["table", ["table"]],["insert", ["link", "picture", "video"]],["view", ["fullscreen", "codeview", "undo", "redo"]]]'
-                            data-min-height="300" name="content" required>{!! $page->getTranslation('content') !!}</textarea>
+                    <h6 class='fw-600 mb-0 ml-3'> Question and Answers</h6>
+                </div>
+
+                <div data-repeater-list="faq">
+                    <div data-repeater-item >
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-from-label" for="question">{{ translate('Question') }} <span
+                                class="text-danger">*</span> </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" placeholder="{{ translate('Question') }}" name="question"
+                                    value="">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-from-label" for="answer">{{ translate('Answer') }} <span
+                                class="text-danger">*</span> </label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" placeholder="{{ translate('Answer') }}" name="answer"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-from-label" for="sort_order">{{ translate('Sort Order') }} <span
+                                class="text-danger">*</span> </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" placeholder="{{ translate('Sort Order') }}" name="sort_order" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="text-right col-sm-12 mb-10 d-block">
+                                <input data-repeater-delete class="btn btn-danger d-initial" type="button" value="Delete" />
+                            </div>
+                        </div>
+                        
+                       
                     </div>
                 </div>
+
+                <div class=" px-sm-40 px-20 col-sm-12 mb-10">
+                    <input data-repeater-create class="btn btn-success my-3" type="button" value="Add New" />
+                </div>
+                
             </div>
 
             <div class="card-header px-0">
@@ -125,4 +161,28 @@
             </div>
         </form>
     </div>
+@endsection
+
+@section('script')
+<script src="{{ asset('admin_assets/assets/js/jquery.repeater.min.js') }}"></script>
+<script>
+    let repCount = 0;
+    var repeater =   $('.repeater').repeater({
+        initEmpty: true,
+        show: function(e) {
+            $(this).slideDown();
+        },
+        hide: function(deleteElement) {
+            if (confirm('Are you sure you want to delete this element?')) {
+                $(this).slideUp(deleteElement);
+            }
+        },
+        isFirstItemUndeletable: false
+    })
+
+    var additionals = {!! $questions !!};
+    repeater.setList(additionals);
+
+    
+</script>
 @endsection

@@ -11,6 +11,7 @@ use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\Product;
 use App\Models\Offers;
+use App\Models\Faqs;
 use Cache;
 use Str;
 
@@ -83,9 +84,9 @@ class PageController extends Controller
     public function edit(Request $request, $id)
     {
         $page_name = $request->page;
-        $page = Page::where('slug', $id)->first();
+        $page = Page::where('type', $id)->first();
         if ($page != null) {
-            if ($page_name == 'home') {
+            if ($page->type == 'home_page') {
                 $banners = Banner::where('status', 1)->get();
                 $current_banners = BusinessSetting::whereIn('type', array('home_banner_1','home_banner_2','home_banner_3','home_banner', 'home_ads_banner', 'home_large_banner'))->get()->keyBy('type');
 
@@ -98,7 +99,17 @@ class PageController extends Controller
                 $offers = Offers::select('id', 'name')->where('end_date','>',now())->get();
 
                 return view('backend.website_settings.pages.home_page_edit', compact('page', 'banners', 'current_banners', 'categories', 'brands', 'products','offers'));
-            } else {
+            } elseif($page->type == 'terms_conditions' || $page->type == 'privacy_policy' || $page->type == 'return_refund' || $page->type == 'shipping_delivery'){
+                return view('backend.website_settings.pages.edit', compact('page'));
+            } elseif ($page->type == 'store_locator') {
+                return view('backend.website_settings.pages.store_locator', compact('page'));
+            }elseif ($page->type == 'faq') {
+                $questions = Faqs::orderBy('sort_order','asc')->get();
+                return view('backend.website_settings.pages.faq', compact('page','questions'));
+            }elseif ($page->type == 'contact_us') {
+                return view('backend.website_settings.pages.contact_us', compact('page'));
+            }
+            else {
                 return view('backend.website_settings.pages.edit', compact('page'));
             }
         }
@@ -116,30 +127,51 @@ class PageController extends Controller
     {
         $page = Page::findOrFail($id);
 
+        // echo '<pre>';
+        // print_r($request->all());
+        // die;
+
         // preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug))
 
-        if (Page::where('id', '!=', $id)->where('slug', Str::slug($request->slug))->first() == null) {
+        if (Page::where('id', '!=', $id)->where('type', $request->type)->first() == null) {
             // if ($page->type == 'custom_page') {
-            $page->slug = Str::slug($request->slug);
+            // $page->slug = Str::slug($request->slug);
             // }    
 
-            $page->title          = $request->title;
-            $page->content        = $request->content;
+            $page->title                = $request->title;
+            $page->content              = $request->has('content') ? $request->content : NULL;
+            $page->sub_title            = $request->has('sub_title') ? $request->sub_title : NULL;
+            $page->meta_title           = $request->meta_title;
+            $page->meta_description     = $request->meta_description;
+            $page->keywords             = $request->keywords;
+            $page->meta_image           = $request->meta_image;
+            $page->og_title             = $request->og_title;
+            $page->og_description       = $request->og_description;
+            $page->twitter_title        = $request->twitter_title;
+            $page->twitter_description  = $request->twitter_description;
 
-            $page->meta_title       = $request->meta_title;
-            $page->meta_description = $request->meta_description;
-            $page->keywords         = $request->keywords;
-            $page->meta_image       = $request->meta_image;
-
-            $page->og_title       = $request->og_title;
-            $page->og_description = $request->og_description;
-
-            $page->twitter_title       = $request->twitter_title;
-            $page->twitter_description = $request->twitter_description;
+            $page->heading1             = $request->has('heading1') ? $request->heading1 : NULL;
+            $page->heading2             = $request->has('heading2') ? $request->heading2 : NULL;
+            $page->heading3             = $request->has('heading3') ? $request->heading3 : NULL;
+            $page->heading4             = $request->has('heading4') ? $request->heading4 : NULL;
+            $page->heading5             = $request->has('heading5') ? $request->heading5 : NULL;
 
             $page->save();
 
-
+            if($request->type == 'faq'){
+                Faqs::truncate();
+                $data = [];
+                foreach ($request->faq as $value) {
+                    $data[] = array(
+                        "question" => $value['question'] ?? NULL,
+                        "answer"   => $value['answer'] ?? NULL,
+                        "sort_order" =>  $value['sort_order'] ?? NULL,
+                    );
+                }
+                if(!empty($data)){
+                    Faqs::insert($data);
+                }
+            }
             flash(translate('Page has been updated successfully'))->success();
             return redirect()->route('website.pages');
         }
