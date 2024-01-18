@@ -109,6 +109,8 @@ class PageController extends Controller
                 return view('backend.website_settings.pages.faq', compact('page','questions'));
             }elseif ($page->type == 'contact_us') {
                 return view('backend.website_settings.pages.contact_us', compact('page'));
+            }elseif ($page->type == 'prescriptions') {
+                return view('backend.website_settings.pages.store_locator', compact('page'));
             }
             else {
                 return view('backend.website_settings.pages.edit', compact('page'));
