@@ -82,6 +82,9 @@ Route::group(['prefix' => 'v2'], function () {
     });
     Route::post('payment-success', [CheckoutController::class, 'successPayment'])->name('payment-success');
     Route::post('payment-cancel', [CheckoutController::class, 'cancelPayment'])->name('payment-cancel');
+
+    Route::post('app-payment-success', [CheckoutController::class, 'successAppPayment'])->name('app-payment-success');
+    Route::post('app-payment-cancel', [CheckoutController::class, 'cancelAppPayment'])->name('app-payment-cancel');
     // Products
     Route::apiResource('categories', CategoryController::class)->only('index');
     Route::get('brands/top', [BrandController::class, 'top']);

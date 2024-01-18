@@ -536,6 +536,13 @@ class CheckoutController extends Controller
         return redirect(env('MEDON_PAYMENT_CANCEL').'?status='.$order_status.'&code='.$order_code);
     }
 
+    public function successAppPayment(Request $request){
+        echo 'success';
+    }
+    public function cancelAppPayment(Request $request){
+        echo 'cancel';
+    }
+
     public function returnRequest(Request $request){
         $order_id = $request->order_id ?? '';
         $products = $request->products ?? '';
