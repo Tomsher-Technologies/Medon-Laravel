@@ -222,6 +222,8 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/offers/get_brands', [OfferController::class, 'get_brands'])->name('offers.get_brands');
     Route::get('/offers/destroy/{id}', [OfferController::class, 'destroy'])->name('offers.destroy');
     // website setting
+
+    Route::get('/enquiries-contact', [PageController::class, 'enquiries'])->name('enquiries.contact');
     Route::group(['prefix' => 'website'], function () {
         Route::get('/footer', [WebsiteController::class, 'footer'])->name('website.footer');
 

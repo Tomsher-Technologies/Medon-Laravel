@@ -12,6 +12,7 @@ use App\Models\PageTranslation;
 use App\Models\Product;
 use App\Models\Offers;
 use App\Models\Faqs;
+use App\Models\Contacts;
 use Cache;
 use Str;
 
@@ -108,6 +109,8 @@ class PageController extends Controller
                 return view('backend.website_settings.pages.faq', compact('page','questions'));
             }elseif ($page->type == 'contact_us') {
                 return view('backend.website_settings.pages.contact_us', compact('page'));
+            }elseif ($page->type == 'prescriptions') {
+                return view('backend.website_settings.pages.store_locator', compact('page'));
             }
             else {
                 return view('backend.website_settings.pages.edit', compact('page'));
@@ -230,5 +233,12 @@ class PageController extends Controller
             return view('frontend.m_custom_page', compact('page'));
         }
         abort(404);
+    }
+
+    public function enquiries(){
+        $query = Contacts::latest();
+        $contact = $query->paginate(20);
+
+        return view('backend.contact', compact('contact'));
     }
 }

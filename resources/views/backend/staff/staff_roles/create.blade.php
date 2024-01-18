@@ -132,7 +132,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row d-none">
                                 <div class="col-md-10">
                                     <label class="col-from-label">Product Enquiry</label>
                                 </div>
@@ -140,6 +140,18 @@
                                     <label class="aiz-switch aiz-switch-success mb-0">
                                         <input type="checkbox" name="permissions[]" class="form-control demo-sw"
                                             value="28">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <label class="col-from-label">Contact Enquiries</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="permissions[]" class="form-control demo-sw"
+                                            value="29">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>

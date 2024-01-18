@@ -375,7 +375,7 @@ class WebsiteController extends Controller
                 $query->select('title', 'content', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
             }
 
-            if($page_type == 'store_locator'){
+            if($page_type == 'store_locator' || $page_type == 'prescriptions'){
                 $query->select('title', 'sub_title', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
             }
             
