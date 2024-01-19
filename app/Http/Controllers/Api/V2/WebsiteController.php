@@ -179,6 +179,8 @@ class WebsiteController extends Controller
        
         $data['banners'] = $banners;
 
+        $data['meta'] =  Page::where('type', 'home_page')->select('meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     }
 
