@@ -113,6 +113,8 @@ class PageController extends Controller
                 return view('backend.website_settings.pages.store_locator', compact('page'));
             }elseif ($page->type == 'offers') {
                 return view('backend.website_settings.pages.offers', compact('page'));
+            }elseif ($page->type == 'product_listing') {
+                return view('backend.website_settings.pages.product_listing', compact('page'));
             }
             else {
                 return view('backend.website_settings.pages.edit', compact('page'));
@@ -143,7 +145,7 @@ class PageController extends Controller
             // $page->slug = Str::slug($request->slug);
             // }    
 
-            $page->title                = $request->title;
+            $page->title                = $request->has('title') ? $request->title : NULL;
             $page->content              = $request->has('content') ? $request->content : NULL;
             $page->sub_title            = $request->has('sub_title') ? $request->sub_title : NULL;
             $page->meta_title           = $request->meta_title;
@@ -160,7 +162,7 @@ class PageController extends Controller
             $page->heading3             = $request->has('heading3') ? $request->heading3 : NULL;
             $page->heading4             = $request->has('heading4') ? $request->heading4 : NULL;
             $page->heading5             = $request->has('heading5') ? $request->heading5 : NULL;
-
+            $page->image1               = $request->has('page_image') ? $request->page_image : NULL;
             $page->save();
 
             if($request->type == 'faq'){
