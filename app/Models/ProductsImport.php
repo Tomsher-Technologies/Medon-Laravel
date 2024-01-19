@@ -37,7 +37,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
 
     public function collection(Collection $rows)
     {
-        echo '<pre>';
+        // echo '<pre>';
         // print_r($rows);
         $brands = Brand::all();
         $categories = Category::all();
