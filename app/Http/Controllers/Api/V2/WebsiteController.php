@@ -388,6 +388,9 @@ class WebsiteController extends Controller
             if($page_type == 'contact_us'){
                 $query->select('title', 'sub_title', 'content as working_hours', 'heading1 as phone', 'heading2 as email', 'heading3 as form_heading', 'heading4 as latitude', 'heading5 as longitude', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
             }
+            if($page_type == 'offers'){
+                $query->select('meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image');
+            }
 
             $pageData = $query->first();
             if($page_type == 'faq'){
