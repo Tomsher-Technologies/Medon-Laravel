@@ -18,20 +18,24 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
     public function headings(): array
     {
         return [
-            'name',
-            'description',
-            'added_by',
-            'user_id',
-            'category_id',
-            'brand_id',
-            'video_provider',
-            'video_link',
-            'unit_price',
-            'purchase_price',
-            'unit',
-            'current_stock',
-            'meta_title',
-            'meta_description',
+            'Product Code',
+            'Product Name',
+            // 'description',
+            // 'added_by',
+            // 'user_id',
+            'Category Name',
+            'Brand Name',
+            'Keywords',
+            // 'video_provider',
+            // 'video_link',
+            'Unit Price',
+            // 'Purchase Price',
+            'VAT',
+            'Unit',
+            'Current Stock',
+            'Return Available'
+            // 'meta_title',
+            // 'meta_description',
         ];
     }
 
@@ -44,20 +48,25 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
         foreach ($product->stocks as $key => $stock) {
             $qty += $stock->qty;
         }
+
         return [
+            $product->sku,
             $product->name,
-            $product->description,
-            $product->added_by,
-            $product->user_id,
-            $product->category_id,
-            $product->brand_id,
-            $product->video_provider,
-            $product->video_link,
+            // $product->description,
+            // $product->added_by,
+            // $product->user_id,
+            $product->category->name ?? '',
+            $product->brand->name ?? '',
+            // $product->video_provider,
+            // $product->video_link,
+            $product->tags,
             $product->unit_price,
-            $product->purchase_price,
+            // $product->purchase_price,
+            $product->vat,
             $product->unit,
 //            $product->current_stock,
             $qty,
+            $product->return_refund,
         ];
     }
 }
