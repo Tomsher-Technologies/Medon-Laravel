@@ -356,7 +356,8 @@ class WebsiteController extends Controller
                 }
             }
         }
-        return response()->json(['success' => true,"message"=>"Success","data" => $result],200);
+        $meta = Page::where('type', 'offers')->select('meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        return response()->json(['success' => true,"message"=>"Success","data" => $result, 'meta'=> $meta],200);
     }
 
     public function storeLocations(){
