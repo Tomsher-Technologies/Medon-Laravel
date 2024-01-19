@@ -13,6 +13,7 @@ use App\Models\Shop;
 use App\Models\Color;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Page;
 use Illuminate\Http\Request;
 use App\Utility\CategoryUtility;
 use App\Utility\SearchUtility;
@@ -60,7 +61,16 @@ class ProductController extends Controller
         $offer_slug = $request->offer_slug ? explode(',', $request->offer_slug)  : false;
 
         $product_query  = Product::wherePublished(1);
-
+        
+        $metaData = Page::where('type', 'product_listing')->select('image1','meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        if($metaData){
+            $metaData->image1           = ($metaData->image1 != NULL) ? uploaded_asset($metaData->image1) : '';
+            $metaData->meta_image       = ($metaData->meta_image != NULL) ? uploaded_asset($metaData->meta_image) : '';
+            $metaData->footer_title     = '';
+            $metaData->footer_content   = '';
+        }
+        
+        $meta = NULL;
         if($offer){
             $product_ids = getOffersProductIds($offer,1);
             $product_query->whereIn('id', $product_ids);
@@ -76,9 +86,14 @@ class ProductController extends Controller
         }
 
         if ($category_slug) {
+            $catids = implode(',', $category_slug);
+            
             $category_ids = Category::whereIn('slug',$category_slug)->pluck('id')->toArray();
             $product_query->whereIn('category_id', $category_ids);
-        }
+            if(!empty($category_ids)){
+                $meta = Category::select('meta_title', 'meta_description', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_keyword', 'footer_title', 'footer_content')->find($category_ids[0]);
+            }
+        }   
 
         if ($brand) {
             $product_query->whereIn('brand_id', $brand);
@@ -141,8 +156,22 @@ class ProductController extends Controller
         $next_offset = $offset + $limit;
       
         $response = new ProductFilterCollection($products);
-      
-        return response()->json(['success' => true,"message"=>"Success","data" => $response, "total_count" => $total_count, "next_offset" => $next_offset],200);
+        
+        // print_r($metaData);
+        if($meta != NULL){
+            $metaData->meta_title           = ($meta->meta_title != '') ? $meta->meta_title : $metaData->meta_title ;
+            $metaData->meta_description     = ($meta->meta_description != '') ? $meta->meta_description : $metaData->meta_description ;
+            $metaData->og_title             = ($meta->og_title != '') ? $meta->og_title : $metaData->og_title ;
+            $metaData->og_description       = ($meta->og_description != '') ? $meta->og_description : $metaData->og_description ;
+            $metaData->twitter_title        = ($meta->twitter_title != '') ? $meta->twitter_title : $metaData->twitter_title ;
+            $metaData->twitter_description  = ($meta->twitter_description != '') ? $meta->twitter_description : $metaData->twitter_description ;
+            $metaData->keywords             = ($meta->meta_keyword != '') ? $meta->meta_keyword : $metaData->keywords ;
+            $metaData->footer_title         = $meta->footer_title;
+            $metaData->footer_content       = $meta->footer_content;
+            
+        }
+  
+        return response()->json(['success' => true,"message"=>"Success","data" => $response, "total_count" => $total_count, "next_offset" => $next_offset, 'meta' => $metaData ],200);
 
     }
 

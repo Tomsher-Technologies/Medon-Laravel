@@ -180,6 +180,9 @@ class WebsiteController extends Controller
         $data['banners'] = $banners;
 
         $data['meta'] =  Page::where('type', 'home_page')->select('meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        if($data['meta']){
+            $data['meta']->meta_image       = ($data['meta']->meta_image != NULL) ? uploaded_asset($data['meta']->meta_image) : '';
+        }
 
         return response()->json(['success' => true,"message"=>"Success","data" => $data],200);
     }
@@ -357,15 +360,21 @@ class WebsiteController extends Controller
             }
         }
         $meta = Page::where('type', 'offers')->select('meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        if($meta){
+            $meta->meta_image       = ($meta->meta_image != NULL) ? uploaded_asset($meta->meta_image) : '';
+        }
         return response()->json(['success' => true,"message"=>"Success","data" => $result, 'meta'=> $meta],200);
     }
 
     public function storeLocations(){
         $shops = Shops::where('status',1)->orderBy('name','asc')->get();
 
-        $query = Page::where('type', 'store_locator')->select('title', 'sub_title', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        $meta = Page::where('type', 'store_locator')->select('title', 'sub_title', 'meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
         // $shops['page_data'] = $query;
-        return response()->json(['status' => true,"message"=>"Success","data" => $shops,"page_data" => $query],200);
+        if($meta){
+            $meta->meta_image       = ($meta->meta_image != NULL) ? uploaded_asset($meta->meta_image) : '';
+        }
+        return response()->json(['status' => true,"message"=>"Success","data" => $shops,"page_data" => $meta],200);
     }
 
     public function pageContents(Request $request){
@@ -394,6 +403,11 @@ class WebsiteController extends Controller
             }
 
             $pageData = $query->first();
+
+            if($pageData){
+                $pageData->meta_image       = ($pageData->meta_image != NULL) ? uploaded_asset($pageData->meta_image) : '';
+            }
+
             if($page_type == 'faq'){
                 $pageData['faqs'] = $faqs;
             }
