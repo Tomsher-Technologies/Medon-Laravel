@@ -379,7 +379,6 @@ class CheckoutController extends Controller
 
                     $tracking_id = $requestHash = $url = ''; 
                     if($platform == 'mob'){
-                        $cardAmount = '140.00';
                         $payment['amount'] = $cardAmount;
                         $payment['order_id'] = $order->code;
                         $payment['currency'] = "AED";
@@ -406,15 +405,16 @@ class CheckoutController extends Controller
                             }
                         }
                         $responseTracking = [];
-                        
+                        $paymentAmount = '';
                         if($encResp != ''){
                             $responseTracking = decryptCC($encResp,$working_key);
                             $responseTracking = json_decode($responseTracking);
                             $tracking_id = $responseTracking->tracking_id;
+                            $paymentAmount = $responseTracking->amount;
                         }
                        
                         if($tracking_id != ''){
-                           $requestHash = hash("sha512", $tracking_id.'AED'.$cardAmount.$working_key);
+                           $requestHash = hash("sha512", $tracking_id.'AED'.$paymentAmount.$working_key);
                         }
                     }else{
                         $payment['amount'] = $cardAmount;
