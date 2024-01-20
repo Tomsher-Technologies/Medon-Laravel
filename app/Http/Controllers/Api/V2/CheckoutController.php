@@ -208,7 +208,9 @@ class CheckoutController extends Controller
                         'order_code' => '',
                         'grand_total' => 0,
                         'payment_type' => '',
-                        'url' => ''
+                        'url' => '',
+                        'tracking_id' => '',
+                        'request_hash' => ''
                     )
                 ], 200);
             }
@@ -344,7 +346,9 @@ class CheckoutController extends Controller
                         'order_code' => $order->code,
                         'grand_total' => $grand_total,
                         'payment_type' => 'cash_on_delivery',
-                        'url' => ''
+                        'url' => '',
+                        'tracking_id' => '',
+                        'request_hash' => ''
                     )
                     ], 200);
             }else{
@@ -472,7 +476,9 @@ class CheckoutController extends Controller
                             'order_code' => $order->code,
                             'grand_total' => $cardAmount,
                             'payment_type' => 'wallet',
-                            'url' =>''
+                            'url' =>'',
+                            'tracking_id' => '',
+                            'request_hash' => ''
                         )
                     ], 200);
                 }
@@ -486,7 +492,9 @@ class CheckoutController extends Controller
                     'order_code' => '',
                     'grand_total' => 0,
                     'payment_type' => '',
-                    'url' => ''
+                    'url' => '',
+                    'tracking_id' => '',
+                    'request_hash' => ''
                 )
             ], 200);
         }
