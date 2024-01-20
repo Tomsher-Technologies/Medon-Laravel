@@ -20,9 +20,11 @@ use App\Models\OrderTracking;
 use App\Models\RefundRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Http;
 use App\Utility\NotificationUtility;
 use App\Utility\SendSMSUtility;
 use App\Mail\EmailManager;
+
 use Mail;
 class CheckoutController extends Controller
 {
@@ -173,7 +175,9 @@ class CheckoutController extends Controller
     }
 
     public function placeOrder(Request $request){
-        // print_r($request->all());
+        
+        $platform = $request->has('platform') ? $request->platform : '';
+        
         $address_id = $request->address_id ?? null;
         $billing_shipping_same = $request->billing_shipping_same ?? null;
 
@@ -366,33 +370,74 @@ class CheckoutController extends Controller
                 }
                 
                 if($cardAmount != 0){
-                    $payment['amount'] = $cardAmount;
-                    $payment['order_id'] = $order->code;
-                    $payment['currency'] = "AED";
-                    $payment['redirect_url'] = route('payment-success');
-                    $payment['cancel_url'] = route('payment-cancel');
-                    $payment['language'] = "EN";
-                    $payment['merchant_id'] = env('CCA_MERCHANT_ID');
-    
                     $working_key = env('CCA_WORKING_KEY'); // config('cc-avenue.working_key'); //Shared by CCAVENUES
                     $access_code = env('CCA_ACCESS_CODE'); // config('cc-avenue.access_code'); //Shared by CCAVENUES
-                    $payment['billing_name'] = $billing_address['name'];
-                    $payment['billing_address'] = $billing_address['address'];
-                    $payment['billing_city'] = $billing_address['city'];
-                    $payment['billing_state'] = $billing_address['state'];
-                    $payment['billing_country'] = $billing_address['country'];
-                    $payment['billing_tel'] = $billing_address['phone'];
-                    $payment['billing_email'] = $billing_address['email'];
 
-                    $merchant_data = "";
-
-                    foreach ($payment as $key => $value) {
-                        $merchant_data .= $key . '=' . $value . '&';
-                    }
+                    $tracking_id = $requestHash = $url = ''; 
+                    if($platform == 'mob'){
+                        $payment['amount'] = $cardAmount;
+                        $payment['order_id'] = $order->code;
+                        $payment['currency'] = "AED";
+                        $payment['tid'] = "";
+                        $payment['merchant_id'] = env('CCA_MERCHANT_ID');
+                        $merchant_data = json_encode($payment);
+                        
+                        $encrypted_data = encryptCC($merchant_data, $working_key);
+                        
+                        $post_field = [
+                            'encRequest' => $encrypted_data,
+                            'access_code' => $access_code
+                        ];
+                      
+                        $response = Http::timeout(300)->withHeaders(array('Content-Type:application/json'))->post(env('CCA_URL_MOB').'?command=generateTrackingId', $post_field);
+                        $result = $response->getBody()->getContents();
                 
-                    $encrypted_data = encryptCC($merchant_data, $working_key);
-                    $url = env('CCA_URL').'?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
+                        $resultData = json_decode($result);
+
+                        $encResp = '';
+                        if(isset($resultData->status)){
+                            if($resultData->status == 'success'){
+                                $encResp = $resultData->data->encResp;
+                            }
+                        }
+                        $responseTracking = [];
+                        
+                        if($encResp != ''){
+                            $responseTracking = decryptCC($encResp,$working_key);
+                            $responseTracking = json_decode($responseTracking);
+                            $tracking_id = $responseTracking->tracking_id;
+                        }
+                       
+                        if($tracking_id != ''){
+                           $requestHash = hash("sha512", $tracking_id.'AED'.$cardAmount.$working_key);
+                        }
+                    }else{
+                        $payment['amount'] = $cardAmount;
+                        $payment['order_id'] = $order->code;
+                        $payment['currency'] = "AED";
+                        $payment['redirect_url'] = route('payment-success');
+                        $payment['cancel_url'] = route('payment-cancel');
+                        $payment['language'] = "EN";
+                        $payment['merchant_id'] = env('CCA_MERCHANT_ID');
+        
+                        $payment['billing_name'] = $billing_address['name'];
+                        $payment['billing_address'] = $billing_address['address'];
+                        $payment['billing_city'] = $billing_address['city'];
+                        $payment['billing_state'] = $billing_address['state'];
+                        $payment['billing_country'] = $billing_address['country'];
+                        $payment['billing_tel'] = $billing_address['phone'];
+                        $payment['billing_email'] = $billing_address['email'];
     
+                        $merchant_data = "";
+    
+                        foreach ($payment as $key => $value) {
+                            $merchant_data .= $key . '=' . $value . '&';
+                        }
+                    
+                        $encrypted_data = encryptCC($merchant_data, $working_key);
+                        $url = env('CCA_URL').'?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
+                    }
+                    
                     return response()->json([
                         'status' => true,
                         'message' => 'Payment gateway',
@@ -401,7 +446,9 @@ class CheckoutController extends Controller
                             'order_code' => $order->code,
                             'grand_total' => $cardAmount,
                             'payment_type' => 'card',
-                            'url' => $url
+                            'url' => $url,
+                            'tracking_id' => $tracking_id,
+                            'request_hash' => $requestHash
                         )
                     ], 200);
                 }else{
