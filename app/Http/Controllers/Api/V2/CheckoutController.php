@@ -379,6 +379,7 @@ class CheckoutController extends Controller
 
                     $tracking_id = $requestHash = $url = ''; 
                     if($platform == 'mob'){
+                        $cardAmount = '140.00';
                         $payment['amount'] = $cardAmount;
                         $payment['order_id'] = $order->code;
                         $payment['currency'] = "AED";
