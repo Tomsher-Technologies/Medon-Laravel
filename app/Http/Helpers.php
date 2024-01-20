@@ -1644,7 +1644,9 @@ function getActiveBuyXgetYOfferProducts(){
             }else{
                 $products = Product::where('main_category', $off->category_id)->whereIn('brand_id', json_decode($off->link_id))->pluck('id')->toArray();
             }
-            $offerProducts[$off->id] = $products;
+            $offerProducts[$off->id]['products'] = $products;
+            $offerProducts[$off->id]['x'] = $off->buy_amount;
+            $offerProducts[$off->id]['y'] = $off->get_amount;
         }
     }
     return $offerProducts;
