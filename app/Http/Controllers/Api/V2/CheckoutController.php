@@ -409,12 +409,10 @@ class CheckoutController extends Controller
                         if($encResp != ''){
                             $responseTracking = decryptCC($encResp,$working_key);
                             $responseTracking = json_decode($responseTracking);
-                            print_r($responseTracking);
                             $tracking_id = $responseTracking->tracking_id;
                         }
                        
                         if($tracking_id != ''){
-                            echo 'request hash   ===== '.$tracking_id.'AED'.$cardAmount.$working_key;
                            $requestHash = hash("sha512", $tracking_id.'AED'.$cardAmount.$working_key);
                         }
                     }else{
