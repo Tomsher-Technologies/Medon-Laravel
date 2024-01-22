@@ -50,7 +50,7 @@
                         <input type="text" class="form-control" value="{{ $delivery_status }}" disabled>
                     @endif
                 </div>
-                <div class="col-md-3 ml-auto">
+                <div class="col-md-3 ml-auto d-none">
                     <label for="update_tracking_code">Tracking Code (optional)</label>
                     <input type="text" class="form-control" id="update_tracking_code"
                         value="{{ $order->tracking_code }}">
@@ -71,6 +71,7 @@
                         <br>
                         {{ json_decode($order->shipping_address)->country }}
                     </address>
+                    <p><b>Order Notes : </b> {{$order->order_notes ?? ''}}</p>
                     @if ($order->manual_payment && is_array(json_decode($order->manual_payment_data, true)))
                         <br>
                         <strong class="text-main">Payment Information</strong><br>

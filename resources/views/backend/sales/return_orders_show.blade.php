@@ -31,6 +31,7 @@
                         <br>
                         {{ json_decode($order->order->shipping_address)->country }}
                     </address>
+                    <p><b>Order Notes : </b> {{$order->order_notes ?? ''}}</p>
                 </div>
                 <div class="col-sm-12 col-md-6 float-right">
                     <table class="float-right">

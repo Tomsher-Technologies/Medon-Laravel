@@ -32,6 +32,8 @@
                         <br>
                         {{ json_decode($order->shipping_address)->country }}
                     </address>
+
+                    <p><b>Order Notes : </b> {{$order->order_notes ?? ''}}</p>
                     @if ($order->manual_payment && is_array(json_decode($order->manual_payment_data, true)))
                         <br>
                         <strong class="text-main">Payment Information</strong><br>
