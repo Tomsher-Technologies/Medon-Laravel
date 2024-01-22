@@ -65,13 +65,14 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
             $main_category_id = 0;
 
             if (isset($row['brand'])) {
-                $brand = $brands->where('name', $row['brand'])->first();
+                $newBrand = trim($row['brand']);
+                $brand = $brands->where('name',$newBrand)->first();
                 if($brand){
                     $brand->id;
                 }else{
-                    $slug = \Str::slug($row['brand']);
-                    $brand = Brand::firstOrNew(array('name' => $row['brand'],'slug' => $slug));
-                    $brand->name = $row['brand'];
+                    $slug = \Str::slug($newBrand);
+                    $brand = Brand::firstOrNew(array('name' => $newBrand,'slug' => $slug));
+                    $brand->name = $newBrand;
                     $brand->slug = $slug;
                     $brand->save();
                 }
@@ -80,6 +81,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
             if (isset($row['category'])) {
                 $category = explode(':', $row['category']);
                 foreach ($category as $key => $cat) {
+                    $cat = trim($cat);
                     $c = $categories->where('name', 'LIKE', $cat)->where(
                         'parent_id',
                         $parent_id
@@ -108,7 +110,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
             $productId = Product::where(['sku' => $sku])->get()->first();
             if ($productId) {
                 if (isset($row['product_name'])) {
-                    $productId->name = $row['product_name'];
+                    $productId->name = trim($row['product_name']);
                 }
                 $productId->main_category = $main_category_id;
                 $productId->description = $productDescription;
@@ -180,7 +182,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
 
                 $productId = Product::create([
                     'sku' => $sku,
-                    'name' => $row['product_name'] ?? '',
+                    'name' => trim($row['product_name']) ?? '',
                     'description' => $productDescription,
                     'main_category' => $main_category_id,
                     'category_id' => $parent_id,
@@ -195,7 +197,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                     'discount_type' => $discount_type,
                     'discount_start_date' => $discount_start_date,
                     'discount_end_date' => $discount_end_date,
-                    'slug' => $this->productSlug($row['product_name']),
+                    'slug' => $this->productSlug(trim($row['product_name'])),
                     'created_by' => Auth::user()->id,
                     'updated_by' => Auth::user()->id,
                     
