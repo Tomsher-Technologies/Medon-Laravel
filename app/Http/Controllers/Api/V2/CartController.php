@@ -65,6 +65,7 @@ class CartController extends Controller
                 $updateCart->offer_id = ($priceData['offer_id'] >= 0) ? $priceData['offer_id'] : NULL;
                 $updateCart->offer_tag = ($priceData['offer_id'] >= 0) ? $priceData['offer_tag'] : NULL;
                 $updateCart->offer_discount = 0.00;
+                $updateCart->tax = (($priceData['discounted_price'] * $updateCart->quantity)/100) * $updateCart->product->vat;
                 $updateCart->discount = 0.00;
                 $updateCart->coupon_code = NULL;
                 $updateCart->coupon_applied = 0;
