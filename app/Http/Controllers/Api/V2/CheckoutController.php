@@ -281,7 +281,7 @@ class CheckoutController extends Controller
                 $sub_total = $sub_total + ($data->price * $data->quantity);
                 $total_tax = $total_tax + $data->tax;
                 $total_shipping = $total_shipping + $data->shipping_cost;
-                $discount = $discount + (($data->price * $data->quantity) - ($data->offer_price * $data->quantity));
+                $discount = $discount + (($data->price * $data->quantity) - ($data->offer_price * $data->quantity)) + $data->offer_discount;
                 $coupon_code = $data->coupon_code;
                 $coupon_applied = $data->coupon_applied;
                 if($data->coupon_applied == 1){

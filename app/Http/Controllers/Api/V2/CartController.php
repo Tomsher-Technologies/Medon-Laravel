@@ -39,8 +39,6 @@ class CartController extends Controller
                 $carts->load(['product', 'product.stocks']);
             }
         }
-       
-        // $buyXgetYOfferProducts = getActiveBuyXgetYOfferProducts();
 
         $result = [];
         $sub_total = $discount = $shipping = $coupon_display = $coupon_discount = $offerIdCount = $total_coupon_discount = 0;
@@ -51,6 +49,13 @@ class CartController extends Controller
         
         if(!empty($carts[0])){
 
+            $buyXgetYOfferProducts = getActiveBuyXgetYOfferProducts();
+
+            // echo '<pre>';
+            // print_r($buyXgetYOfferProducts);
+            // die;
+            $off = [];
+
             foreach($carts as $data){
                 $priceData = getProductOfferPrice($data->product);
                 
@@ -59,9 +64,69 @@ class CartController extends Controller
                 $updateCart->offer_price = $priceData['discounted_price'];
                 $updateCart->offer_id = ($priceData['offer_id'] >= 0) ? $priceData['offer_id'] : NULL;
                 $updateCart->offer_tag = ($priceData['offer_id'] >= 0) ? $priceData['offer_tag'] : NULL;
+                $updateCart->offer_discount = 0.00;
+                $updateCart->discount = 0.00;
+                $updateCart->coupon_code = NULL;
+                $updateCart->coupon_applied = 0;
                 $updateCart->save();
-            }
 
+                if($priceData['offer_type'] == 'buy_x_get_y'){
+                    $quantity = $data->quantity;
+                    for($i=0; $i<$quantity; $i++){
+                        $off[$priceData['offer_id']][] = [
+                            'cart_id' => $data->id,
+                            'product_id' => $data->product_id,
+                            'price' => $priceData['original_price']
+                        ];
+                    }
+                }
+            }
+            
+            // echo 'Offer products  *******************************************************************';
+            // print_r($off);
+            // echo 'Offer products Calculations *******************************************************************';
+            foreach($off as $ofkey => $of){
+                // echo '<br>X =>'. $buyXgetYOfferProducts[$ofkey]['x'];
+                // echo '<br>Y =>'. $buyXgetYOfferProducts[$ofkey]['y'];
+                // echo '<br>totalXY =>'. $totalXY = $buyXgetYOfferProducts[$ofkey]['x']+$buyXgetYOfferProducts[$ofkey]['y'];
+                // echo '<br>totalProd =>'. $totalProd = count($of);
+                // echo '<br>freeItemsCount =>'. $freeItemsCount = floor($totalProd/$totalXY)*$buyXgetYOfferProducts[$ofkey]['y'];
+
+                $buyXgetYOfferProducts[$ofkey]['x'];
+                $buyXgetYOfferProducts[$ofkey]['y'];
+                $totalXY = $buyXgetYOfferProducts[$ofkey]['x']+$buyXgetYOfferProducts[$ofkey]['y'];
+                $totalProd = count($of);
+                $freeItemsCount = floor($totalProd/$totalXY)*$buyXgetYOfferProducts[$ofkey]['y'];
+
+                array_multisort(
+                    array_map(static function ($element) {
+                            return $element['price'];
+                        },$of),SORT_DESC,$of);
+                // print_r($of);
+                // echo 'Negative  =========    ' .$negativeInt = '-'.$freeItemsCount;
+                if($freeItemsCount > 0){
+                    $of = array_slice($of, '-'.$freeItemsCount);
+                    // echo '<br>Discounted offer products *******************************************************************';
+                    // print_r($of);
+                    foreach($of as $cartOf){
+                        $cartOffer = Cart::find($cartOf['cart_id']);
+                        
+                        $vatAmount = 0;
+                        if($cartOffer->product){
+                            $productVat = $cartOffer->product->vat;
+                            if($productVat > 0){
+                                $vatAmount = ($cartOffer['offer_price']/100)*$productVat;
+                            }
+                        }
+                        $cartOffer->offer_discount += $cartOf['price'];
+                        $cartOffer->tax -= ($cartOffer->tax > 0) ? $vatAmount : 0;
+                        // echo '<br>Product Vat =  '.$cartOffer->product->vat;
+                        // echo '<br>Product Vat Amount =  '.$vatAmount;
+                        $cartOffer->save();
+                    }
+                }
+            }
+         
             $carts = $carts->fresh();
             $offerCartCount = $carts->whereNotNull('offer_id')->count();
 
@@ -84,9 +149,7 @@ class CartController extends Controller
                     }
                     if ($can_use_coupon) {
                         $coupon_details = json_decode($coupon->details);
-        
                         if ($coupon->type == 'cart_base') {
-    
                             $subtotal = 0;
                             $tax = 0;
                             $shipping = 0;
@@ -156,7 +219,7 @@ class CartController extends Controller
 
                 $overall_subtotal = $overall_subtotal + ($datas->price * $datas->quantity);
 
-                $total_discount = $total_discount + (($datas->price * $datas->quantity) - ($datas->offer_price * $datas->quantity));
+                $total_discount = $total_discount + (($datas->price * $datas->quantity) - ($datas->offer_price * $datas->quantity)) + $datas->offer_discount;
                 $total_tax = $total_tax + $datas->tax;
 
                 $result['products'][] = [
