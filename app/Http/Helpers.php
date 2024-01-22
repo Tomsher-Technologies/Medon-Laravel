@@ -1839,6 +1839,6 @@ function getActiveBuyXgetYOfferProducts(){
     
         $totalX = $floorDivision * $X + min($remainder, $X);
         $totalY = $floorDivision * $Y + min($remainder - min($remainder, $X), $Y);
-    
+
         return $totalY;
     }
