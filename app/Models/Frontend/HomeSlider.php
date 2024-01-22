@@ -63,8 +63,12 @@ class HomeSlider extends Model
             $product = Category::where('id', $this->link_ref_id)->select('slug')->first()->slug;
             return $product;
         } elseif ($this->link_ref == 'offer' && $this->link_ref_id !== null) {
-            $product = Offers::where('id', $this->link_ref_id)->select('slug')->first()->slug;
-            return $product;
+            $product = Offers::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
         }  elseif ($this->link_ref == 'brand' && $this->link_ref_id !== null) {
             $product = Brand::where('id', $this->link_ref_id)->select('slug')->first()->slug;
             return $product;
