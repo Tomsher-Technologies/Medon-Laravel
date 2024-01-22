@@ -84,28 +84,30 @@ class CartController extends Controller
             }
             
             // echo 'Offer products  *******************************************************************';
-            // print_r($off);
+            // // print_r($off);
             // echo 'Offer products Calculations *******************************************************************';
             foreach($off as $ofkey => $of){
-                // echo '<br>X =>'. $buyXgetYOfferProducts[$ofkey]['x'];
-                // echo '<br>Y =>'. $buyXgetYOfferProducts[$ofkey]['y'];
-                // echo '<br>totalXY =>'. $totalXY = $buyXgetYOfferProducts[$ofkey]['x']+$buyXgetYOfferProducts[$ofkey]['y'];
+                // echo '<br>X =>'. $xCount = $buyXgetYOfferProducts[$ofkey]['x'];
+                // echo '<br>Y =>'. $yCount = $buyXgetYOfferProducts[$ofkey]['y'];
+                // echo '<br>totalXY =>'. $totalXY = $xCount + $yCount;
                 // echo '<br>totalProd =>'. $totalProd = count($of);
-                // echo '<br>freeItemsCount =>'. $freeItemsCount = floor($totalProd/$totalXY)*$buyXgetYOfferProducts[$ofkey]['y'];
+                // // echo '<br>freeItemsCount =>'. $freeItemsCount = floor($totalProd/$totalXY)*$buyXgetYOfferProducts[$ofkey]['y'];
 
-                $buyXgetYOfferProducts[$ofkey]['x'];
-                $buyXgetYOfferProducts[$ofkey]['y'];
-                $totalXY = $buyXgetYOfferProducts[$ofkey]['x']+$buyXgetYOfferProducts[$ofkey]['y'];
+                // echo '<br>freeItemsCount =>'. $freeItemsCount = calculateFreeItems($totalProd, $xCount, $yCount);
+             
+                $xCount = $buyXgetYOfferProducts[$ofkey]['x'];
+                $yCount = $buyXgetYOfferProducts[$ofkey]['y'];
+                $totalXY = $xCount + $yCount;
                 $totalProd = count($of);
-                $freeItemsCount = floor($totalProd/$totalXY)*$buyXgetYOfferProducts[$ofkey]['y'];
+                $freeItemsCount = calculateFreeItems($totalProd, $xCount, $yCount);
 
-                array_multisort(
-                    array_map(static function ($element) {
-                            return $element['price'];
-                        },$of),SORT_DESC,$of);
                 // print_r($of);
                 // echo 'Negative  =========    ' .$negativeInt = '-'.$freeItemsCount;
                 if($freeItemsCount > 0){
+                    array_multisort(
+                        array_map(static function ($element) {
+                                return $element['price'];
+                            },$of),SORT_DESC,$of);
                     $of = array_slice($of, '-'.$freeItemsCount);
                     // echo '<br>Discounted offer products *******************************************************************';
                     // print_r($of);
@@ -127,7 +129,7 @@ class CartController extends Controller
                     }
                 }
             }
-         
+        
             $carts = $carts->fresh();
             $offerCartCount = $carts->whereNotNull('offer_id')->count();
 

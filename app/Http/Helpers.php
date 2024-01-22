@@ -1832,3 +1832,13 @@ function getActiveBuyXgetYOfferProducts(){
             'return_assign' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
             ];
     }
+
+    function calculateFreeItems($N, $X, $Y) {
+        $floorDivision = floor($N / ($X + $Y));
+        $remainder = $N % ($X + $Y);
+    
+        $totalX = $floorDivision * $X + min($remainder, $X);
+        $totalY = $floorDivision * $Y + min($remainder - min($remainder, $X), $Y);
+    
+        return $totalY;
+    }
