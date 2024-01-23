@@ -542,8 +542,8 @@ class CheckoutController extends Controller
 
                 if(!empty($orderDetails[0])){
                     foreach($orderDetails as $od){
-                        $orderDetails->payment_status = 'paid';
-                        $orderDetails->save();
+                        $od->payment_status = 'paid';
+                        $od->save();
 
                         $product_stock = ProductStock::where('product_id', $od->product_id)->first();
                         $product_stock->qty -= ($od->quantity >= $product_stock->qty) ? 0: ($product_stock->qty - $od->quantity);
