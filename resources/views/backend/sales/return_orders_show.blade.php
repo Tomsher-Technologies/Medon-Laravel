@@ -69,6 +69,14 @@
                                 <td class="text-right">
                                     {{ translate(ucfirst(str_replace('_', ' ', $order->order->payment_type))) }}</td>
                             </tr>
+                            @if ($order->order->payment_type == 'card' || $order->order->payment_type == 'card_wallet')
+                                <tr>
+                                    <td class="text-main text-bold">Payment Tracking Id</td>
+                                    <td class="text-right">
+                                        {{ $order->order->payment_tracking_id }}
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

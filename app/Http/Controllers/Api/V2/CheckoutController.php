@@ -305,7 +305,7 @@ class CheckoutController extends Controller
                 $product->save();
             }
             OrderDetail::insert($orderItems);
-            $grand_total = ($sub_total + $total_tax + $total_shipping)  - ($discount + $total_coupon_discount);
+            $grand_total = ($sub_total + $total_tax + round($total_shipping))  - ($discount + $total_coupon_discount);
 
             $combined_order->grand_total = $grand_total;
             $combined_order->save();
@@ -314,7 +314,7 @@ class CheckoutController extends Controller
             $order->sub_total           = $sub_total;
             $order->offer_discount      = $discount;
             $order->tax                 = $total_tax;
-            $order->shipping_cost       = $total_shipping;
+            $order->shipping_cost       = round($total_shipping);
             $order->shipping_type       = ($total_shipping == 0) ? 'free_shipping' : 'flat_rate';
             $order->coupon_discount     = $total_coupon_discount;
             $order->coupon_code         = $coupon_code;
