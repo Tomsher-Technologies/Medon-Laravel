@@ -19,6 +19,7 @@ class Order extends Model
         'payment_status_viewed',
         'payment_status',
         'payment_details',
+        'payment_tracking_id',
         'guest_id',
         'grand_total',
         'delivery_viewed',

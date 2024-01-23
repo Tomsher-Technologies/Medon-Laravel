@@ -459,6 +459,9 @@ class CheckoutController extends Controller
                 }else{
                     $order->payment_status = 'paid';
                     $order->save();
+
+                    $orderDetails = OrderDetail::where('order_id', $order->id)->update(['payment_status'=>'paid']);
+
                     reduceProductQuantity($productQuantities);
                     Cart::where('user_id', $user_id)->delete();
                     NotificationUtility::sendOrderPlacedNotification($order);
@@ -504,7 +507,7 @@ class CheckoutController extends Controller
     public function successPayment(Request $request){
         $encResponse = $request->encResp;          //This is the response sent by the CCAvenue Server
         $rcvdString = decryptCC($encResponse,env('CCA_WORKING_KEY')); //Crypto Decryption used as per the specified working key.
-        $order_status = $order_code = "";
+        $order_status = $order_code = $tracking_id = "";
         $decryptValues = explode('&', $rcvdString);
         $dataSize = sizeof($decryptValues);
         $details = [];
@@ -512,6 +515,7 @@ class CheckoutController extends Controller
             $information=explode('=',$decryptValues[$i]);
             $details[$information[0]] = $information[1];
             if($i==0)  $order_code=$information[1];
+            if($i==1)  $tracking_id=$information[1];
             if($i==3)  $order_status=$information[1];
         }
      
@@ -519,37 +523,42 @@ class CheckoutController extends Controller
 
         if($order_code != ''){
             $order = Order::where('code','=',$order_code)->firstOrFail();
-            if($order_status === "Success"){
+            if($strtolower($order_status) === "success"){
                 $order->payment_status = 'paid';
+                $order->payment_tracking_id = $tracking_id;
+                $order->payment_details = $payment_details;
+                $order->save();
                 Cart::where('user_id', $order->user_id)->delete();
-            }else{
-                $order->payment_status = 'failed';
-            }
-            $order->payment_details = $payment_details;
-            $order->save();
-            NotificationUtility::sendOrderPlacedNotification($order);
-            NotificationUtility::sendNotification($order, 'created');
-            $message = getOrderStatusMessageTest($order->user->name, $order->code);
-            $userPhone = $order->user->phone ?? '';
-            if($userPhone != '' && $message['order_placed'] != ''){
-                SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
-            }
 
-            $orderDetails = OrderDetail::where('order_id', $order->id)->get();
-
-            if(!empty($orderDetails[0])){
-                foreach($orderDetails as $od){
-                    $product_stock = ProductStock::where('product_id', $od->product_id)->first();
-                    $product_stock->qty -= ($od->quantity >= $product_stock->qty) ? 0: ($product_stock->qty - $od->quantity);
-                    $product_stock->save();
+                NotificationUtility::sendOrderPlacedNotification($order);
+                NotificationUtility::sendNotification($order, 'created');
+                $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                $userPhone = $order->user->phone ?? '';
+                if($userPhone != '' && $message['order_placed'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
                 }
-            }
+    
+                $orderDetails = OrderDetail::where('order_id', $order->id)->get();
 
-            $orderPayments = new OrderPayments();
-            $orderPayments->order_id = $order->id;
-            $orderPayments->payment_status = $order_status;
-            $orderPayments->payment_details = $payment_details;
-            $orderPayments->save();
+                if(!empty($orderDetails[0])){
+                    foreach($orderDetails as $od){
+                        $orderDetails->payment_status = 'paid';
+                        $orderDetails->save();
+
+                        $product_stock = ProductStock::where('product_id', $od->product_id)->first();
+                        $product_stock->qty -= ($od->quantity >= $product_stock->qty) ? 0: ($product_stock->qty - $od->quantity);
+                        $product_stock->save();
+                    }
+                }
+    
+                $orderPayments = new OrderPayments();
+                $orderPayments->order_id = $order->id;
+                $orderPayments->payment_status = $order_status;
+                $orderPayments->payment_details = $payment_details;
+                $orderPayments->save();
+            }else{
+                $orderDetails = Order::where('code','=',$order_code)->delete();
+            }    
         }
 
         // if($order_status === "Success"){
@@ -593,10 +602,97 @@ class CheckoutController extends Controller
     }
 
     public function successAppPayment(Request $request){
-        echo 'success';
+        $data = $request->all();
+        $order_status = $data['order_status'];
+        $order_code = $data['order_id'];
+        $tracking_id = $data['tracking_id'];
+
+        $payment_details = json_encode($data);
+
+        if($order_code != ''){
+            $order = Order::where('code','=',$order_code)->firstOrFail();
+            if(strtolower($order_status) === "successful"){
+                $order->payment_status = 'paid';
+                $order->payment_tracking_id = $tracking_id;
+                $order->payment_details = $payment_details;
+                $order->save();
+                Cart::where('user_id', $order->user_id)->delete();
+
+                NotificationUtility::sendOrderPlacedNotification($order);
+                NotificationUtility::sendNotification($order, 'created');
+                $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                $userPhone = $order->user->phone ?? '';
+                if($userPhone != '' && $message['order_placed'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
+                }
+    
+                $orderDetails = OrderDetail::where('order_id', $order->id)->get();
+
+                if(!empty($orderDetails[0])){
+                    foreach($orderDetails as $od){
+                        $od->payment_status = 'paid';
+                        $od->save();
+
+                        $product_stock = ProductStock::where('product_id', $od->product_id)->first();
+                        $product_stock->qty -= ($od->quantity >= $product_stock->qty) ? 0: ($product_stock->qty - $od->quantity);
+                        $product_stock->save();
+                    }
+                }
+    
+                $orderPayments = new OrderPayments();
+                $orderPayments->order_id = $order->id;
+                $orderPayments->payment_status = $order_status;
+                $orderPayments->payment_details = $payment_details;
+                $orderPayments->save();
+
+                $details['id'] = $order->id ?? '';
+                $details['code'] = $order->code ?? '';
+                $details['shipping_address'] = json_decode($order->shipping_address ?? '');
+                $details['billing_address'] = json_decode($order->billing_address ?? '');
+                $details['order_notes'] = $order->order_notes ?? '';
+                $details['shipping_cost'] = $order->shipping_cost ?? '';
+                $details['delivery_status'] = $order->delivery_status ?? '';
+                $details['payment_type'] = $order->payment_type ?? '';
+                $details['payment_status'] = $order->payment_status ?? '';
+                $details['tax'] = $order->tax ?? '';
+                $details['coupon_code'] = $order->coupon_code ?? '';
+                $details['sub_total'] = $order->sub_total ?? '';
+                $details['coupon_discount'] = $order->coupon_discount ?? '';
+                $details['offer_discount'] = $order->offer_discount ?? '';
+                $details['grand_total'] = $order->grand_total ?? '';
+                $details['wallet_deduction'] = $order->wallet_deduction ?? '';
+                $details['card_deduction'] = $order->grand_total - $order->wallet_deduction;
+                $details['date'] = date('d-m-Y h:i A', $order->date);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Order placed successfully',
+                    'data' => $details
+                ], 200);
+
+            }else{
+                $orderDetails = Order::where('code','=',$order_code)->delete();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Payment failed'
+                ], 200);
+            }    
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Order code not found'
+            ], 200);
+        }
     }
     public function cancelAppPayment(Request $request){
-        echo 'cancel';
+        $order_code = $request->order_code;
+        if($order_code != ''){
+            $orderDetails = Order::where('code','=',$order_code)->delete();
+        }
+        return response()->json([
+            'status' => false,
+            'message' => 'Payment cancelled'
+        ], 200);
     }
 
     public function returnRequest(Request $request){
