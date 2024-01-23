@@ -523,7 +523,7 @@ class CheckoutController extends Controller
 
         if($order_code != ''){
             $order = Order::where('code','=',$order_code)->firstOrFail();
-            if($strtolower($order_status) === "success"){
+            if(strtolower($order_status) === "success"){
                 $order->payment_status = 'paid';
                 $order->payment_tracking_id = $tracking_id;
                 $order->payment_details = $payment_details;
