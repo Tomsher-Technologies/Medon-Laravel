@@ -21,7 +21,7 @@
                 <div class="card-header row gutters-5">
                     <div class="col-md-4">
                         <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" data-live-search="true"
-                            name="catgeory" id="">
+                            name="catgeory" id="" data-selected={{ $catgeory }}>
                             <option value="0">All</option>
                             @foreach (getAllCategories()->where('parent_id', 0) as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
