@@ -34,10 +34,13 @@ class ProductController extends Controller
 
     public function all_products(Request $request)
     {
+       
         $col_name = null;
         $query = null;
         $seller_id = null;
         $sort_search = null;
+      
+        $category = ($request->has('category')) ? $request->category : '';
         $products = Product::orderBy('created_at', 'desc');
         if ($request->search != null) {
             $sort_search = $request->search;
@@ -65,11 +68,12 @@ class ProductController extends Controller
                 $q->where('id', $request->category);
             });
         }
+       
         $products->with('category');
         $products = $products->paginate(15);
         $type = 'All';
 
-        return view('backend.product.products.index', compact('products', 'type', 'col_name', 'query', 'seller_id', 'sort_search'));
+        return view('backend.product.products.index', compact('products', 'type', 'col_name', 'query', 'seller_id', 'sort_search','category'));
     }
 
 

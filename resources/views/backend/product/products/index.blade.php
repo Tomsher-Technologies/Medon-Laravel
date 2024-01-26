@@ -62,21 +62,22 @@
                     </div>
                 </div> --}}
                 <div class="col-md-3 ml-auto bootstrap-select">
+                    
                     <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" data-live-search="true"
-                        name="category" id="">
-                        <option value="0">All Categories</option>
-                        @foreach (getAllCategories()->where('parent_id', 0) as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                            @if ($item->child)
-                                @foreach ($item->child as $cat)
-                                    @include('backend.product.categories.menu_child_category', [
-                                        'category' => $cat,
-                                        'selected_id' => 0,
-                                    ])
-                                @endforeach
-                            @endif
-                        @endforeach
-                    </select>
+                            name="category" id="" data-selected={{ $category }}>
+                            <option value="0">All</option>
+                            @foreach (getAllCategories()->where('parent_id', 0) as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                @if ($item->child)
+                                    @foreach ($item->child as $cat)
+                                        @include('backend.product.categories.menu_child_category', [
+                                            'category' => $cat,
+                                            'selected_id' => 0,
+                                        ])
+                                    @endforeach
+                                @endif
+                            @endforeach
+                        </select>
                 </div>
                 <div class="col-md-3 ml-auto bootstrap-select">
                     <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" name="type"
