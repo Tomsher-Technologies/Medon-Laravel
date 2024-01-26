@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-md btn-primary" type="submit">
+            <button class="btn btn-md btn-warning" type="submit">
                 Filter
             </button>
         </div>

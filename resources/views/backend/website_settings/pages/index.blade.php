@@ -12,7 +12,7 @@
 <div class="card">
 	<div class="card-header">
 		<h6 class="mb-0 fw-600">All Pages</h6>
-		<a href="{{ route('custom-pages.create') }}" class="btn btn-primary">Add New Page</a>
+		{{-- <a href="{{ route('custom-pages.create') }}" class="btn btn-primary">Add New Page</a> --}}
 	</div>
 	<div class="card-body">
 		<table class="table aiz-table mb-0">

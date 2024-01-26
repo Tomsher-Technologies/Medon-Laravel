@@ -111,7 +111,7 @@
 
                         <div class="col-auto mt-4">
                             <div class="form-group mb-0">
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-warning">Filter</button>
                             </div>
                         </div>
                     </div>

@@ -61,7 +61,7 @@
                         </a>
                     </div>
                 </div> --}}
-                <div class="col-md-2 ml-auto bootstrap-select">
+                <div class="col-md-3 ml-auto bootstrap-select">
                     <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" data-live-search="true"
                         name="category" id="">
                         <option value="0">All Categories</option>
@@ -78,7 +78,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2 ml-auto bootstrap-select">
+                <div class="col-md-3 ml-auto bootstrap-select">
                     <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" name="type"
                         id="type">
                         <option value="">Sort By</option>
@@ -116,7 +116,7 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-info w-100" type="submit">Filter</button>
+                    <button class="btn btn-warning w-100" type="submit">Filter</button>
                 </div>
             </div>
 

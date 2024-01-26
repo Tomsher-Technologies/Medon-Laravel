@@ -42,7 +42,7 @@
                             placeholder="Type name & Enter">
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-info w-100" type="submit">Filter</button>
+                        <button class="btn btn-warning w-100" type="submit">Filter</button>
                     </div>
                 </div>
 
