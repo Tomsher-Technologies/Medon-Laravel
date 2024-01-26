@@ -16,10 +16,10 @@
     <div class="card">
         <div class="card-header d-block d-md-flex">
             <h5 class="mb-0 h6">Categories</h5>
-            <form class="" id="sort_categories" action="" method="GET" style="width: 50%">
+            <form class="" id="sort_categories" action="" method="GET" style="width: 100%">
 
                 <div class="card-header row gutters-5">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" data-live-search="true"
                             name="catgeory" id="">
                             <option value="0">All</option>
@@ -36,7 +36,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <input type="text" class="form-control" id="search"
                             name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset
                             placeholder="Type name & Enter">
