@@ -85,11 +85,11 @@
                                             title="Edit">
                                             <i class="las la-edit"></i>
                                         </a>
-                                        <a href="{{ route('customers.login', encrypt($user->id)) }}"
+                                        {{-- <a href="{{ route('customers.login', encrypt($user->id)) }}"
                                             class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                             title="Log in as this Customer">
                                             <i class="las la-sign-in-alt"></i>
-                                        </a>
+                                        </a> --}}
                                         @if ($user->banned != 1)
                                             <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm"
                                                 onclick="confirm_ban('{{ route('customers.ban', encrypt($user->id)) }}');"
