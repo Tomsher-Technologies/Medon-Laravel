@@ -7,7 +7,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <meta name="robots" content="noindex">
     <!-- Favicon -->
   	<title>{{ config('app.name', 'eCommerce') }}</title>
       <link rel="icon" href="{{ asset('admin_assets/assets/img/favicon.ico') }}">
