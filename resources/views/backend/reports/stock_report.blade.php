@@ -23,7 +23,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" type="submit">Filter</button>
+                            <button class="btn btn-warning" type="submit">Filter</button>
                         </div>
                     </div>
                 </form>

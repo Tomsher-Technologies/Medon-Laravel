@@ -16,7 +16,7 @@
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('admin_assets/assets/img/favicon.ico') }}">
-    <title>{{ get_setting('website_name') . ' | ' . get_setting('site_motto') }}</title>
+    <title>{{ env('APP_NAME') }} | Admin Panel</title>
 
     <!-- google font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
@@ -66,7 +66,11 @@
     <div class="aiz-main-wrapper d-flex">
         <div class="flex-grow-1">
             @yield('content')
+            <div class="bg-white text-center py-3 px-15px px-lg-25px mt-auto">
+                <p class="mb-0">&copy; {{ env('APP_NAME') }} - Developed By <a href="https://www.tomsher.com/">Tomsher</a></p>
+            </div>
         </div>
+       
     </div><!-- .aiz-main-wrapper -->
 
     @yield('modal')
