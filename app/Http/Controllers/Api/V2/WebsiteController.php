@@ -332,7 +332,7 @@ class WebsiteController extends Controller
 
     public function categoryOffers(){
         $offers= Offers::with(['category'])->where('link_type','category')->where('status',1)->whereRaw('(now() between start_date and end_date)')->get();
-        
+       
         $result = [];
         if($offers){
             foreach($offers as $off){

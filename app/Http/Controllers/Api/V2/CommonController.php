@@ -123,7 +123,7 @@ class CommonController extends Controller
             //     $temp['logo'] = api_asset($brand->logo);
             // }
 
-            $temp['logo'] = storage_asset($brand->logoImage->file_name);
+            $temp['logo'] = ($brand->logoImage?->file_name) ? storage_asset($brand->logoImage->file_name) : app('url')->asset('admin_assets/assets/img/placeholder.jpg');
             $res_category[] = $temp;
         }
 
