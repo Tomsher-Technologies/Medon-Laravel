@@ -146,7 +146,7 @@ class DeliveryBoyController extends Controller
                 $status = DeliveryBoy::where([
                     'user_id' => $delivery_boy->id
                 ])->update([
-                    'status' => ($request->has('status')) ? 0 : 1
+                    'status' => ($request->has('status')) ? 1 : 0
                 ]);
                 flash(translate('Delivery boy has been updated successfully'))->success();
                 return redirect()->route('delivery_boy.index');
