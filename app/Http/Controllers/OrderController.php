@@ -810,7 +810,7 @@ class OrderController extends Controller
 
 
         if ($order->payment_status == 'paid' && $order->commission_calculated == 0) {
-            calculateCommissionAffilationClubPoint($order);
+            // calculateCommissionAffilationClubPoint($order);
         }
 
         //sends Notifications to user

@@ -325,7 +325,7 @@ class DeliveryBoyController extends Controller
 
                 $order->payment_status = 'paid';
                 if ($order->commission_calculated == 0) {
-                    calculateCommissionAffilationClubPoint($order);
+                    // calculateCommissionAffilationClubPoint($order);
                     $order->commission_calculated = 1;
                 }
             }
