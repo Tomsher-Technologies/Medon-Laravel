@@ -115,7 +115,6 @@ Route::group(['prefix' => 'v2'], function () {
         Route::apiResource('app-banners', AppBannerController::class)->only('index');
         Route::get('top_categories', [CommonController::class, 'homeTopCategory']);
         Route::get('top_brands', [CommonController::class, 'homeTopBrand']);
-        Route::get('top_brands', [CommonController::class, 'homeTopBrand']);
         Route::get('ad_banners', [CommonController::class, 'homeAdBanners']);
         Route::get('offers', [CommonController::class, 'homeOffers']);
         Route::get('offer-details', [CommonController::class, 'offerDetails']);
