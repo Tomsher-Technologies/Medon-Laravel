@@ -218,6 +218,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 }
                 $galleryImage = $imageArray;
             }
+
             if($mainImage != ''){
                 $mainImage = base_path('product_images').'/'.$mainImage;
                 $mainImageUploaded = $this->downloadAndResizeImage($mainImage, $sku, true);
@@ -267,7 +268,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 $productId->save();
             }
         }
-
+        
         flash(translate('Products imported successfully'))->success();
     }
 

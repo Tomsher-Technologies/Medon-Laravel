@@ -667,7 +667,7 @@ if (!function_exists('api_upload_asset')) {
         if (($asset = Upload::find($id)) != null) {
             return app('url')->asset('storage/' . $asset->file_name);
         }
-        return "";
+        return app('url')->asset('admin_assets/assets/img/placeholder.jpg');
     }
 }
 
@@ -1457,7 +1457,7 @@ function getSidebarCategoryTree()
         'icon'
     ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->get();
     foreach( $all_cats as $categ){
-        $categ->icon = storage_asset($categ->iconImage->file_name);
+        $categ->icon = ($categ->iconImage?->file_name) ? storage_asset($categ->iconImage->file_name) : app('url')->asset('admin_assets/assets/img/placeholder.jpg');
         unset($categ->iconImage);
     }
 
