@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\BrandTranslation;
 use App\Models\Product;
 use Illuminate\Support\Str;
+use Cache;
 
 class BrandController extends Controller
 {
