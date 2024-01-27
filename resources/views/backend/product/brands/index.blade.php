@@ -51,7 +51,7 @@
                                     <td>{{ $key + 1 + ($brands->currentPage() - 1) * $brands->perPage() }}</td>
                                     <td>{{ $brand->name }}</td>
                                     <td>
-                                        <img src="{{ uploaded_asset($brand->logo) }}" alt="Brand"
+                                        <img src="{{ api_upload_asset($brand->logo) }}" alt="Brand"
                                             class="h-50px">
                                     </td>
                                     <td>
