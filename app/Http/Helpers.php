@@ -1842,3 +1842,33 @@ function getActiveBuyXgetYOfferProducts(){
 
         return $totalY;
     }
+
+    function getChildCategoryIds($parentId)
+    {
+        // Get the parent category
+        $parentCategory = Category::find($parentId);
+
+        // If the parent category doesn't exist, return an empty array or handle as needed
+        if (!$parentCategory) {
+            return [];
+        }
+
+        // Recursively get all child category IDs
+        $childIds = getChildCategoryIdsRecursive($parentCategory);
+
+        return $childIds;
+    }
+
+    function getChildCategoryIdsRecursive($category)
+    {
+        $childIds = [];
+
+        foreach ($category->child as $child) {
+            $childIds[] = $child->id;
+
+            // Recursively get child category IDs for the current child
+            $childIds = array_merge($childIds, getChildCategoryIdsRecursive($child));
+        }
+
+        return $childIds;
+    }

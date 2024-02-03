@@ -15,10 +15,10 @@
     </div>
     <div class="card">
         <div class="card-header d-block d-md-flex">
-            <h5 class="mb-0 h6">Categories</h5>
+            <h5 class="mb-0 h6 mr-4">Categories</h5>
             <form class="" id="sort_categories" action="" method="GET" style="width: 100%">
 
-                <div class="card-header row gutters-5">
+                <div class="row gutters-5">
                     <div class="col-md-4">
                         <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" data-live-search="true"
                             name="catgeory" id="" data-selected={{ $catgeory }}>
@@ -53,15 +53,15 @@
             <table class="table aiz-table mb-0">
                 <thead>
                     <tr>
-                        <th data-breakpoints="lg">#</th>
+                        <th >#</th>
                         <th>Name</th>
-                        <th data-breakpoints="lg">Parent Category</th>
-                        <th data-breakpoints="lg">Link</th>
-                        <th data-breakpoints="lg">Order Level</th>
-                        <th data-breakpoints="lg">Level</th>
-                        <th data-breakpoints="lg">Banner</th>
-                        <th data-breakpoints="lg">Icon</th>
-                        <th data-breakpoints="lg">Featured</th>
+                        <th >Parent Category</th>
+                        {{-- <th >Link</th> --}}
+                        <th class="text-center">Order Level</th>
+                        {{-- <th data-breakpoints="lg">Level</th> --}}
+                        <th >Banner</th>
+                        <th >Icon</th>
+                        <th class="text-center">Status</th>
                         <th width="10%" class="text-right">Options</th>
                     </tr>
                 </thead>
@@ -80,12 +80,9 @@
                                     —
                                 @endif
                             </td>
-                            <td>
-                                <span style="cursor:pointer"
-                                    onclick="copy(this)">{{ route('products.category', $category->slug) }}</span>
-                            </td>
-                            <td>{{ $category->order_level }}</td>
-                            <td>{{ $category->level }}</td>
+                           
+                            <td class="text-center">{{ $category->order_level }}</td>
+                            {{-- <td>{{ $category->level }}</td> --}}
                             <td>
                                 @if ($category->banner != null)
                                     <img src="{{ uploaded_asset($category->banner) }}" alt="Banner" class="h-50px">
@@ -102,10 +99,10 @@
                                     —
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input type="checkbox" onchange="update_featured(this)" value="{{ $category->id }}"
-                                        <?php if ($category->featured == 1) {
+                                    <input type="checkbox" onchange="update_status(this)" value="{{ $category->id }}"
+                                        <?php if ($category->is_active == 1) {
                                             echo 'checked';
                                         } ?>>
                                     <span></span>
@@ -164,6 +161,24 @@
             }, function(data) {
                 if (data == 1) {
                     AIZ.plugins.notify('success', 'Featured categories updated successfully');
+                } else {
+                    AIZ.plugins.notify('danger', 'Something went wrong');
+                }
+            });
+        }
+        function update_status(el) {
+            if (el.checked) {
+                var status = 1;
+            } else {
+                var status = 0;
+            }
+            $.post('{{ route('categories.status') }}', {
+                _token: '{{ csrf_token() }}',
+                id: el.value,
+                status: status
+            }, function(data) {
+                if (data == 1) {
+                    AIZ.plugins.notify('success', 'Category status updated successfully');
                 } else {
                     AIZ.plugins.notify('danger', 'Something went wrong');
                 }
