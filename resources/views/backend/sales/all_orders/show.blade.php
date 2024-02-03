@@ -50,6 +50,12 @@
                         <input type="text" class="form-control" value="{{ $delivery_status }}" disabled>
                     @endif
                 </div>
+
+                <div class="col-md-3 ml-auto">
+                    <label for="update_estimated_date">Estimated Delivery Date</label>
+                    <input type="text" class="form-control" id="update_estimated_date" value="{{ ($order->estimated_delivery != NULL) ? date('d-m-Y', strtotime($order->estimated_delivery)) : '' }}" {{ ($delivery_status == 'delivered' || $delivery_status == 'cancelled') ? 'disabled' : '' }}>
+                </div>
+
                 <div class="col-md-3 ml-auto d-none">
                     <label for="update_tracking_code">Tracking Code (optional)</label>
                     <input type="text" class="form-control" id="update_tracking_code"
@@ -404,10 +410,23 @@
         }
     }
     </style>
+   
+    <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-datepicker.css') }}">
 @endsection
 
 @section('script')
-    <script type="text/javascript">
+
+<script src="{{ static_asset('assets/js/bootstrap-datepicker.js') }}"></script>
+<script src="{{ static_asset('assets/js/sweetalert.min.js') }}"></script>
+
+<script type="text/javascript">
+
+    $("#update_estimated_date").datepicker({
+        format: "dd-mm-yyyy",
+        autoclose: true,  
+        todayHighlight: true, 
+    });
+
         $(document).on("change", ".check-all", function() {
             if(this.checked) {
                 $('.check-one:checkbox').each(function() {
@@ -461,6 +480,37 @@
             }, function(data) {
                 AIZ.plugins.notify('success', 'Payment status has been updated');
             });
+        });
+
+        $('#update_estimated_date').on('change', function() {
+            var order_id = {{ $order->id }};
+            var deliveryDate = $('#update_estimated_date').val();
+
+            swal({
+                title: "Are you sure?",
+                // text: msg,
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    $.post('{{ route('orders.update_estimated_date') }}', {
+                        _token: '{{ @csrf_token() }}',
+                        order_id: order_id,
+                        deliveryDate: deliveryDate
+                    }, function(data) {
+                        AIZ.plugins.notify('success', 'Estimated delivery date has been updated');
+                    });
+                }else{
+                    window.location.reload();
+                }
+            });
+
+
+
+
+            
         });
 
         $('#update_tracking_code').on('change', function() {

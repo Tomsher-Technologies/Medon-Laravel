@@ -781,6 +781,14 @@ class OrderController extends Controller
         return 1;
    }
 
+    public function update_estimated_date(Request $request) {
+        $order = Order::findOrFail($request->order_id);
+        $order->estimated_delivery = date('Y-m-d', strtotime($request->deliveryDate));
+        $order->save();
+
+        return 1;
+    }
+
     public function update_payment_status(Request $request)
     {
         $order = Order::findOrFail($request->order_id);

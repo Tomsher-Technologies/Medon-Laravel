@@ -32,11 +32,11 @@ class ProductFilterCollection extends ResourceCollection
         });
     }
 
-    // public function with($request)
-    // {
-    //     return [
-    //         'success' => true,
-    //         'status' => 200
-    //     ];
-    // }
+    public function with($request)
+    {
+        return [
+            'success' => true,
+            'status' => 200
+        ];
+    }
 }

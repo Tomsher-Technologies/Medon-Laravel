@@ -83,6 +83,7 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/categories/edit/{id}', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::get('/categories/destroy/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('/categories/featured', [CategoryController::class, 'updateFeatured'])->name('categories.featured');
+    Route::post('/categories/status', [CategoryController::class, 'updateStatus'])->name('categories.status');
 
     Route::resource('brands', BrandController::class);
     // Route::get('/brands/edit/{id}', [BrandController::class, 'edit'])->name('brands.edit');
@@ -398,6 +399,9 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/orders/update_delivery_status', [OrderController::class, 'update_delivery_status'])->name('orders.update_delivery_status');
     Route::post('/orders/update_payment_status', [OrderController::class, 'update_payment_status'])->name('orders.update_payment_status');
     Route::post('/orders/update_tracking_code', [OrderController::class, 'update_tracking_code'])->name('orders.update_tracking_code');
+
+    Route::post('/orders/update_estimated_date', [OrderController::class, 'update_estimated_date'])->name('orders.update_estimated_date');
+
     Route::get('get-order-delivery-boys', [OrderController::class, 'getOrderDeliveryBoys'])->name('get-order-delivery-boys');
     Route::post('assign-delivery-boy', [OrderController::class, 'assignDeliveryAgent'])->name('assign-delivery-boy');
 

@@ -64,8 +64,21 @@ class ProductController extends Controller
         }
 
         if ($request->has('category') && $request->category !== '0') {
-            $products = $products->whereHas('category', function ($q) use ($request) {
-                $q->where('id', $request->category);
+            $childIds = [];
+            $categoryfilter = $request->category;
+            $childIds[] = array($request->category);
+            
+            if($categoryfilter != ''){
+                $childIds[] = getChildCategoryIds($categoryfilter);
+            }
+
+            if(!empty($childIds)){
+                $childIds = array_merge(...$childIds);
+                $childIds = array_unique($childIds);
+            }
+            
+            $products = $products->whereHas('category', function ($q) use ($childIds) {
+                $q->whereIn('id', $childIds);
             });
         }
        

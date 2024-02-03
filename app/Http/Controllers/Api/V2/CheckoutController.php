@@ -86,7 +86,7 @@ class CheckoutController extends Controller
                 foreach ($cart_items as $key => $cartItem) {
                     $subtotal += $cartItem['offer_price'] * $cartItem['quantity'];
                     $tax += $cartItem['tax'] ;
-                    $shipping += $cartItem['shipping'] * $cartItem['quantity'];
+                    $shipping += $cartItem['shipping'] ;
                 }
                 $sum = $subtotal + $tax + $shipping;
                 

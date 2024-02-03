@@ -87,9 +87,22 @@ class ProductController extends Controller
 
         if ($category_slug) {
             $catids = implode(',', $category_slug);
-            
+            $childIds = [];
             $category_ids = Category::whereIn('slug',$category_slug)->pluck('id')->toArray();
-            $product_query->whereIn('category_id', $category_ids);
+            $childIds[] = $category_ids;
+            if(!empty($category_ids)){
+                foreach($category_ids as $cId){
+                    $childIds[] = getChildCategoryIds($cId);
+                }
+            }
+
+            if(!empty($childIds)){
+                $childIds = array_merge(...$childIds);
+                $childIds = array_unique($childIds);
+            }
+            // print_r($childIds);
+            // die;
+            $product_query->whereIn('category_id', $childIds);
             if(!empty($category_ids)){
                 $meta = Category::select('meta_title', 'meta_description', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_keyword', 'footer_title', 'footer_content')->find($category_ids[0]);
             }
