@@ -266,29 +266,29 @@ class ProfileController extends Controller
         if($order_code != ''){
             $order = Order::where('code',$order_code)->where('user_id',$user_id)->first();
             if($order){
-                $details['id'] = $order->id ?? '';
-                $details['code'] = $order->code ?? '';
-                $details['user_id'] = $order->user_id ?? '';
-                $details['shipping_address'] = json_decode($order->shipping_address ?? '');
-                $details['billing_address'] = json_decode($order->billing_address ?? '');
-                $details['order_notes'] = $order->order_notes ?? '';
-                $details['shipping_type'] = $order->shipping_type ?? '';
-                $details['shipping_cost'] = $order->shipping_cost ?? '';
-                $details['delivery_status'] = $order->delivery_status ?? '';
-                $details['payment_type'] = $order->payment_type ?? '';
-                $details['payment_status'] = $order->payment_status ?? '';
-                $details['tax'] = $order->tax ?? '';
-                $details['coupon_code'] = $order->coupon_code ?? '';
-                $details['sub_total'] = $order->sub_total ?? '';
-                $details['coupon_discount'] = $order->coupon_discount ?? '';
-                $details['offer_discount'] = $order->offer_discount ?? '';
-                $details['grand_total'] = $order->grand_total ?? '';
-                $details['wallet_deduction'] = $order->wallet_deduction ?? '';
-                $details['card_deduction'] = $order->grand_total - $order->wallet_deduction;
+                $details['id']                      = $order->id ?? '';
+                $details['code']                    = $order->code ?? '';
+                $details['user_id']                 = $order->user_id ?? '';
+                $details['shipping_address']        = json_decode($order->shipping_address ?? '');
+                $details['billing_address']         = json_decode($order->billing_address ?? '');
+                $details['order_notes']             = $order->order_notes ?? '';
+                $details['shipping_type']           = $order->shipping_type ?? '';
+                $details['shipping_cost']           = $order->shipping_cost ?? '';
+                $details['delivery_status']         = $order->delivery_status ?? '';
+                $details['payment_type']            = $order->payment_type ?? '';
+                $details['payment_status']          = $order->payment_status ?? '';
+                $details['tax']                     = $order->tax ?? '';
+                $details['coupon_code']             = $order->coupon_code ?? '';
+                $details['sub_total']               = $order->sub_total ?? '';
+                $details['coupon_discount']         = $order->coupon_discount ?? '';
+                $details['offer_discount']          = $order->offer_discount ?? '';
+                $details['grand_total']             = $order->grand_total ?? '';
+                $details['wallet_deduction']        = $order->wallet_deduction ?? '';
+                $details['card_deduction']          = $order->grand_total - $order->wallet_deduction;
                 $details['delivery_completed_date'] = $order->delivery_completed_date ?? '';
-                $details['date'] = date('d-m-Y h:i A', $order->date);
-                $details['cancel_request'] = $order->cancel_request;
-    
+                $details['date']                    = date('d-m-Y h:i A', $order->date);
+                $details['cancel_request']          = $order->cancel_request;
+                $details['estimated_delivery_date'] = ($order->delivery_status != 'delivered' && $order->delivery_status != 'cancelled' && $order->estimated_delivery != NULL && $order->estimated_delivery != '0000-00-00') ? date('d-m-Y', strtotime($order->estimated_delivery)) : '';
                 $details['products'] = [];
                 if($order->orderDetails){
                     foreach($order->orderDetails as $product){

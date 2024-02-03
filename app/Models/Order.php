@@ -37,7 +37,8 @@ class Order extends Model
         'order_notes',
         'sub_total',
         'offer_discount',
-        'shop_assigned_date'
+        'shop_assigned_date',
+        'estimated_delivery'
     ];
 
     public function orderDetails()

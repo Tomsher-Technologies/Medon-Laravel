@@ -679,7 +679,7 @@ if (!function_exists('uploaded_asset')) {
             return $asset->external_link == null ? storage_asset($asset->file_name) : $asset->external_link;
         }
 
-        return frontendAsset('img/placeholder.webp');;
+        return app('url')->asset('admin_assets/assets/img/placeholder.jpg');
     }
 }
 

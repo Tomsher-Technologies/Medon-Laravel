@@ -820,10 +820,12 @@
         gap: 0.5rem !important;
     }
 </style>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/>
+{{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/> --}}
+<link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-datepicker.css') }}">
 @endsection
 @section('script')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js"></script> --}}
+<script src="{{ static_asset('assets/js/bootstrap-datepicker.js') }}"></script>
 
 <script type="text/javascript">
     $("#yearFilter").datepicker({

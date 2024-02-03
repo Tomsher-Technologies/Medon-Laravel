@@ -10,12 +10,15 @@
         <div class="card-body">
             <div class="row gutters-5">
                 <div class="col text-center text-md-left">
+                   
                 </div>
                 @php
                     $delivery_status = $order->delivery_status;
                     $payment_status = $order->payment_status;
                 @endphp
-
+                <div class="col-md-4 text-right">
+                    Estimated Delivery Date :  <b>{!! ($order->estimated_delivery != NULL && $order->estimated_delivery != '0000-00-00') ? date('d-m-Y', strtotime($order->estimated_delivery)) : '' !!}</b>
+                </div>
             </div>
             <div class="mb-3">
                 {!! QrCode::size(100)->generate($order->code) !!}
