@@ -86,11 +86,10 @@ class CheckoutController extends Controller
                 foreach ($cart_items as $key => $cartItem) {
                     $subtotal += $cartItem['offer_price'] * $cartItem['quantity'];
                     $tax += $cartItem['tax'] ;
-                    $shipping += $cartItem['shipping'] ;
+                    $shipping += $cartItem['shipping_cost'] ;
                 }
                 $sum = $subtotal + $tax + $shipping;
                 
-    
                 if ($sum >= $coupon_details->min_buy) {
                     if ($coupon->discount_type == 'percent') {
                         $coupon_discount = ($sum * $coupon->discount) / 100;

@@ -66,9 +66,9 @@ class CartController extends Controller
                 $updateCart->offer_tag = ($priceData['offer_id'] >= 0) ? $priceData['offer_tag'] : NULL;
                 $updateCart->offer_discount = 0.00;
                 $updateCart->tax = (($priceData['discounted_price'] * $updateCart->quantity)/100) * $updateCart->product->vat;
-                $updateCart->discount = 0.00;
-                $updateCart->coupon_code = NULL;
-                $updateCart->coupon_applied = 0;
+                // $updateCart->discount = 0.00;
+                // $updateCart->coupon_code = NULL;
+                // $updateCart->coupon_applied = 0;
                 $updateCart->save();
 
                 if($priceData['offer_type'] == 'buy_x_get_y'){
@@ -141,8 +141,12 @@ class CartController extends Controller
                     if ($coupon) {               
                         if (strtotime(date('d-m-Y')) >= $coupon->start_date && strtotime(date('d-m-Y')) <= $coupon->end_date) {
                             if($user_id != ''){
-                                $coupon_used = CouponUsage::where('user_id', $user_id)->where('coupon_id', $coupon->id)->first();
-                                if ($coupon->one_time_use && $coupon_used == null) {
+                                if($coupon->one_time_use == 1){
+                                    $coupon_used = CouponUsage::where('user_id', $user_id)->where('coupon_id', $coupon->id)->first();
+                                    if ($coupon_used == null) {
+                                        $can_use_coupon = true;
+                                    }
+                                }else{
                                     $can_use_coupon = true;
                                 }
                             }
@@ -150,6 +154,7 @@ class CartController extends Controller
                             $can_use_coupon = false;
                         }
                     }
+                  
                     if ($can_use_coupon) {
                         $coupon_details = json_decode($coupon->details);
                         if ($coupon->type == 'cart_base') {
@@ -159,7 +164,7 @@ class CartController extends Controller
                             foreach ($carts as $key => $cartItem) {
                                 $subtotal += $cartItem['offer_price'] * $cartItem['quantity'];
                                 $tax += $cartItem['tax'];
-                                $shipping += $cartItem['shipping'] * $cartItem['quantity'];
+                                $shipping += $cartItem['shipping_cost'];
                             }
                             $sum = $subtotal + $tax + $shipping;
     
@@ -173,6 +178,7 @@ class CartController extends Controller
                                     $coupon_discount = $coupon->discount;
                                 }
                                 if($user_id != ''){
+                                   
                                     Cart::where('user_id', $user_id)->update([
                                         'discount' => $coupon_discount / count($carts),
                                         'coupon_code' => $coupon_code,
@@ -202,6 +208,17 @@ class CartController extends Controller
                             }
                         }
 
+                    }else{
+                        if($user_id != ''){
+                            Cart::where('user_id', $user_id)->update([
+                                'discount' => 0.00,
+                                'coupon_code' => NULL,
+                                'coupon_applied' => 0
+                            ]);
+                        }
+                        $coupon_code = '';
+                        $coupon_applied = 0;
+                        $total_coupon_discount = 0;
                     }
                 }
             }elseif($offerCartCount > 0 && $user_id != ''){
@@ -317,11 +334,11 @@ class CartController extends Controller
         $product_slug = explode(',', $product_slug);
         $product_id = getProductIdsFromMultipleSlug($product_slug);
         $products = Product::findOrFail($product_id);
-
+        
         $str = null;
 
         $user = getUser();
-     
+       
         $outStock = $added = 0;
         if($user['users_id'] != ''){
             if ($products) {

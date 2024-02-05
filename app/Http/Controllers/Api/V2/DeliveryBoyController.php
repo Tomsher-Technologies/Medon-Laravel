@@ -42,10 +42,6 @@ class DeliveryBoyController extends Controller
 
     public function assigned_delivery(Request $request)
     {
-        // $orders = Order::where([
-        //     'assign_delivery_boy' => $request->user()->id,
-        // ])->whereIn('delivery_status', array('picked_up', 'confirmed'))->latest()->get();
-
         $order = OrderDeliveryBoys::with(['order'])
                     ->where('delivery_boy_id', $request->user()->id)
                     ->where('status', 0)
@@ -75,11 +71,18 @@ class DeliveryBoyController extends Controller
         //     'assign_delivery_boy' => $request->user()->id,
         //     'delivery_status' => 'delivered'
         // ])->latest()->get();
-        $orders = OrderDeliveryBoys::with(['order'])
+        $start_date = $request->has('start_date') ? $request->start_date : '';
+        $end_date   = $request->has('end_date') ? $request->end_date : '';
+
+        $orderQuery = OrderDeliveryBoys::with(['order'])
                     ->where('delivery_boy_id', $request->user()->id)
-                    ->where('status', 1)
-                    ->orderBy('id','desc')
-                    ->get();
+                    ->where('status', 1);
+
+        if($start_date  != '' && $end_date != ''){
+           $orderQuery->WhereDate('delivery_date','>=',$start_date)->WhereDate('delivery_date','<=',$end_date);  
+        }
+
+        $orders = $orderQuery->orderBy('id','desc')->get();
        
         if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
             return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
@@ -93,10 +96,18 @@ class DeliveryBoyController extends Controller
 
     public function completed_return_delivery(Request $request)
     {
-        $return = RefundRequest::with(['order'])
+        $start_date = $request->has('start_date') ? $request->start_date : '';
+        $end_date   = $request->has('end_date') ? $request->end_date : '';
+
+        $returnQuery = RefundRequest::with(['order'])
                         ->where('delivery_boy', $request->user()->id)
-                        ->where('delivery_status', 1)
-                        ->orderBy('id','desc')
+                        ->where('delivery_status', 1);
+
+        if($start_date  != '' && $end_date != ''){
+            $returnQuery->WhereDate('delivery_completed_date','>=',$start_date)->WhereDate('delivery_completed_date','<=',$end_date);  
+        }
+
+        $return = $returnQuery->orderBy('id','desc')
                         ->get();
        
         if(isset($return[0]['order']) && !empty($return[0]['order'])){
