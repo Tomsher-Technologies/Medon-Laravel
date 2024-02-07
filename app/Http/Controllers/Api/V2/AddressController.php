@@ -161,17 +161,25 @@ class AddressController extends Controller
             $address =  Address::where([
                 'id' => $request->address_id,
                 'user_id' => $user_id
-            ])->firstOrFail();
+            ])->first();
 
+            if($address){
+                Address::where('user_id', $user_id)->update(['set_default' => 0]); //make all user addressed non default first
     
-            Address::where('user_id', $user_id)->update(['set_default' => 0]); //make all user addressed non default first
-    
-            $address->set_default = 1;
-            $address->save();
-            return response()->json([
-                'status' => true,
-                'message' => 'Default address has been updated'
-            ]);
+                $add = Address::find($request->address_id);
+                $add->set_default = 1;
+                $add->save();
+                
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Default address has been updated'
+                ]);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Default address not updated'
+                ]);
+            }
         }else{
             return response()->json([
                 'status' => false,

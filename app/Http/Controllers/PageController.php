@@ -169,11 +169,13 @@ class PageController extends Controller
                 Faqs::truncate();
                 $data = [];
                 foreach ($request->faq as $value) {
-                    $data[] = array(
-                        "question" => $value['question'] ?? NULL,
-                        "answer"   => $value['answer'] ?? NULL,
-                        "sort_order" =>  $value['sort_order'] ?? NULL,
-                    );
+                    if($value['question'] != '' && $value['answer'] != ''){
+                        $data[] = array(
+                            "question" => $value['question'] ?? NULL,
+                            "answer"   => $value['answer'] ?? NULL,
+                            "sort_order" =>  $value['sort_order'] ?? NULL,
+                        );
+                    }
                 }
                 if(!empty($data)){
                     Faqs::insert($data);
