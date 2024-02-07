@@ -92,15 +92,15 @@
                     <table class="table table-bordered aiz-table invoice-summary">
                         <thead>
                             <tr class="bg-trans-dark">
-                                <th data-breakpoints="lg" class="min-col">#</th>
+                                <th class="min-col">#</th>
                                 <th width="10%">Photo</th>
                                 <th class="text-uppercase">Description</th>
                                 {{-- <th data-breakpoints="lg" class="text-uppercase">Delivery Type</th> --}}
-                                <th data-breakpoints="lg" class="min-col text-center text-uppercase">Qty
+                                <th class="min-col text-center text-uppercase">Qty
                                 </th>
-                                <th data-breakpoints="lg" class="min-col text-center text-uppercase">
+                                <th class="min-col text-center text-uppercase">
                                     Price</th>
-                                <th data-breakpoints="lg" class="min-col text-center text-uppercase">
+                                <th class="min-col text-center text-uppercase">
                                     Total</th>
                             </tr>
                         </thead>
@@ -116,24 +116,18 @@
                                 <tr style="background:{{$statusColor}}">
                                     <td>{{ $key + 1 }}</td>
                                     <td>
-                                        @if ($orderDetail->product != null && $orderDetail->product->auction_product == 0)
-                                            <a href="javascript:void(0)" target="_blank"><img height="50" src="{{ asset($orderDetail->product->thumbnail_img) }}"></a>
-                                        @elseif ($orderDetail->product != null && $orderDetail->product->auction_product == 1)
-                                            <a href="javascript:void(0)" target="_blank"><img height="50" src="{{ asset($orderDetail->product->thumbnail_img) }}"></a>
+                                        @if ($orderDetail->product != null)
+                                            <img height="50" src="{{ uploaded_asset($orderDetail->product->thumbnail_img) }}">
                                         @else
                                             <strong>N/A</strong>
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($orderDetail->product != null && $orderDetail->product->auction_product == 0)
-                                            <strong><a href="javascript:void(0)"
-                                                    target="_blank"
-                                                    class="text-muted">{{ $orderDetail->product->name }}</a></strong>
-                                            <small>{{ $orderDetail->variation }}</small>
-                                        @elseif ($orderDetail->product != null && $orderDetail->product->auction_product == 1)
-                                            <strong><a href="javascript:void(0)"
-                                                    target="_blank"
-                                                    class="text-muted">{{ $orderDetail->product->name }}</a></strong>
+                                        @if ($orderDetail->product != null)
+                                            <strong class="text-muted">{{ $orderDetail->product->name }}</strong>
+                                            {{-- <small> --}}
+                                               
+                                            {{-- </small> --}}
                                         @else
                                             <strong>Product Unavailable</strong>
                                         @endif
