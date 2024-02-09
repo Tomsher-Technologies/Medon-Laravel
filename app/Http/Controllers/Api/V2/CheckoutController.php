@@ -620,7 +620,7 @@ class CheckoutController extends Controller
         $orderPayments = new OrderPayments();
         $orderPayments->order_id = 375;
         $orderPayments->payment_status = 'test1';
-        $orderPayments->payment_details = json_encode($dat);
+        $orderPayments->payment_details = $decryptValues;
         $orderPayments->save();
 
         die;
