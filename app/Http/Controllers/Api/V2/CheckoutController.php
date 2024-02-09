@@ -610,6 +610,12 @@ class CheckoutController extends Controller
         echo '<pre>';
         print_r($decryptValues);
 
+        $orderPayments = new OrderPayments();
+        $orderPayments->order_id = 1;
+        $orderPayments->payment_status = 'test';
+        $orderPayments->payment_details = json_encode($decryptValues);
+        $orderPayments->save();
+
         die;
         // $data = $request->all();
         // $order_status = $data['order_status'];
