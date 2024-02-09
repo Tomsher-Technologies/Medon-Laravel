@@ -607,10 +607,6 @@ class CheckoutController extends Controller
         $order_status = $order_code = $tracking_id = "";
         $decryptValues = explode('&', $rcvdString);
 
-        // $decryptValues = ["{\"merchant_param6\":\"5123450008\",\"merchant_param5\":\"\",\"merchant_param4\":\"\",\"merchant_param3\":\"\",\"billing_name\":\"Salman Faris\",\"merchant_param2\":\"\",\"status_message\":\"Approved\",\"merchant_param1\":\"\",\"response_type\":\"JSON\",\"billing_city\":\"Dubai\",\"amount\":\"40.0\",\"order_status\":\"Success\",\"billing_country\":\"United Arab Emirates\",\"billing_address\":\"Dubai Healthcare City Metro Station - Umm Hurair 2 - Dubai Healthcare City - Dubai - United Arab Emirates\",\"bank_qsi_no\":\"16773862632032\",\"discount_value\":\"0.0\",\"billing_zip\":\"\",\"delivery_country\":\"United Arab Emirates\",\"billing_tel\":\"0563729214\",\"failure_message\":\"\",\"order_id\":\"20240209-11261532\",\"bank_ref_no\":\"187962\",\"delivery_address\":\"Dubai Healthcare City Metro Station - Umm Hurair 2 - Dubai Healthcare City - Dubai - United Arab Emirates\",\"status_code\":\"00\",\"billing_state\":\"Dubai\",\"payment_mode\":\"Credit Card\",\"vault\":\"N\",\"delivery_state\":\"Dubai\",\"card_holder_name\":\"\",\"offer_type\":\"null\",\"delivery_name\":\"Salman Faris\",\"offer_code\":\"null\",\"bank_receipt_no\":\"404007187962\",\"tracking_id\":\"113051335447\",\"delivery_city\":\"Dubai\",\"delivery_zip\":\"\",\"delivery_tel\":\"0563729214\",\"currency\":\"AED\",\"eci_value\":\"02\",\"card_name\":\"MasterCard\",\"billing_email\":\"tomtester@gmail.com\",\"mer_amount\":\"40.0\"}"];
-
-        // $encoded = json_encode($data);
-
         $finalData = (isset($decryptValues[0])) ? json_decode($decryptValues[0]) : [];
         
         $order_status = $finalData->order_status ?? null;
@@ -618,11 +614,7 @@ class CheckoutController extends Controller
         $tracking_id = $finalData->tracking_id ?? null;
 
         $payment_details = json_encode($decryptValues);
-        // $dat['order_status'] = $order_status;
-        // $dat['order_code'] = $order_code;
-        // $dat['tracking_id'] = $tracking_id;
-
-
+       
         if($order_code != ''){
             $order = Order::where('code','=',$order_code)->firstOrFail();
             if(strtolower($order_status) === "success"){
@@ -659,46 +651,33 @@ class CheckoutController extends Controller
                 $orderPayments->payment_details = $payment_details;
                 $orderPayments->save();
 
-                // $details['id'] = $order->id ?? '';
-                // $details['code'] = $order->code ?? '';
-                // $details['shipping_address'] = json_decode($order->shipping_address ?? '');
-                // $details['billing_address'] = json_decode($order->billing_address ?? '');
-                // $details['order_notes'] = $order->order_notes ?? '';
-                // $details['shipping_cost'] = $order->shipping_cost ?? '';
-                // $details['delivery_status'] = $order->delivery_status ?? '';
-                // $details['payment_type'] = $order->payment_type ?? '';
-                // $details['payment_status'] = $order->payment_status ?? '';
-                // $details['tax'] = $order->tax ?? '';
-                // $details['coupon_code'] = $order->coupon_code ?? '';
-                // $details['sub_total'] = $order->sub_total ?? '';
-                // $details['coupon_discount'] = $order->coupon_discount ?? '';
-                // $details['offer_discount'] = $order->offer_discount ?? '';
-                // $details['grand_total'] = $order->grand_total ?? '';
-                // $details['wallet_deduction'] = $order->wallet_deduction ?? '';
-                // $details['card_deduction'] = $order->grand_total - $order->wallet_deduction;
-                // $details['date'] = date('d-m-Y h:i A', $order->date);
-
-                // return response()->json([
-                //     'status' => true,
-                //     'message' => 'Order placed successfully',
-                //     'data' => $details
-                // ], 200);
-
             }else{
                 $orderDetails = Order::where('code','=',$order_code)->delete();
-                // return response()->json([
-                //     'status' => false,
-                //     'message' => 'Payment failed'
-                // ], 200);
             }    
-        }else{
-            // return response()->json([
-            //     'status' => false,
-            //     'message' => 'Order code not found'
-            // ], 200);
         }
     }
     public function cancelAppPayment(Request $request){
+
+        $encResponse = $request->encResp;          //This is the response sent by the CCAvenue Server
+        $rcvdString = decryptCC($encResponse,env('CCA_WORKING_KEY')); //Crypto Decryption used as per the specified working key.
+        $order_status = $order_code = $tracking_id = "";
+        $decryptValues = explode('&', $rcvdString);
+
+        $finalData = (isset($decryptValues[0])) ? json_decode($decryptValues[0]) : [];
+        
+        $order_status = $finalData->order_status ?? null;
+        $order_code = $finalData->order_id ?? null;
+        $tracking_id = $finalData->tracking_id ?? null;
+
+        $payment_details = json_encode($decryptValues);
+
+        $orderPayments = new OrderPayments();
+        $orderPayments->order_id = 375;
+        $orderPayments->payment_status = 'cancel test';
+        $orderPayments->payment_details = $payment_details;
+        $orderPayments->save();
+
+        die;
         $order_code = $request->order_code;
         if($order_code != ''){
             $orderDetails = Order::where('code','=',$order_code)->delete();
