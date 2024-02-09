@@ -658,6 +658,14 @@ class CheckoutController extends Controller
     }
     public function cancelAppPayment(Request $request){
 
+        $orderPayments = new OrderPayments();
+        $orderPayments->order_id = 375;
+        $orderPayments->payment_status = 'cancel test';
+        $orderPayments->payment_details = 'cancel data';
+        $orderPayments->save();
+        
+        die;
+
         $encResponse = $request->encResp;          //This is the response sent by the CCAvenue Server
         $rcvdString = decryptCC($encResponse,env('CCA_WORKING_KEY')); //Crypto Decryption used as per the specified working key.
         $order_status = $order_code = $tracking_id = "";
