@@ -607,13 +607,20 @@ class CheckoutController extends Controller
         $order_status = $order_code = $tracking_id = "";
         $decryptValues = explode('&', $rcvdString);
 
-        echo '<pre>';
-        print_r($decryptValues);
+        $order_status = $decryptValues['order_status'] ?? null;
+        $order_code = $decryptValues['order_id'] ?? null;
+        $tracking_id = $descryptValues['tracking_id'] ?? null;
+
+        $payment_details = json_encode($decryptValues);
+        $dat['order_status'] = $order_status;
+        $dat['order_code'] = $order_code;
+        $dat['tracking_id'] = $tracking_id;
+
 
         $orderPayments = new OrderPayments();
         $orderPayments->order_id = 375;
-        $orderPayments->payment_status = 'test';
-        $orderPayments->payment_details = json_encode($decryptValues);
+        $orderPayments->payment_status = 'test1';
+        $orderPayments->payment_details = json_encode($dat);
         $orderPayments->save();
 
         die;
