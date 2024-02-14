@@ -249,7 +249,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 if(!empty($tabArray)){
                     foreach($tabArray as $key=>$tba){
                         $key = Str::after($key,'tab');
-                        if($key != 'description'){
+                        if($key != 'description' && $tba != null && $tba != ''){
                             $productTabs[] = [
                                 'product_id' => $productId->id,
                                 'heading'      => ucfirst(str_replace('_', ' ',$key)),
