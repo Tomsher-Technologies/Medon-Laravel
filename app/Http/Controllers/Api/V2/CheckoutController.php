@@ -657,35 +657,6 @@ class CheckoutController extends Controller
         }
     }
     public function cancelAppPayment(Request $request){
-
-        $orderPayments = new OrderPayments();
-        $orderPayments->order_id = 375;
-        $orderPayments->payment_status = 'cancel test';
-        $orderPayments->payment_details = 'cancel data';
-        $orderPayments->save();
-        
-        die;
-
-        $encResponse = $request->encResp;          //This is the response sent by the CCAvenue Server
-        $rcvdString = decryptCC($encResponse,env('CCA_WORKING_KEY')); //Crypto Decryption used as per the specified working key.
-        $order_status = $order_code = $tracking_id = "";
-        $decryptValues = explode('&', $rcvdString);
-
-        $finalData = (isset($decryptValues[0])) ? json_decode($decryptValues[0]) : [];
-        
-        $order_status = $finalData->order_status ?? null;
-        $order_code = $finalData->order_id ?? null;
-        $tracking_id = $finalData->tracking_id ?? null;
-
-        $payment_details = json_encode($decryptValues);
-
-        $orderPayments = new OrderPayments();
-        $orderPayments->order_id = 375;
-        $orderPayments->payment_status = 'cancel test';
-        $orderPayments->payment_details = $payment_details;
-        $orderPayments->save();
-
-        die;
         $order_code = $request->order_code;
         if($order_code != ''){
             $orderDetails = Order::where('code','=',$order_code)->delete();
