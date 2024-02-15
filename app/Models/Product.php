@@ -17,7 +17,7 @@ class Product extends Model
     use Userstamps;
 
     protected $fillable = [
-        'name', 'sku', 'slug', 'main_category', 'category_id', 'brand_id', 'vat', 'photos', 'thumbnail_img', 'video_provider', 'video_link', 'tags', 'description', 'short_description', 'unit_price', 'purchase_price', 'variant_product', 'attributes', 'choice_options', 'colors', 'variations', 'return_refund', 'published', 'stock_visibility_state', 'featured', 'current_stock', 'unit', 'min_qty', 'low_stock_quantity', 'discount', 'discount_type', 'discount_start_date', 'discount_end_date', 'num_of_sale', 'pdf', 'rating', 'length', 'height', 'width', 'weight', 'external_link', 'external_link_btn', 'hide_price', 'part_number','created_by', 'updated_by'
+        'name', 'sku', 'slug', 'main_category', 'category_id', 'brand_id', 'vat', 'photos', 'thumbnail_img', 'video_provider', 'video_link', 'tags', 'description', 'short_description', 'unit_price', 'purchase_price', 'variant_product', 'attributes', 'choice_options', 'colors', 'variations', 'return_refund', 'published', 'stock_visibility_state', 'featured', 'current_stock', 'unit', 'min_qty', 'low_stock_quantity', 'discount', 'discount_type', 'discount_start_date', 'discount_end_date', 'num_of_sale', 'pdf', 'rating', 'length', 'height', 'width', 'weight', 'external_link', 'external_link_btn', 'hide_price', 'part_number', 'mpn', 'google_category','created_by', 'updated_by'
     ];
 
     protected $with = ['stocks'];
