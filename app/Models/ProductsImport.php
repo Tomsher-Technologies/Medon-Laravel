@@ -131,6 +131,12 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                 if (isset($row['price'])) {
                     $productId->unit_price = $row['price'];
                 }
+                if (isset($row['mpn'])) {
+                    $productId->mpn = $row['mpn'];
+                }
+                if (isset($row['google_product_category'])) {
+                    $productId->google_category = $row['google_product_category'];
+                }
 
                 if (isset($row['return_available'])) {
                     $productId->return_refund = $row['return_available'];
@@ -200,12 +206,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                     'slug' => $this->productSlug(trim($row['product_name'])),
                     'created_by' => Auth::user()->id,
                     'updated_by' => Auth::user()->id,
-                    
-
-                    // 'thumbnail_img' => $mainImage ?? '',
-                    // 'photos' => $galleryImage ?? '',
-
-                    
+                    'mpn'        => $row['mpn'] ?? null,
+                    'google_category' => $row['google_product_category'] ?? null
                 ]);
              
             }
