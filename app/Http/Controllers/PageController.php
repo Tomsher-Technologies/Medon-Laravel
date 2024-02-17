@@ -96,7 +96,7 @@ class PageController extends Controller
                 });
 
                 $products = Product::select('id', 'name')->get();
-                $brands = Brand::all();
+                $brands = Brand::where('is_active', 1)->get();
                 $offers = Offers::select('id', 'name')->where('end_date','>',now())->get();
 
                 return view('backend.website_settings.pages.home_page_edit', compact('page', 'banners', 'current_banners', 'categories', 'brands', 'products','offers'));

@@ -250,7 +250,7 @@ class OfferController extends Controller
                     
                     $bIds = $bIdsQuery->groupBy('brand_id')->pluck('brand_id')->toArray();
                     if(!empty($bIds)){
-                        $brandsData = Brand::select(['id', 'name'])->whereIn('id', $bIds)->get();
+                        $brandsData = Brand::select(['id', 'name'])->whereIn('id', $bIds)->where('is_active', 1)->get();
                     }
                 }else{
                     $oldArray = json_decode($offerData->link_id);
@@ -303,7 +303,7 @@ class OfferController extends Controller
         $bIds = $bIdsQuery->groupBy('brand_id')->pluck('brand_id')->toArray();
        
         if(!empty($bIds)){
-            $brands = Brand::select(['id', 'name'])->whereIn('id', $bIds)->get();
+            $brands = Brand::select(['id', 'name'])->whereIn('id', $bIds)->where('is_active', 1)->get();
         }
 
         $html = '';

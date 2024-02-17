@@ -41,7 +41,7 @@
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Logo</th>
-                                <th>Is Top</th>
+                                <th class="text-center">Is Active</th>
                                 <th class="text-right">Options</th>
                             </tr>
                         </thead>
@@ -54,10 +54,14 @@
                                         <img src="{{ api_upload_asset($brand->logo) }}" alt="Brand"
                                             class="h-50px">
                                     </td>
-                                    <td>
-                                        {!! $brand->top
-                                            ? '<span class="badge badge-inline badge-success">YES</span>'
-                                            : '<span class="badge badge-inline badge-danger">NO</span>' !!}
+                                    <td class="text-center">
+                                        <label class="aiz-switch aiz-switch-success mb-0">
+                                            <input type="checkbox" onchange="update_status(this)" value="{{ $brand->id }}"
+                                                <?php if ($brand->is_active == 1) {
+                                                    echo 'checked';
+                                                } ?>>
+                                            <span></span>
+                                        </label>
                                     </td>
                                     <td class="text-right">
                                         <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
@@ -92,6 +96,24 @@
     <script type="text/javascript">
         function sort_brands(el) {
             $('#sort_brands').submit();
+        }
+        function update_status(el) {
+            if (el.checked) {
+                var status = 1;
+            } else {
+                var status = 0;
+            }
+            $.post('{{ route('brands.status') }}', {
+                _token: '{{ csrf_token() }}',
+                id: el.value,
+                status: status
+            }, function(data) {
+                if (data == 1) {
+                    AIZ.plugins.notify('success', 'Brand status updated successfully');
+                } else {
+                    AIZ.plugins.notify('danger', 'Something went wrong');
+                }
+            });
         }
     </script>
 @endsection

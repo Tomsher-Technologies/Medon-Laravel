@@ -27,11 +27,11 @@
                         @livewire('slug-check', ['model' => 'App\\Models\\Brand'])
 
                         <div class="form-group  mb-3">
-                            <label>Is Featured</label>
-                            <select class="select2 form-control" name="top">
-                                <option {{ old('top') == 1 ? 'selected' : '' }} value="1">Yes
+                            <label>Is Active</label>
+                            <select class="select2 form-control" name="is_active">
+                                <option {{ old('is_active') == 1 ? 'selected' : '' }} value="1">Yes
                                 </option>
-                                <option {{ old('top') == 0 ? 'selected' : '' }} value="0">No
+                                <option {{ old('is_active') == 0 ? 'selected' : '' }} value="0">No
                                 </option>
                             </select>
                         </div>

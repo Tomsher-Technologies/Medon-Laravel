@@ -25,7 +25,7 @@ class FilterController extends Controller
     {
         //show only top 20 brands
         return Cache::remember('app.filter_brands', 86400, function () {
-            return new BrandCollection(Brand::where('top', 1)->limit(20)->get());
+            return new BrandCollection(Brand::where('top', 1)->where('is_active', 1)->limit(20)->get());
         });
     }
 

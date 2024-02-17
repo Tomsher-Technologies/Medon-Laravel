@@ -143,7 +143,7 @@ class SearchController extends Controller
                 'id',
                 'name',
                 'slug',
-            ])->get();
+            ])->where('is_active', 1)->get();
         });
 
         $category = Cache::rememberForever('categoriesTree', function () {

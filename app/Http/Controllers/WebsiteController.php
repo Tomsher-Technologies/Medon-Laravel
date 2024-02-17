@@ -18,7 +18,7 @@ class WebsiteController extends Controller
 	{
 		$menus = HeaderMenus::orderBy('id','asc')->get();
 		$categories = Category::select('id','name')->where('parent_id',0)->where('is_active', 1)->orderBy('name', 'ASC')->get();
-		$brands =  Brand::select('id','name')->orderBy('name','asc')->get();
+		$brands =  Brand::select('id','name')->orderBy('name','asc')->where('is_active', 1)->get();
 		return view('backend.website_settings.web_header',compact('categories','brands','menus'));
 	}
 

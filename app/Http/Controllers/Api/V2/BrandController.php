@@ -14,7 +14,7 @@ class BrandController extends Controller
     {
         $brand_query = Brand::query();
         $limit = $request->has('limit') ? $request->limit : '';
-        $query = ($limit != '') ? $brand_query->paginate($limit) : $brand_query->get();
+        $query = ($limit != '') ? $brand_query->where('is_active', 1)->paginate($limit) : $brand_query->where('is_active', 1)->get();
         return new BrandCollection($query);
     }
 
@@ -23,7 +23,7 @@ class BrandController extends Controller
         $brands = Cache::rememberForever('home_brands', function () {
             $brand_ids = get_setting('top10_brands');
             if ($brand_ids) {
-                return Brand::whereIn('id', json_decode($brand_ids))->with('logoImage')->get();
+                return Brand::whereIn('id', json_decode($brand_ids))->where('is_active', 1)->with('logoImage')->get();
             }
         });
         return new BrandCollection($brands);

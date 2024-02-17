@@ -43,7 +43,7 @@ class SearchSuggestionController extends Controller
                 $brand_query->where('name', 'like', "%$query_key%");
             }
 
-            $brands = $brand_query->limit(3)->get();
+            $brands = $brand_query->where('is_active', 1)->limit(3)->get();
         }
 
         if ($type == "sellers") {

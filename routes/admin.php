@@ -88,6 +88,7 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::resource('brands', BrandController::class);
     // Route::get('/brands/edit/{id}', [BrandController::class, 'edit'])->name('brands.edit');
     Route::get('/brands/destroy/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
+    Route::post('/brands/status', [BrandController::class, 'updateStatus'])->name('brands.status');
 
     // Route::get('/products/admin', [ProductController::class, 'admin_products'])->name('products.admin');
     // Route::get('/products/seller', [ProductController::class, 'seller_products'])->name('products.seller');
