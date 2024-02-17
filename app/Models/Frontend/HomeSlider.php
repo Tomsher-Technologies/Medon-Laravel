@@ -57,11 +57,19 @@ class HomeSlider extends Model
     public function getBannerLink()
     {
         if ($this->link_ref == 'product' && $this->link_ref_id !== null) {
-            $product = Product::where('id', $this->link_ref_id)->select('slug')->first()->slug;
-            return $product;
+            $product = Product::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
         } elseif ($this->link_ref == 'category' && $this->link_ref_id !== null) {
-            $product = Category::where('id', $this->link_ref_id)->select('slug')->first()->slug;
-            return $product;
+            $product = Category::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
         } elseif ($this->link_ref == 'offer' && $this->link_ref_id !== null) {
             $product = Offers::where('id', $this->link_ref_id)->select('slug')->first();
             if($product){
@@ -70,8 +78,12 @@ class HomeSlider extends Model
                 return '#';
             }
         }  elseif ($this->link_ref == 'brand' && $this->link_ref_id !== null) {
-            $product = Brand::where('id', $this->link_ref_id)->select('slug')->first()->slug;
-            return $product;
+            $product = Brand::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
         } elseif ($this->link_ref == 'external' && $this->link !== null) {
             return $this->link;
         } else {
