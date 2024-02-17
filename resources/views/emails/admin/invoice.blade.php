@@ -78,7 +78,7 @@
             <table>
                 <tr>
                     <td>
-                        <img loading="lazy" src="{{ asset('admin_assets/assets/img/logo.jpg') }}" height="40"
+                        <img loading="lazy" src="{{ asset('admin_assets/assets/img/logo.png') }}" height="40"
                                 style="display:inline-block;">
                     </td>
                 </tr>
