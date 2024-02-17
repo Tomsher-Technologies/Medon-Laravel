@@ -20,7 +20,7 @@ class AppHomeController extends Controller
         });
 
         $brands = Cache::rememberForever('brands', function () {
-            return Brand::get();
+            return Brand::where('is_active', 1)->get();
         });
         $offers = Cache::rememberForever('app_offers', function () {
             return Offers::where('status', 1)->get();

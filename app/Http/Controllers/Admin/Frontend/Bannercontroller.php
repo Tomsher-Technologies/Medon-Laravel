@@ -159,7 +159,7 @@ class Bannercontroller extends Controller
                 ->get();
             return view('partials.banners.banner_form_category', compact('categories', 'old_data'));
         } elseif ($request->link_type == "brand") {
-            $brands = Brand::select(['id', 'name'])->get();
+            $brands = Brand::select(['id', 'name'])->where('is_active', 1)->get();
             return view('partials.banners.banner_form_brand', compact('old_data', 'brands'));
         } elseif ($request->link_type == "offer") {
             $offers = Offers::select(['id', 'name'])->get();

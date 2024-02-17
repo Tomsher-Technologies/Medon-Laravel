@@ -112,7 +112,7 @@ class ProductController extends Controller
             $product_query->whereIn('brand_id', $brand);
         }
         if ($brand_slug) {
-            $brand_ids = Brand::whereIn('slug',$brand_slug)->pluck('id')->toArray();
+            $brand_ids = Brand::whereIn('slug',$brand_slug)->where('is_active', 1)->pluck('id')->toArray();
             $product_query->whereIn('brand_id', $brand_ids);
         }
 

@@ -110,7 +110,7 @@ class CommonController extends Controller
         $brands_id = get_setting('app_top_brands');
 
         if ($brands_id) {
-            $brands =  Brand::with(['logoImage'])->whereIn('id', json_decode($brands_id))->get();
+            $brands =  Brand::with(['logoImage'])->whereIn('id', json_decode($brands_id))->where('is_active', 1)->get();
         }
 
         $res_category = array();
@@ -175,7 +175,7 @@ class CommonController extends Controller
                         }
 
                     }elseif ($secOne->link_type == 'brand') {
-                        $brandQuery =  Brand::with(['logoImage'])->whereIn('id', json_decode($secOne->link_id));
+                        $brandQuery =  Brand::with(['logoImage'])->where('is_active', 1)->whereIn('id', json_decode($secOne->link_id));
                         if($limit != ''){
                             $brandQuery->skip(0)->take($limit);
                         }
@@ -260,7 +260,7 @@ class CommonController extends Controller
                         $result[] = $tempProducts;
                     }
                 }elseif ($Offer->link_type == 'brand') {
-                    $brandQuery =  Brand::with(['logoImage'])->whereIn('id', json_decode($Offer->link_id));
+                    $brandQuery =  Brand::with(['logoImage'])->where('is_active', 1)->whereIn('id', json_decode($Offer->link_id));
                     if($limit != ''){
                         $brandQuery->skip($offset)->take($limit);
                     }

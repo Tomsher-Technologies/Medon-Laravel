@@ -325,7 +325,7 @@ class HomeController extends Controller
     {
         $brands = Cache::rememberForever('home_brands', function () {
             $brand_ids = get_setting('top10_brands');
-            return Brand::whereIn('id', json_decode($brand_ids))->with('logoImage')->get();
+            return Brand::whereIn('id', json_decode($brand_ids))->where('is_active', 1)->with('logoImage')->get();
         });
         return view('frontend.partials.home.brands_section', compact('brands'));
     }
@@ -493,7 +493,8 @@ class HomeController extends Controller
             }
         }
 
-        foreach (Brand::all() as  $brand) {
+        $brandsAll = Brand::where('is_active', 1)->get();
+        foreach ($brandsAll as  $brand) {
             if (is_array($request->top_brands) && in_array($brand->id, $request->top_brands)) {
                 $brand->top = 1;
                 $brand->save();

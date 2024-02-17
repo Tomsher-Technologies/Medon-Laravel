@@ -51,7 +51,7 @@ class WebsiteController extends Controller
                         });
         $data['brands'] =  Cache::remember('header_brands', 3600, function () { 
             $header_brands = get_setting('header_brands');
-            $brands = Brand::whereIn('id', json_decode($header_brands))->get();
+            $brands = Brand::whereIn('id', json_decode($header_brands))->where('is_active', 1)->get();
             return new WebHomeBrandCollection($brands);
         });
         $data['header'] = [
@@ -134,7 +134,7 @@ class WebsiteController extends Controller
         $data['top_brands'] = Cache::rememberForever('top_brands', function () {
             $brands = get_setting('home_brands');
             if ($brands) {
-                $details = Brand::whereIn('id', json_decode($brands))->get();
+                $details = Brand::whereIn('id', json_decode($brands))->where('is_active', 1)->get();
                 return new WebHomeBrandCollection($details);
             }
         });
@@ -250,7 +250,7 @@ class WebsiteController extends Controller
                         $result[] = $tempProducts;
                     }
                 }elseif ($Offer->link_type == 'brand') {
-                    $brandQuery =  Brand::with(['logoImage'])->whereIn('id', json_decode($Offer->link_id));
+                    $brandQuery =  Brand::with(['logoImage'])->where('is_active', 1)->whereIn('id', json_decode($Offer->link_id));
                     if($limit != ''){
                         $brandQuery->skip($offset)->take($limit);
                     }
@@ -337,7 +337,7 @@ class WebsiteController extends Controller
         if($offers){
             foreach($offers as $off){
                 $brandIds = json_decode($off->link_id);
-                $brands = Brand::whereIn('id', $brandIds)->get();
+                $brands = Brand::whereIn('id', $brandIds)->where('is_active', 1)->get();
                 
                 $result[$off->category->name]['offer'] = [
                                                         'id' => $off->id,
