@@ -8,7 +8,7 @@
                     <div class="card text-left">
                         <div class="card-body">
                             <div class="mb-5 text-center">
-                                <img src="{{ static_asset('assets/img/logo.svg') }}" class="mw-100 mb-4" height="80">
+                                <img src="{{ static_asset('assets/img/logo.png') }}" class="mw-100 mb-4" height="100">
                                 <h1 class="h3 text-primary mb-0">Welcome to Medon</h1>
                                 <p>Login to your account.</p>
                             </div>

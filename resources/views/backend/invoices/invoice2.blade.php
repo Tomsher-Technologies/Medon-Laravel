@@ -54,7 +54,7 @@
                                 <div class="card-header border-bottom-dashed p-4">
                                     <div class="row">
                                         <div class="col-4">
-                                            <img class="card-logo card-logo-dark" alt="logo dark" height="40" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/assets/img/logo.svg'))) }}">
+                                            <img class="card-logo card-logo-dark" alt="logo dark" height="40" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/assets/img/logo.png'))) }}">
                                             <div class="mt-sm-3 mt-4">
                                                 <h6 class="text-muted mb-2 text-uppercase fw-semibold "> Voyage
                                                     Marine Automation LLC</h6>
