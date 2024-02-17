@@ -19,6 +19,7 @@ class Category extends Model
         'featured',
         'top',
         'slug',
+        'is_active',
         'meta_title',
         'meta_description',
         'og_title',

@@ -55,18 +55,18 @@
                         @enderror
 
                         <div class="form-group  row">
-                            <label class="col-md-3 col-form-label">Is Featured</label>
+                            <label class="col-md-3 col-form-label">Is Active</label>
                             <div class="col-md-9">
-                                <select class="select2 form-control" name="featured">
-                                    <option {{ old('featured') == 1 ? 'selected' : '' }} value="1">Yes
+                                <select class="select2 form-control" name="is_active">
+                                    <option {{ old('is_active') == 1 ? 'selected' : '' }} value="1">Yes
                                     </option>
-                                    <option {{ old('featured') == 0 ? 'selected' : '' }} value="0">No
+                                    <option {{ old('is_active') == 0 ? 'selected' : '' }} value="0">No
                                     </option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="form-group  row">
+                        <div class="form-group  row d-none">
                             <label class="col-md-3 col-form-label">Is Top</label>
                             <div class="col-md-9">
                                 <select class="select2 form-control" name="top">

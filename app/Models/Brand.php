@@ -13,6 +13,7 @@ class Brand extends Model
     'logo',
     'top',
     'slug',
+    'is_active',
     'meta_title',
     'meta_description',
     'meta_keywords',
