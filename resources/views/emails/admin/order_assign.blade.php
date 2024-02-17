@@ -209,7 +209,7 @@
                                             <tr>
                                                 <td align="center" valign="middle">
                                                     <a href="{{ route('home') }}">
-                                                        <img src="{{ asset('admin_assets/assets/img/logo.jpg') }}"
+                                                        <img src="{{ asset('admin_assets/assets/img/logo.png') }}"
                                                             height="80" alt="{{env('APP_NAME')}}"></a>
                                                 </td>
                                             </tr>
