@@ -33,7 +33,7 @@ class InvoiceController extends Controller
             'direction' => $direction,
             'text_align' => $text_align,
             'not_text_align' => $not_text_align,
-            'imagePath' => asset('/admin_assets/assets/img/logo.svg')
+            'imagePath' => asset('/admin_assets/assets/img/logo.png')
         ]);
         // $pdf->render();
         // return $pdf->output();
