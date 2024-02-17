@@ -39,9 +39,9 @@ class WebsiteController extends Controller
                             if(!empty($menus[0])){
                                 foreach($menus as $mn){
                                     $details[] = [
-                                        'id' => $mn->category_id,
-                                        'name'=>$mn['category']->name,
-                                        'slug'=>$mn['category']->slug,
+                                        'id' => $mn->category_id ?? '',
+                                        'name'=>$mn['category']->name ?? '',
+                                        'slug'=>$mn['category']->slug ?? '',
                                         'sub_categories' => getImmediateSubCategories($mn->category_id),
                                         'brands' =>getHeaderCategoryBrands($mn->brands)
                                     ];
