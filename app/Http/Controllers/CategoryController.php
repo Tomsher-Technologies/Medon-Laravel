@@ -265,4 +265,14 @@ class CategoryController extends Controller
         Cache::forget('featured_categories');
         return 1;
     }
+
+    public function updateStatus(Request $request)
+    {
+        $category = Category::findOrFail($request->id);
+        $category->is_active = $request->status;
+        $category->save();
+        $category->childrenCategories()->update(['is_active' => $request->status]);
+        // Cache::forget('featured_categories');
+        return 1;
+    }
 }
