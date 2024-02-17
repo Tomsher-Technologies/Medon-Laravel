@@ -8,7 +8,7 @@ use App\Models\BrandTranslation;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Cache;
-
+use Artisan;
 class BrandController extends Controller
 {
     /**
@@ -69,12 +69,13 @@ class BrandController extends Controller
         $brand->footer_content = $request->footer_description;
 
         $brand->slug = $request->slug;
-        $brand->top = $request->top;
+        $brand->is_active = $request->is_active;
 
         $brand->logo = $request->logo;
         $brand->save();
         
         Cache::forget('header_brands');
+        Artisan::call('cache:clear');
         flash(translate('Brand has been inserted successfully'))->success();
         return redirect()->route('brands.index');
     }
@@ -137,9 +138,10 @@ class BrandController extends Controller
         
         $brand->slug = $request->slug;
         $brand->logo = $request->logo;
-        $brand->top = $request->top;
+        $brand->is_active = $request->is_active;
         $brand->save();
         Cache::forget('header_brands');
+        Artisan::call('cache:clear');
         flash(translate('Brand has been updated successfully'))->success();
         return redirect()->route('brands.index');
     }
@@ -160,5 +162,15 @@ class BrandController extends Controller
 
         flash(translate('Brand has been deleted successfully'))->success();
         return redirect()->route('brands.index');
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $brand = Brand::findOrFail($request->id);
+        $brand->is_active = $request->status;
+        $brand->save();
+       
+        Artisan::call('cache:clear');
+        return 1;
     }
 }
