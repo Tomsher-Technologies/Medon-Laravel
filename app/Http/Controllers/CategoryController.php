@@ -9,6 +9,7 @@ use App\Models\CategoryTranslation;
 use App\Utility\CategoryUtility;
 use Illuminate\Support\Str;
 use Cache;
+use Artisan;
 
 class CategoryController extends Controller
 {
@@ -113,7 +114,7 @@ class CategoryController extends Controller
         Cache::forget('header_submenus');
         Cache::forget('header_menus');
         Cache::forget('category_filter');
-        
+        Artisan::call('cache:clear');
         flash(translate('Category has been inserted successfully'))->success();
         return redirect()->route('categories.index');
     }
@@ -225,6 +226,7 @@ class CategoryController extends Controller
         Cache::forget('header_submenus');
         Cache::forget('header_menus');
         Cache::forget('category_filter');
+        Artisan::call('cache:clear');
         flash(translate('Category has been updated successfully'))->success();
         return back();
     }
@@ -263,6 +265,7 @@ class CategoryController extends Controller
         $category->featured = $request->status;
         $category->save();
         Cache::forget('featured_categories');
+        Artisan::call('cache:clear');
         return 1;
     }
 
@@ -273,6 +276,7 @@ class CategoryController extends Controller
         $category->save();
         $category->childrenCategories()->update(['is_active' => $request->status]);
         // Cache::forget('featured_categories');
+        Artisan::call('cache:clear');
         return 1;
     }
 }
