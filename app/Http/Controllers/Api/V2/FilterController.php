@@ -14,7 +14,7 @@ class FilterController extends Controller
     {
         //if you want to show base categories
         return Cache::remember('app.filter_categories', 86400, function () {
-            return new CategoryCollection(Category::where('parent_id', 0)->get());
+            return new CategoryCollection(Category::where('parent_id', 0)->where('is_active', 1)->get());
         });
 
         //if you want to show featured categories

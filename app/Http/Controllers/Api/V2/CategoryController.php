@@ -18,7 +18,7 @@ class CategoryController extends Controller
 
         $category_query = ($parent_id != '') ? Category::where('parent_id', $parent_id) : Category::whereNotNull('slug');
 
-        $query = ($limit != '') ? $category_query->paginate($limit) : $category_query->get();
+        $query = ($limit != '') ? $category_query->where('is_active', 1)->paginate($limit) : $category_query->get();
         return new CategoryCollection($query);
     }
 
@@ -32,14 +32,14 @@ class CategoryController extends Controller
     public function home()
     {
         return Cache::remember('app.home_categories', 86400, function () {
-            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->get());
+            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->where('is_active', 1)->get());
         });
     }
 
     public function top()
     {
         return Cache::remember('app.top_categories', 86400, function () {
-            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->limit(20)->get());
+            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->where('is_active', 1)->limit(20)->get());
         });
     }
 }

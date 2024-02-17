@@ -274,6 +274,7 @@ class OfferController extends Controller
             return view('partials.offers.banner_form_product', compact('products', 'oldArray'));
         } elseif ($request->link_type == "category") {
             $categories = Category::where('parent_id', 0)
+                                    ->where('is_active', 1)
                                     ->with('childrenCategories')
                                     ->get();
             return view('partials.offers.banner_form_category', compact('categories', 'oldArray','brandsData','selectedBrands'));

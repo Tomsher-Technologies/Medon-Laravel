@@ -83,7 +83,7 @@ class CommonController extends Controller
         $categories_id = get_setting('app_top_categories');
 
         if ($categories_id) {
-            $categories =  Category::whereIn('id', json_decode($categories_id))->get();
+            $categories =  Category::whereIn('id', json_decode($categories_id))->where('is_active', 1)->get();
         }
 
         $res_category = array();
@@ -196,7 +196,7 @@ class CommonController extends Controller
                         if($limit != ''){
                             $categoriesQuery->skip(0)->take($limit);
                         }
-                        $categories = $categoriesQuery->get();
+                        $categories = $categoriesQuery->where('is_active', 1)->get();
                         $result = array();
 
                         foreach ($categories as $category) {
@@ -278,7 +278,7 @@ class CommonController extends Controller
                     if($limit != ''){
                         $categoriesQuery->skip($offset)->take($limit);
                     }
-                    $categories = $categoriesQuery->get();
+                    $categories = $categoriesQuery->where('is_active', 1)->get();
                     $result = array();
                     foreach ($categories as $category) {
                         $tempCats = array();

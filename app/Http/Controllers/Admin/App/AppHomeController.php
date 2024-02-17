@@ -16,7 +16,7 @@ class AppHomeController extends Controller
     public function index()
     {
         $categories = Cache::rememberForever('categories', function () {
-            return Category::where('parent_id', 0)->with('childrenCategories')->get();
+            return Category::where('parent_id', 0)->where('is_active', 1)->with('childrenCategories')->get();
         });
 
         $brands = Cache::rememberForever('brands', function () {

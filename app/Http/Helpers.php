@@ -1412,7 +1412,7 @@ function checkProductOffer($product){
 
 function getImmediateSubCategories($id){
     // Cache::forget('header_submenus');
-    return Category::select('id','name','slug')->where('parent_id', $id)->get();
+    return Category::select('id','name','slug')->where('parent_id', $id)->where('is_active', 1)->get();
 }
 
 function getHeaderCategoryBrands($ids){
@@ -1455,7 +1455,7 @@ function getSidebarCategoryTree()
         'level',
         'slug',
         'icon'
-    ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->get();
+    ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->where('is_active', 1)->get();
     foreach( $all_cats as $categ){
         $categ->icon = ($categ->iconImage?->file_name) ? storage_asset($categ->iconImage->file_name) : app('url')->asset('admin_assets/assets/img/placeholder.jpg');
         unset($categ->iconImage);
