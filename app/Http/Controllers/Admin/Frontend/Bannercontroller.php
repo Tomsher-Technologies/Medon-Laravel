@@ -154,6 +154,7 @@ class Bannercontroller extends Controller
             return view('partials.banners.banner_form_product', compact('products', 'old_data'));
         } elseif ($request->link_type == "category") {
             $categories = Category::where('parent_id', 0)
+                ->where('is_active', 1)
                 ->with('childrenCategories')
                 ->get();
             return view('partials.banners.banner_form_category', compact('categories', 'old_data'));

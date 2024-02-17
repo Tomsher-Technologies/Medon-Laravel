@@ -44,7 +44,7 @@ class CategoryController extends Controller
     public function create()
     {
         $categories = Category::where('parent_id', 0)
-            ->with('childrenCategories')
+            ->with('childrenCategories')->where('is_active', 1)
             ->get();
 
         return view('backend.product.categories.create', compact('categories'));

@@ -124,7 +124,7 @@ class WebsiteController extends Controller
         $data['top_categories'] = Cache::rememberForever('top_categories', function () {
             $categories = get_setting('home_categories');
             if ($categories) {
-                $details = Category::whereIn('id', json_decode($categories))
+                $details = Category::whereIn('id', json_decode($categories))->where('is_active', 1)
                     ->with(['icon'])
                     ->get();
                 return new WebHomeCategoryCollection($details);
@@ -268,7 +268,7 @@ class WebsiteController extends Controller
                     if($limit != ''){
                         $categoriesQuery->skip($offset)->take($limit);
                     }
-                    $categories = $categoriesQuery->get();
+                    $categories = $categoriesQuery->where('is_active', 1)->get();
                     $result = array();
                     foreach ($categories as $category) {
                         $tempCats = array();
