@@ -59,7 +59,7 @@
                         {{-- <th >Link</th> --}}
                         <th class="text-center">Order Level</th>
                         {{-- <th data-breakpoints="lg">Level</th> --}}
-                        <th >Banner</th>
+                        {{-- <th >Banner</th> --}}
                         <th >Icon</th>
                         <th class="text-center">Status</th>
                         <th width="10%" class="text-right">Options</th>
@@ -83,13 +83,7 @@
                            
                             <td class="text-center">{{ $category->order_level }}</td>
                             {{-- <td>{{ $category->level }}</td> --}}
-                            <td>
-                                @if ($category->banner != null)
-                                    <img src="{{ uploaded_asset($category->banner) }}" alt="Banner" class="h-50px">
-                                @else
-                                    —
-                                @endif
-                            </td>
+                           
                             <td>
                                 @if ($category->icon != null)
                                     <span class="avatar avatar-square avatar-xs">

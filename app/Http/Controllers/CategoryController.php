@@ -100,7 +100,7 @@ class CategoryController extends Controller
         //     $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
         // }
 
-        $category->featured = $request->featured;
+        $category->is_active = $request->is_active;
         $category->top = $request->top;
 
         $category->slug = $request->slug;
@@ -192,7 +192,7 @@ class CategoryController extends Controller
             $category->level = 0;
         }
 
-        $category->featured = $request->featured;
+        $category->is_active = $request->is_active;
         $category->top = $request->top;
 
         if ($category->level > $previous_level) {
