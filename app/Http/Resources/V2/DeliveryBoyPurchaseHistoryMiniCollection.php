@@ -41,7 +41,7 @@ class DeliveryBoyPurchaseHistoryMiniCollection extends ResourceCollection
                     'shipping_address' => $shipping_address,
                     'type' => $type,
                     'order_notes' => $data->order->order_notes,
-                    'delivery_date' => ($type == 'order') ? date('d-m-Y H:i a', strtotime($data->delivery_date)) : (($type == 'return') ? date('d-m-Y H:i a', strtotime($data->delivery_completed_date)) : '')
+                    'delivery_date' => ($type == 'order' && $data->delivery_date != NULL) ? date('d-m-Y H:i a', strtotime($data->delivery_date)) : (($type == 'return' && $data->delivery_completed_date != NULL) ? date('d-m-Y H:i a', strtotime($data->delivery_completed_date)) : '')
                 ];
             })
         ];
