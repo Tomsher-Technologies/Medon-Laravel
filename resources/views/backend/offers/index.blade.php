@@ -24,11 +24,11 @@
                         <table class="table aiz-table mb-0">
                             <thead>
                                 <tr>
-                                    <th data-breakpoints="lg">Name</th>
-                                    <th data-breakpoints="lg">Link Type</th>
-                                    <th data-breakpoints="lg">Offer Type</th>
-                                    <th data-breakpoints="lg">Start Date</th>
-                                    <th data-breakpoints="lg">End Date</th>
+                                    <th >Name</th>
+                                    <th >Link Type</th>
+                                    <th >Offer Type</th>
+                                    <th >Start Date</th>
+                                    <th >End Date</th>
                                     {{-- <th data-breakpoints="lg">Status</th> --}}
                                     <th class="text-center">Options</th>
                                 </tr>

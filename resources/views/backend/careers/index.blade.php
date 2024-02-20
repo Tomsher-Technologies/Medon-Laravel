@@ -17,10 +17,10 @@
                     <tr>
                         <th>#</th>
                         <th>Name</th>
-                        <th data-breakpoints="lg">Email</th>
-                        <th data-breakpoints="lg">Phone Number</th>
-                        <th data-breakpoints="lg">Qualification</th>
-                        <th data-breakpoints="lg">Resume</th>
+                        <th >Email</th>
+                        <th >Phone Number</th>
+                        <th >Qualification</th>
+                        <th >Resume</th>
                         <th class="text-right">Options</th>
                     </tr>
                 </thead>

@@ -32,12 +32,12 @@
             <table class="table aiz-table mb-0">
                 <thead>
                     <tr>
-                        <th data-breakpoints="lg">#</th>
+                        <th >#</th>
                         <th>Product</th>
-                        <th data-breakpoints="lg">Customer</th>
+                        <th >Customer</th>
                         <th>Rating</th>
-                        <th data-breakpoints="lg">Comment</th>
-                        <th data-breakpoints="lg">Published</th>
+                        <th >Comment</th>
+                        <th >Published</th>
                     </tr>
                 </thead>
                 <tbody>
