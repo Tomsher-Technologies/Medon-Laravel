@@ -35,13 +35,13 @@
         <table class="table aiz-table mb-0">
             <thead>
                 <tr>
-                    <th data-breakpoints="lg" width="10%">#</th>
+                    <th  width="10%">#</th>
                     <th>{{translate('Name')}}</th>
                     <th>{{translate('Shop Name')}}</th>
-                    <th data-breakpoints="lg">{{translate('Email')}}</th>
-                    <th data-breakpoints="lg">{{translate('Phone')}}</th>
-                    <th data-breakpoints="lg">{{translate('Role')}}</th>
-                    <th data-breakpoints="lg">{{ translate('Status') }}</th>
+                    <th >{{translate('Email')}}</th>
+                    <th >{{translate('Phone')}}</th>
+                    <th >{{translate('Role')}}</th>
+                    <th >{{ translate('Status') }}</th>
                     <th class="text-center" width="10%">{{translate('Options')}}</th>
                 </tr>
             </thead>

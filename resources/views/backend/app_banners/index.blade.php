@@ -24,10 +24,10 @@
                         <table class="table aiz-table mb-0">
                             <thead>
                                 <tr>
-                                    <th data-breakpoints="lg">Name</th>
-                                    <th data-breakpoints="lg">Image</th>
-                                    <th data-breakpoints="lg">Sort Order</th>
-                                    <th data-breakpoints="lg">Status</th>
+                                    <th >Name</th>
+                                    <th >Image</th>
+                                    <th >Sort Order</th>
+                                    <th >Status</th>
                                     <th>Options</th>
                                 </tr>
                             </thead>

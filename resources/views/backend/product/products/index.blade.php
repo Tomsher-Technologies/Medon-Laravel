@@ -135,16 +135,16 @@
                                     </div>
                                 </div>
                             </th> --}}
-                            <th data-breakpoints="lg" width="10%">#</th>
+                            <th  width="10%">#</th>
                             <th>{{ translate('Name') }}</th>
-                            <th data-breakpoints="lg">Category</th>
-                            <th data-breakpoints="sm">{{ translate('Info') }}</th>
-                            <th data-breakpoints="md">{{ translate('Total Stock') }}</th>
+                            <th>Category</th>
+                            <th>{{ translate('Info') }}</th>
+                            <th >{{ translate('Total Stock') }}</th>
                             {{-- <th data-breakpoints="lg">{{translate('Todays Deal')}}</th> --}}
-                            <th data-breakpoints="lg">{{ translate('Published') }}</th>
+                            <th >{{ translate('Published') }}</th>
                             {{-- <th data-breakpoints="lg">{{translate('Featured')}}</th> --}}
                            
-                            <th data-breakpoints="sm" class="text-right">{{ translate('Options') }}</th>
+                            <th  class="text-right">{{ translate('Options') }}</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -34,12 +34,12 @@
             <table class="table aiz-table mb-0">
                 <thead>
                     <tr>
-                        <th data-breakpoints="lg" width="10%">#</th>
+                        <th  width="10%">#</th>
                         <th>Name</th>
                         <th>Shop Name</th>
-                        <th data-breakpoints="lg">Email</th>
-                        <th data-breakpoints="lg">Phone</th>
-                        <th class="text-center" data-breakpoints="lg">Active Status</th>
+                        <th >Email</th>
+                        <th >Phone</th>
+                        <th class="text-center" >Active Status</th>
                         <th class="text-center" width="10%">Action</th>
                     </tr>
                 </thead>

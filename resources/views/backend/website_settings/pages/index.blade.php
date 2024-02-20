@@ -18,7 +18,7 @@
 		<table class="table aiz-table mb-0">
         <thead>
             <tr>
-                <th data-breakpoints="lg">#</th>
+                <th >#</th>
                 <th>{{translate('Name')}}</th>
                 {{-- <th data-breakpoints="md">{{translate('URL')}}</th> --}}
                 <th class="text-right">{{translate('Actions')}}</th>

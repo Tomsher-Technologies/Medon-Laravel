@@ -114,21 +114,21 @@
                             </div>
                         </th> --}}
                         <th>Order Code</th>
-                        <th  class="text-center" data-breakpoints="md">No. of Products</th>
-                        <th data-breakpoints="md">Customer</th>
-                        <th data-breakpoints="md">Amount</th>
-                        <th data-breakpoints="md" class="text-center">Delivery Status</th>
-                        <th data-breakpoints="md"  class="text-center">Payment Status</th>
+                        <th  class="text-center" >No. of Products</th>
+                        <th >Customer</th>
+                        <th >Amount</th>
+                        <th  class="text-center">Delivery Status</th>
+                        <th   class="text-center">Payment Status</th>
                         @if (addon_is_activated('refund_request'))
                         <th>Refund</th>
                         @endif
 
                         @if (Auth::user()->shop_id != NULL && Auth::user()->user_type == 'staff')
-                            <th class="text-center" data-breakpoints="lg" width="20%">
+                            <th class="text-center"  width="20%">
                                 {{translate('Assign Delivery Boy')}}
                             </th>
                         @else
-                            <th class="text-center" data-breakpoints="lg" width="25%">
+                            <th class="text-center" width="25%">
                                 {{translate('Assign Store')}}
                             </th>
                         @endif

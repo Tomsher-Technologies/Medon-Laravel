@@ -36,13 +36,13 @@
         <table class="table aiz-table mb-0">
             <thead>
                 <tr>
-                    <th data-breakpoints="lg">#</th>
+                    <th >#</th>
                     <th>{{ translate('Branch Name') }}</th>
                     <th>{{ translate('Address') }}</th>
-                    <th data-breakpoints="lg">{{ translate('Phone') }}</th>
-                    <th data-breakpoints="lg">{{ translate('Email') }}</th>
-                    <th data-breakpoints="lg">{{ translate('Working Hours') }}</th>
-                    <th data-breakpoints="lg">{{ translate('Status') }}</th>
+                    <th >{{ translate('Phone') }}</th>
+                    <th >{{ translate('Email') }}</th>
+                    <th >{{ translate('Working Hours') }}</th>
+                    <th >{{ translate('Status') }}</th>
                     <th class="text-center" width="10%">{{ translate('Action') }}</th>
                 </tr>
             </thead>

@@ -24,11 +24,11 @@
                         <table class="table aiz-table mb-0">
                             <thead>
                                 <tr>
-                                    <th data-breakpoints="lg">Name</th>
-                                    <th data-breakpoints="lg">Image</th>
-                                    {{-- <th data-breakpoints="lg">Banner Position</th> --}}
-                                    <th data-breakpoints="lg">Link Type</th>
-                                    <th data-breakpoints="lg">Status</th>
+                                    <th >Name</th>
+                                    <th >Image</th>
+                                    {{-- <th >Banner Position</th> --}}
+                                    <th >Link Type</th>
+                                    <th >Status</th>
                                     <th>Options</th>
                                 </tr>
                             </thead>
