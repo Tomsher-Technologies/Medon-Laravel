@@ -1455,7 +1455,7 @@ function getSidebarCategoryTree()
         'level',
         'slug',
         'icon'
-    ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->where('is_active', 1)->get();
+    ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->where('is_active', 1)->orderBy('categories.name','ASC')->get();
     foreach( $all_cats as $categ){
         $categ->icon = ($categ->iconImage?->file_name) ? storage_asset($categ->iconImage->file_name) : app('url')->asset('admin_assets/assets/img/placeholder.jpg');
         unset($categ->iconImage);

@@ -14,7 +14,7 @@ class BrandController extends Controller
     {
         $brand_query = Brand::query();
         $limit = $request->has('limit') ? $request->limit : '';
-        $query = ($limit != '') ? $brand_query->where('is_active', 1)->paginate($limit) : $brand_query->where('is_active', 1)->get();
+        $query = ($limit != '') ? $brand_query->where('is_active', 1)->orderBy('name','ASC')->paginate($limit) : $brand_query->where('is_active', 1)->orderBy('name','ASC')->get();
         return new BrandCollection($query);
     }
 

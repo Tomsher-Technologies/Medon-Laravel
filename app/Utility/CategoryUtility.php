@@ -3,20 +3,22 @@
 namespace App\Utility;
 
 use App\Models\Category;
-
+use DB;
 class CategoryUtility
 {
 
     public static function getSidebarCategoryTree()
     {
+       
         $all_cats = Category::select([
             'id',
             'parent_id',
             'name',
             'level',
             'slug',
-        ])->withCount('products')->get();
+        ])->withCount('products')->orderBy('categories.name','ASC')->get();
         $parent_cat = $all_cats->where('parent_id', 0);
+       
         foreach ($parent_cat as $parent) {
             $parent->child =  CategoryUtility::getChildByArray($all_cats, $parent->id);
         }
