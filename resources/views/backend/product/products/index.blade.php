@@ -182,7 +182,7 @@
                                 <td class="bread">
                                     {{ Breadcrumbs::render('product_admin', $product) }}
                                 </td>
-                                <td>
+                                <td style="word-break: break-word;">
                                     <strong>{{ translate('Num of Sale') }}:</strong> {{ $product->num_of_sale }}
                                     {{ translate('times') }} </br>
                                     <strong>{{ translate('Base Price') }}:</strong>
