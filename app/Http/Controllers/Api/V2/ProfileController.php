@@ -232,7 +232,7 @@ class ProfileController extends Controller
             $offset = $request->offset ? $request->offset : 0;
             // $date = $request->date;
 
-            $orders = Order::select('id','code','delivery_status','payment_type','coupon_code','grand_total','created_at')->orderBy('id', 'desc')->where('user_id',$user_id);
+            $orders = Order::select('id','code','delivery_status','payment_type','coupon_code','grand_total','created_at','order_success')->where('order_success', 1)->orderBy('id', 'desc')->where('user_id',$user_id);
             if ($request->has('search')) {
                 $sort_search = $request->search;
                 $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
