@@ -249,6 +249,19 @@ class OrderController extends Controller
             $cancel_request->cancel_approval = $status;
             if($status == 1){
                 $cancel_request->delivery_status = 'cancelled';
+
+                foreach ($cancel_request->orderDetails as $key => $orderDetail) {
+                    $orderDetail->delivery_status = 'cancelled';
+                    $orderDetail->save();
+
+                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)->first();
+                
+                    if ($product_stock != null) {
+                        $product_stock->qty += $orderDetail->quantity;
+                        $product_stock->save();
+                    }
+                }
+
                 OrderDeliveryBoys::where('order_id',$id)->delete();
                 if($userPhone != '' && isset($message['cancelled']) && $message['cancelled'] != ''){
                     SendSMSUtility::sendSMS($userPhone, $message['cancelled']);
