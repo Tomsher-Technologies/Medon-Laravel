@@ -226,7 +226,7 @@
                                 </td>
                                 <td class="text-center">
                                     @if($order->admin_approval == 1)
-                                        @if($order->delivery_approval != 1)
+                                        @if($order->delivery_status != 1)
                                             @php
                                                 if($order->shop_id != null){
                                                     $color = 'border:2px solid #09c309';
