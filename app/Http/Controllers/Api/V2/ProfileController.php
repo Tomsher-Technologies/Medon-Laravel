@@ -288,6 +288,7 @@ class ProfileController extends Controller
                 $details['delivery_completed_date'] = $order->delivery_completed_date ?? '';
                 $details['date']                    = date('d-m-Y h:i A', $order->date);
                 $details['cancel_request']          = $order->cancel_request;
+                $details['cancel_approval']         = $order->cancel_approval;
                 $details['estimated_delivery_date'] = ($order->delivery_status != 'delivered' && $order->delivery_status != 'cancelled' && $order->estimated_delivery != NULL && $order->estimated_delivery != '0000-00-00') ? date('d-m-Y', strtotime($order->estimated_delivery)) : '';
                 $details['products'] = [];
                 if($order->orderDetails){
