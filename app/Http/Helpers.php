@@ -1110,14 +1110,14 @@ function userWishlistCount($user_id){
 
 function userOrdersCount($user_id){
     if($user_id != ''){
-        return Order::where('user_id', $user_id)->count();
+        return Order::where('order_success', 1)->where('user_id', $user_id)->count();
     }
     return 0;
 }
 
 function userPendingOrders($user_id){
     if($user_id != ''){
-        return Order::where('delivery_status','!=','delivered')->where('user_id', $user_id)->count();
+        return Order::where('order_success', 1)->where('delivery_status','!=','delivered')->where('user_id', $user_id)->count();
     }
     return 0;
 }

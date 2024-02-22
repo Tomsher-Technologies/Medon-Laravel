@@ -34,10 +34,10 @@ class AdminController extends Controller
         $year = $request->has('year') ? $request->year : date('Y');
         if (Auth::user()->user_type == 'staff' && Auth::user()->shop_id != null){
             $orders = '';
-            $a['shopOrderCount'] = Order::where('shop_id', Auth::user()->shop_id)->count();
-            $a['shopPendingCount'] = Order::where('shop_id', Auth::user()->shop_id)->where('delivery_status', '!=', 'delivered')->count();
-            $a['shopCompletedCount'] = Order::where('shop_id', Auth::user()->shop_id)->where('delivery_status', '=', 'delivered')->count();
-            $a['shopTodayOrderCount'] = Order::where('shop_id', Auth::user()->shop_id)->whereDate('shop_assigned_date',date('Y-m-d'))->count();
+            $a['shopOrderCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)->count();
+            $a['shopPendingCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)->where('delivery_status', '!=', 'delivered')->count();
+            $a['shopCompletedCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)->where('delivery_status', '=', 'delivered')->count();
+            $a['shopTodayOrderCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)->whereDate('shop_assigned_date',date('Y-m-d'))->count();
 
 
             $monday = strtotime('next Monday -1 week');
@@ -46,7 +46,7 @@ class AdminController extends Controller
             $this_week_sd = date("Y-m-d",$monday)."<br>";
             $this_week_ed = date("Y-m-d",$sunday)."<br>";
 
-            $a['shopWeekOrderCount'] = Order::where('shop_id', Auth::user()->shop_id)
+            $a['shopWeekOrderCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)
                                             ->whereDate('shop_assigned_date','>=', $this_week_sd)
                                             ->whereDate('shop_assigned_date','<=', $this_week_ed)
                                             ->count();
@@ -54,7 +54,7 @@ class AdminController extends Controller
             $first_day_this_month = date('Y-m-01'); // hard-coded '01' for first day
             $last_day_this_month  = date('Y-m-t');
            
-            $a['shopMonthOrderCount'] = Order::where('shop_id', Auth::user()->shop_id)
+            $a['shopMonthOrderCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)
                                             ->whereDate('shop_assigned_date','>=', $first_day_this_month)
                                             ->whereDate('shop_assigned_date','<=', $last_day_this_month)
                                             ->count();
@@ -62,7 +62,7 @@ class AdminController extends Controller
             $first_d_this_year = date("Y-m-d",strtotime("this year January 1st"));
             $last_d_this_year = date("Y-m-d",strtotime("this year December 31st"));
 
-            $a['shopYearOrderCount'] = Order::where('shop_id', Auth::user()->shop_id)
+            $a['shopYearOrderCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)
                                             ->whereDate('shop_assigned_date','>=', $first_d_this_year)
                                             ->whereDate('shop_assigned_date','<=', $last_d_this_year)
                                             ->count();
@@ -70,7 +70,7 @@ class AdminController extends Controller
             $first_d_last_year = date("Y-m-d",strtotime("last year January 1st"));
             $last_d_last_year = date("Y-m-d",strtotime("last year December 31st"));
 
-            $a['shopLYearOrderCount'] = Order::where('shop_id', Auth::user()->shop_id)
+            $a['shopLYearOrderCount'] = Order::where('order_success', 1)->where('shop_id', Auth::user()->shop_id)
                                             ->whereDate('shop_assigned_date','>=', $first_d_last_year)
                                             ->whereDate('shop_assigned_date','<=', $last_d_last_year)
                                             ->count();
@@ -80,9 +80,9 @@ class AdminController extends Controller
             $a['categoryCount'] = Category::count();
             $a['brandCount'] = Brand::count();
 
-            $a['orderCount'] = Order::count();
-            $a['orderCompletedCount'] = Order::where('delivery_status', 'delivered')->count();
-            $a['salesAmount'] = Order::where('delivery_status', 'delivered')->sum('grand_total');
+            $a['orderCount'] = Order::where('order_success', 1)->count();
+            $a['orderCompletedCount'] = Order::where('order_success', 1)->where('delivery_status', 'delivered')->count();
+            $a['salesAmount'] = Order::where('order_success', 1)->where('delivery_status', 'delivered')->sum('grand_total');
             $a['productsSold'] = OrderDetail::where('delivery_status', 'delivered')->sum('quantity');
         }
             
@@ -140,7 +140,7 @@ class AdminController extends Controller
             $graph = [];
 
             // All Orders this month
-            $monthOrders = Order::whereMonth('created_at', Carbon::now()->month)
+            $monthOrders = Order::where('order_success', 1)->whereMonth('created_at', Carbon::now()->month)
                 ->get()
                 ->groupBy(function ($date) {
                     return Carbon::parse($date->created_at)->format('d'); // grouping by months
@@ -154,7 +154,7 @@ class AdminController extends Controller
 
 
             // Completed Orders this month
-            $monthOrdersCompleted = Order::where('delivery_status', 'delivered')
+            $monthOrdersCompleted = Order::where('order_success', 1)->where('delivery_status', 'delivered')
                 ->whereMonth('created_at', Carbon::now()->month)
                 ->get()
                 ->groupBy(function ($date) {
@@ -175,7 +175,7 @@ class AdminController extends Controller
             $graph = [];
 
             // All Orders this month
-            $monthOrders = Order::whereMonth('created_at', Carbon::now()->month)
+            $monthOrders = Order::where('order_success', 1)->whereMonth('created_at', Carbon::now()->month)
                 ->get()
                 ->groupBy(function ($date) {
                     return Carbon::parse($date->created_at)->format('d'); // grouping by months
@@ -238,6 +238,7 @@ class AdminController extends Controller
             $startDate = Carbon::now()->subMonths(11)->startOfMonth();
             // All orders
             $data = Order::select(\DB::raw('MONTH(created_at) as month, COUNT(*) as count'))
+                ->where('order_success', 1)
                 ->where('created_at', '>=', Carbon::now()->subMonths(11))
                 ->groupBy('month')
                 ->get();
@@ -260,7 +261,7 @@ class AdminController extends Controller
             // Completed orders
             unset($data);
             $data = Order::select(\DB::raw('MONTH(created_at) as month, COUNT(*) as count'))
-                ->where('delivery_status', 'delivered')
+                ->where('order_success', 1)->where('delivery_status', 'delivered')
                 ->where('created_at', '>=', Carbon::now()->subMonths(11))
                 ->groupBy('month')
                 ->get();
@@ -289,7 +290,7 @@ class AdminController extends Controller
             $startDate = Carbon::now()->subMonths(11)->startOfMonth();
             // All orders
             $data = Order::select(\DB::raw('MONTH(created_at) as month, COUNT(*) as count, SUM(grand_total) as total'))
-                ->where('delivery_status', 'delivered')
+                ->where('order_success', 1)->where('delivery_status', 'delivered')
                 ->where('created_at', '>=', Carbon::now()->subMonths(11))
                 ->groupBy('month')
                 ->get();
@@ -332,7 +333,7 @@ class AdminController extends Controller
             // All orders
             // DB::enableQueryLog();
             $dataShop = Order::select(\DB::raw('MONTH(shop_assigned_date) as month, COUNT(*) as count'))
-                ->where('shop_id', Auth::user()->shop_id)
+                ->where('order_success', 1)->where('shop_id', Auth::user()->shop_id)
                 ->whereYear('shop_assigned_date', $year)
                 ->groupBy('month')
                 ->get();
@@ -356,7 +357,7 @@ class AdminController extends Controller
             unset($dataShop);
             
             $dataShopCompleted = Order::select(\DB::raw('MONTH(shop_assigned_date) as month, COUNT(*) as count'))
-                ->where('delivery_status', 'delivered')
+                ->where('order_success', 1)->where('delivery_status', 'delivered')
                 ->where('shop_id', Auth::user()->shop_id)
                 ->whereYear('shop_assigned_date', $year)
                 ->groupBy('month')
