@@ -243,10 +243,16 @@ class CheckoutController extends Controller
             $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = $total_shipping = $total_tax = 0;
             $coupon_code = '';
 
+            $order_success = 0;
+            if($request->payment_method == 'cash_on_delivery'){
+                $order_success = 1;
+            }
+
             $order = Order::create([
                 'user_id' => $user_id,
                 'guest_id' => NULL,
                 'seller_id' =>  0,
+                'order_success' => $order_success,
                 'combined_order_id' => $combined_order->id,
                 'shipping_address' => $shipping_address_json,
                 'billing_address' => $billing_address_json,
@@ -359,15 +365,16 @@ class CheckoutController extends Controller
                         $amountBal = $userWallet - $amount;
                         $cardAmount = 0;
                         $userData->wallet = $amountBal;
+                        $userData->save();
                         $order->wallet_deduction = $amount;
                     }else{
                         $amountBal = $amount - $userWallet;
                         $cardAmount = $amountBal;
-                        $userData->wallet = 0;
+                        // $userData->wallet = 0;
                         $order->wallet_deduction = $userWallet;
                     }
 
-                    $userData->save();
+                    // $userData->save();
                     $order->payment_type = 'card_wallet';
                     $order->save();
                 }
@@ -457,6 +464,7 @@ class CheckoutController extends Controller
                     ], 200);
                 }else{
                     $order->payment_status = 'paid';
+                    $order->order_success  = 1;
                     $order->save();
 
                     $orderDetails = OrderDetail::where('order_id', $order->id)->update(['payment_status'=>'paid']);
@@ -524,10 +532,27 @@ class CheckoutController extends Controller
             $order = Order::where('code','=',$order_code)->firstOrFail();
             if(strtolower($order_status) === "success"){
                 $order->payment_status = 'paid';
+                $order->order_success  = 1;
                 $order->payment_tracking_id = $tracking_id;
                 $order->payment_details = $payment_details;
                 $order->save();
-                Cart::where('user_id', $order->user_id)->delete();
+
+                $user_id = $order->user_id;
+                $walletDeduct = $order->wallet_deduction;
+                if($user_id && $walletDeduct > 0){
+                    $userData = User::find($user_id);
+                    $userWallet = $userData->wallet;
+                    if($userWallet >= $walletDeduct){
+                        $amountBal = $userWallet - $walletDeduct;
+                        $userData->wallet = $amountBal;
+                    }else{
+                        $amountBal = $walletDeduct - $userWallet;
+                        $userData->wallet = 0;
+                    }
+                    $userData->save();
+                }
+
+                Cart::where('user_id', $user_id)->delete();
 
                 NotificationUtility::sendOrderPlacedNotification($order);
                 NotificationUtility::sendNotification($order, 'created');
@@ -619,10 +644,27 @@ class CheckoutController extends Controller
             $order = Order::where('code','=',$order_code)->firstOrFail();
             if(strtolower($order_status) === "success"){
                 $order->payment_status = 'paid';
+                $order->order_success  = 1;
                 $order->payment_tracking_id = $tracking_id;
                 $order->payment_details = $payment_details;
                 $order->save();
-                Cart::where('user_id', $order->user_id)->delete();
+
+                $user_id = $order->user_id;
+                $walletDeduct = $order->wallet_deduction;
+                if($user_id && $walletDeduct > 0){
+                    $userData = User::find($user_id);
+                    $userWallet = $userData->wallet;
+                    if($userWallet >= $walletDeduct){
+                        $amountBal = $userWallet - $walletDeduct;
+                        $userData->wallet = $amountBal;
+                    }else{
+                        $amountBal = $walletDeduct - $userWallet;
+                        $userData->wallet = 0;
+                    }
+                    $userData->save();
+                }
+
+                Cart::where('user_id', $user_id)->delete();
 
                 NotificationUtility::sendOrderPlacedNotification($order);
                 NotificationUtility::sendNotification($order, 'created');

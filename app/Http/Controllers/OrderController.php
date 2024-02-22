@@ -94,7 +94,7 @@ class OrderController extends Controller
         $sort_search = null;
         $delivery_status = null;
 
-        $orders = Order::orderBy('id', 'desc');
+        $orders = Order::where('order_success', 1)->orderBy('id', 'desc');
         if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
             $orders->where('shop_id', Auth::user()->shop_id);
         }
