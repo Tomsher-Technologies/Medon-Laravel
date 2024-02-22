@@ -139,7 +139,7 @@ class ProfileController extends Controller
         return response()->json([
             'cart_item_count' => Cart::where('user_id', auth()->user()->id)->count(),
             'wishlist_item_count' => Wishlist::where('user_id', auth()->user()->id)->count(),
-            'order_count' => Order::where('user_id', auth()->user()->id)->count(),
+            'order_count' => Order::where('order_success', 1)->where('user_id', auth()->user()->id)->count(),
         ]);
     }
 

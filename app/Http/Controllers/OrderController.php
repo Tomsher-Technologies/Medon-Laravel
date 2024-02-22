@@ -196,7 +196,7 @@ class OrderController extends Controller
         $date           = ($request->has('date')) ? $request->date : ''; //
         $refund_search  = ($request->has('refund_search')) ? $request->refund_search : '';
 
-        $orders = Order::where('cancel_request',1)->orderBy('cancel_request_date','DESC');
+        $orders = Order::where('order_success', 1)->where('cancel_request',1)->orderBy('cancel_request_date','DESC');
         if($search){
             $orders = $orders->where('code', 'like', '%' . $search . '%');
         }
