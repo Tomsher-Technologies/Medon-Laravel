@@ -216,7 +216,7 @@
                                     <a href="{{route('delivery-agents', encrypt($order->id))}}" class="btn btn-sm btn-success">Find Nearest Agent</a>
                                 @endif
 
-                                @if (in_array($status,['partial_pick_up','picked_up','confirmed']))
+                                @if (in_array($status,['partial_pick_up','picked_up','confirmed','partial_delivery']))
                                     @php
                                         $assignedTo = getAssignedDeliveryBoy($order->id);
                                     @endphp
