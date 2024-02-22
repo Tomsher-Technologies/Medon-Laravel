@@ -740,6 +740,7 @@ class CheckoutController extends Controller
                                     'reason' => $reason,
                                     'offer_price' => $od->offer_price,
                                     'quantity' => $od->quantity,
+                                    'request_date' => date('Y-m-d H:i:s'),
                                     'refund_amount' => ($od->offer_price * $od->quantity) + $od->tax
                                 );
                             }
