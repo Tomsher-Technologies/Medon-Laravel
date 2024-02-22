@@ -314,7 +314,8 @@ class ProfileController extends Controller
                             'thumbnail_img' => get_product_image($product->product->thumbnail_img ?? '','300'),
                             'return_refund' => $product->product->return_refund ?? '',
                             'refund_requested' => $requestCount,
-                            'return_expiry' =>  $return_expiry
+                            'return_expiry' =>  $return_expiry,
+                            'refund_approval' => ($product->refund_request) ? $product->refund_request->admin_approval : 0 
                         );
                     }
                 }
