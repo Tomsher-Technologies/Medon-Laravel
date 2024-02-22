@@ -217,6 +217,20 @@ class DeliveryBoyController extends Controller
 
                 $order->save();
 
+                $track = new OrderTracking;
+                $track->order_id = $order->id;
+                $track->status = $order->delivery_status;
+                $track->description = "";
+                $track->status_date = date('Y-m-d H:i:s');
+                $track->save();
+
+                $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                $userPhone = $order->user->phone ?? '';
+                
+                if($userPhone != '' && isset($message[$order->delivery_status]) && $message[$order->delivery_status] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message[$order->delivery_status]);
+                }
+
                 $file_name = $name = NULL;
                 $path = NULL;
                 if ($request->hasFile('image')) {
