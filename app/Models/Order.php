@@ -14,6 +14,7 @@ class Order extends Model
         'shipping_cost',
         'shipping_address',
         'seller_id',
+        'order_success',
         'pickup_point_id',
         'payment_type',
         'payment_status_viewed',

@@ -240,21 +240,25 @@
                                 @endif
                             </td>
                         @else
-                            <td class="myInputGroupSelect">
-                                @php
-                                    if($order->shop_id != null){
-                                        $color = 'border:2px solid #09c309';
-                                    }else {
-                                        $color = 'border:2px solid red';
-                                    }
-                                @endphp
-                                @if($order->cancel_request == 0 || ($order->cancel_request == 1 && $order->cancel_approval == 2))
-                                    <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
-                                        <option value="">Select Shop</option>
-                                        @foreach ($shops as $shop)
-                                            <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
-                                        @endforeach
-                                    </select>
+                            <td class="myInputGroupSelect text-center">
+                                @if($status == 'pending' || $status == 'confirmed')
+                                    @php
+                                        if($order->shop_id != null){
+                                            $color = 'border:2px solid #09c309';
+                                        }else {
+                                            $color = 'border:2px solid red';
+                                        }
+                                    @endphp
+                                    @if($order->cancel_request == 0 || ($order->cancel_request == 1 && $order->cancel_approval == 2))
+                                        <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-order="{{$order->id}}" style="{{$color}}">
+                                            <option value="">Select Shop</option>
+                                            @foreach ($shops as $shop)
+                                                <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
+                                @else
+                                    <b>{{ $order->shop? $order->shop->name : 'N/A' }}</b>
                                 @endif
                             </td>
                         @endif
