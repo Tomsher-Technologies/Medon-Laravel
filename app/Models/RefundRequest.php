@@ -38,4 +38,9 @@ class RefundRequest extends Model
     return $this->belongsTo(OrderDetail::class,'order_details_id','id');
   }
 
+  public function shop()
+    {
+        return $this->belongsTo(Shops::class, 'shop_id', 'id');
+    }
+
 }

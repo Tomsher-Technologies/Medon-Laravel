@@ -226,19 +226,24 @@
                                 </td>
                                 <td class="text-center">
                                     @if($order->admin_approval == 1)
-                                        @php
-                                            if($order->shop_id != null){
-                                                $color = 'border:2px solid #09c309';
-                                            }else {
-                                                $color = 'border:2px solid red';
-                                            }
-                                        @endphp
-                                        <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-refund="{{$order->id}}" style="{{$color}}">
-                                            <option value="">Select Shop</option>
-                                            @foreach ($shops as $shop)
-                                                <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if($order->delivery_approval != 1)
+                                            @php
+                                                if($order->shop_id != null){
+                                                    $color = 'border:2px solid #09c309';
+                                                }else {
+                                                    $color = 'border:2px solid red';
+                                                }
+                                            @endphp
+                                            <select id="shop_id{{$key}}" name="shop_id{{$key}}" class="form-control selectShop" data-refund="{{$order->id}}" style="{{$color}}">
+                                                <option value="">Select Shop</option>
+                                                @foreach ($shops as $shop)
+                                                    <option @if($shop->id == old('shop_id',$order->shop_id)) {{ 'selected' }} @endif value="{{$shop->id}}">{{ $shop->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <b>{{ $order->shop? $order->shop->name : 'N/A' }}<b>
+                                        @endif
+                                       
                                     @endif
                                 </td>
                             @endif
