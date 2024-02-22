@@ -173,7 +173,7 @@
                             @endif
 
                             <td>
-                                {{ ($order->request_date) ? date('d-m-Y H:i A', strtotime($order->request_date)) : ''}}
+                                {{ ($order->request_date) ? date('d-m-Y h:i A', strtotime($order->request_date)) : ''}}
                             </td>
 
                             <td>
