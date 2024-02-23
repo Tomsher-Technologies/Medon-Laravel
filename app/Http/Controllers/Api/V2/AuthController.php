@@ -35,6 +35,19 @@ class AuthController extends Controller
             'user_id' => $user->id
         ]);
 
+        
+
+        $details = [
+            'name' => $request->name,
+            'subject' => 'Registration Successful - Welcome to '.env('APP_NAME').'!',
+            'body' => " <p> Congratulations and welcome to ".env('APP_NAME')."! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted pharmacy partner.</p><br>
+
+            <p>We are committed to providing you with exceptional service and ensuring that your online shopping experience is smooth and hassle-free. If you have any questions or need assistance, our customer support team is here to help.</p><br>
+            <p>Thank you for choosing ".env('APP_NAME').". We look forward to serving you and meeting all your pharmaceutical needs.</p>"
+        ];
+       
+        \Mail::to($request->email)->send(new \App\Mail\SendMail($details));
+
         $result = [
             'status' => true,
             'message' => 'Registration Successful. OPT has been sent to your phone, please verify and log in to your account.',
