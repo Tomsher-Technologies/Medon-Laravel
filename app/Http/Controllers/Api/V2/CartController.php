@@ -422,25 +422,32 @@ class CartController extends Controller
                     }
                 }
 
+                $cart_updated = true;
                 if($outStock == 0 && $added != 0){
+                    $cart_updated = true;
                     $rtn_msg = "Cart updated successfully";
                 }elseif($outStock == 0 && $added == 0){
+                    $cart_updated = false;
                     $rtn_msg = "Items not added to cart";
                 }elseif($outStock != 0 && $added == 0){
+                    $cart_updated = false;
                     $rtn_msg = "Items are out of stock";
                 }elseif($outStock != 0 && $added != 0){
+                    $cart_updated = false;
                     $rtn_msg = "Cart updated successfully. Some of the items are out of stock";
                 }
 
                 return response()->json([
                     'success' => true,
                     'message' => $rtn_msg,
+                    'cart_updated' => $cart_updated,
                     'cart_count' =>  $this->cartCount()
                 ], 200);
             }else{
                 return response()->json([
                     'success' => false,
                     'message' => "Failed to add item to the cart",
+                    'cart_updated' => false,
                     'cart_count' => $this->cartCount()
                 ], 200);
             }
