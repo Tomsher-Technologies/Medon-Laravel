@@ -9,7 +9,7 @@
                         <div class="card-body">
                             <div class="mb-5 text-center">
                                 <img src="{{ static_asset('assets/img/tlogo.png') }}" class="mw-100 mb-4" height="100">
-                                <h1 class="h3 text-primary mb-0">Welcome to Medon</h1>
+                                {{-- <h1 class="h3 text-primary mb-0">Welcome to Medon</h1> --}}
                                 <p>Login to your account.</p>
                             </div>
                             <form class="pad-hor" method="POST" role="form" action="{{ route('admin.login') }}">
