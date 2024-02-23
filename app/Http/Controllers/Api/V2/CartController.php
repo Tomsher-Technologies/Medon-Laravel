@@ -237,6 +237,7 @@ class CartController extends Controller
            
             foreach($carts as $datas){
 
+                $prodStock = $datas->product->stocks->first();
                 $overall_subtotal = $overall_subtotal + ($datas->price * $datas->quantity);
 
                 $total_discount = $total_discount + (($datas->price * $datas->quantity) - ($datas->offer_price * $datas->quantity)) + $datas->offer_discount;
@@ -252,6 +253,7 @@ class CartController extends Controller
                         'image' => get_product_image($datas->product->thumbnail_img,'300')
                     ],
                     'variation' => $datas->variation,
+                    'current_stock' =>  (integer)($prodStock ? $prodStock ->qty : 0),
                     'stroked_price' => $datas->price ,
                     'main_price' => $datas->offer_price ,
                     'tax' => $datas->tax,

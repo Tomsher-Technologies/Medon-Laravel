@@ -18,6 +18,7 @@ class WishlistController extends Controller
             $result = [];
             if($wishlist){
                 foreach($wishlist as $data){
+                    $prodStock = $data->product->stocks->first();
                     if($data->product){
                         $priceData = getProductOfferPrice($data->product);
                         $result[] = [
@@ -26,6 +27,7 @@ class WishlistController extends Controller
                                 'id' => $data->product->id,
                                 'name' => $data->product->name,
                                 'slug' => $data->product->slug,
+                                'current_stock' =>  (integer) ($prodStock ? $prodStock->qty : 0),
                                 'thumbnail_image' => get_product_image($data->product->thumbnail_img,'300'),
                                 'has_discount' => home_base_price($data->product, false) != home_discounted_base_price($data->product, false),
                                 'stroked_price' => $priceData['original_price'],
