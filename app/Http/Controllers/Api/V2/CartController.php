@@ -382,39 +382,43 @@ class CartController extends Controller
     
                     $tax = 0;
                     if ($carts) {
-                        if($product->vat != 0){
-                            $new_quantity = $carts->quantity + $request->quantity;
-                            $tax = (($carts->offer_price * $new_quantity)/100) * $product->vat;
+                        if($product_stock->qty >= $carts->quantity + $request->quantity){
+                            if($product->vat != 0){
+                                $new_quantity = $carts->quantity + $request->quantity;
+                                $tax = (($carts->offer_price * $new_quantity)/100) * $product->vat;
+                            }
+                            $carts->quantity += $request->quantity;
+                            $carts->tax  = $tax;
+                            $carts->save();
+                            $added++;
                         }
-                        $carts->quantity += $request->quantity;
-                        $carts->tax  = $tax;
-                        $carts->save();
-                        $added++;
                     } else {
-                        $price = $product_stock->price;
+                        if($product_stock->qty >= $request['quantity']){
+                            $price = $product_stock->price;
                         
     
-                        $offerData = getProductOfferPrice($product);
-                        if($product->vat != 0){
-                            $tax = (($offerData['discounted_price'] * ($request['quantity'] ?? 1))/100) * $product->vat;
+                            $offerData = getProductOfferPrice($product);
+                            if($product->vat != 0){
+                                $tax = (($offerData['discounted_price'] * ($request['quantity'] ?? 1))/100) * $product->vat;
+                            }
+                            $data[$user['users_id_type']] =  $user['users_id'];
+                            $data['product_id'] = $product->id;
+                            $data['quantity'] = $request['quantity'] ?? 1;
+                            $data['price'] = $offerData['original_price'];
+                            $data['offer_price'] = $offerData['discounted_price'];
+                            $data['offer_id'] = ($offerData['offer_id'] >= 0) ? $offerData['offer_id'] : NULL;
+                            $data['variation'] = $str;
+                            $data['tax'] = $tax;
+                            $data['shipping_cost'] = 0;
+                            $data['product_referral_code'] = null;
+                            $data['cash_on_delivery'] = $product->cash_on_delivery;
+                            $data['digital'] = $product->digital;
+                            // print_r($data);
+                            // die;
+                            $added++;
+        
+                            Cart::create($data);
                         }
-                        $data[$user['users_id_type']] =  $user['users_id'];
-                        $data['product_id'] = $product->id;
-                        $data['quantity'] = $request['quantity'] ?? 1;
-                        $data['price'] = $offerData['original_price'];
-                        $data['offer_price'] = $offerData['discounted_price'];
-                        $data['offer_id'] = ($offerData['offer_id'] >= 0) ? $offerData['offer_id'] : NULL;
-                        $data['variation'] = $str;
-                        $data['tax'] = $tax;
-                        $data['shipping_cost'] = 0;
-                        $data['product_referral_code'] = null;
-                        $data['cash_on_delivery'] = $product->cash_on_delivery;
-                        $data['digital'] = $product->digital;
-                        // print_r($data);
-                        // die;
-                        $added++;
-    
-                        Cart::create($data);
                     }
                 }
 
