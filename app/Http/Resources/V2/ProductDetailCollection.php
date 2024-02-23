@@ -70,6 +70,7 @@ class ProductDetailCollection extends JsonResource
             ];
         }
         $priceData = getProductOfferPrice($this);
+        $prodStock = $this->stocks->first();
 
         return [
             'id' => (int)$this->id,
@@ -96,6 +97,7 @@ class ProductDetailCollection extends JsonResource
             'brand' => $brand,
             'category' => $category,
             'tabs' => $this->tabs,
+            'current_stock' =>  (integer) ($prodStock ? $prodStock->qty : 0),
             'reviews' => $this->reviews,
             'review_status' => canReview($this->id,$this->user_id),
             'offer_tag' => $priceData['offer_tag'],
