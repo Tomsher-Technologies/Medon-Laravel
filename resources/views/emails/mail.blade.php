@@ -74,11 +74,11 @@
 <body>
     <div style="width: 60%;">
         <table border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#ffffff"
-            style="border: 1px solid #64a644">
+            style="border: 1px solid #b7e3f978">
             <tbody>
                 <tr>
                     <td width="650" align="center" valign="middle">
-                        <table border="0" align="center" cellpadding="0" cellspacing="0" style="background:#64a644;">
+                        <table border="0" align="center" cellpadding="0" cellspacing="0" style="background:#b7e3f978;">
                             <tbody>
                                 <tr>
                                     <td width="658" align="center" valign="middle">
@@ -138,11 +138,11 @@
                         </table>
 
                         <table border="0" align="center" cellpadding="0" cellspacing="0"
-                            style="background-color: #64a644">
+                            style="background-color: #b7e3f978">
                             <tbody>
                                 <tr>
                                     <td width="648" align="center" valign="middle" style="text-align: center">
-                                        <span style="font-family: Arial, sans-serif; font-size: 12px; color: white;">©
+                                        <span style="font-family: Arial, sans-serif; font-size: 12px; color: black;">©
                                             2023 {{ env('APP_NAME') }}. All Rights Reserved.</span>
                                     </td>
                                 </tr>
