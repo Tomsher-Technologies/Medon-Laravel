@@ -234,243 +234,119 @@ class CheckoutController extends Controller
             
         if(!empty($carts[0])){
             $carts->load(['product', 'product.stocks']);
-
-            $combined_order = CombinedOrder::create([
-                'user_id' => $user_id,
-                'shipping_address' => $shipping_address_json,
-                'grand_total' => 0,
-            ]);
-            $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = $total_shipping = $total_tax = 0;
-            $coupon_code = '';
-
-            $order_success = 0;
-            if($request->payment_method == 'cash_on_delivery'){
-                $order_success = 1;
-            }
-
-            $order = Order::create([
-                'user_id' => $user_id,
-                'guest_id' => NULL,
-                'seller_id' =>  0,
-                'order_success' => $order_success,
-                'combined_order_id' => $combined_order->id,
-                'shipping_address' => $shipping_address_json,
-                'billing_address' => $billing_address_json,
-                'order_notes' => $request->order_notes ?? '',
-                'shipping_type' => 'free_shipping',
-                'shipping_cost' => 0,
-                'pickup_point_id' => 0,
-                'delivery_status' => 'pending',
-                'payment_type' => $request->payment_method ?? '',
-                'payment_status' => 'un_paid',
-                'grand_total' =>  0,
-                'tax' => 0,
-                'sub_total' => 0,
-                'offer_discount' => 0,
-                'coupon_discount' => 0,
-                'code' => date('Ymd-His') . rand(10, 99),
-                'date' => strtotime('now'),
-                'delivery_viewed' => 0
-            ]);
-
-            $track = new OrderTracking;
-            $track->order_id = $order->id;
-            $track->status = 'pending';
-            $track->description = "The order has been placed successfully";
-            $track->status_date = date('Y-m-d H:i:s');
-            $track->save();
-
-            $orderItems = $productQuantities = [];
-
+            $outStock = 0;
             foreach($carts as $data){
-                $sub_total = $sub_total + ($data->price * $data->quantity);
-                $total_tax = $total_tax + $data->tax;
-                $total_shipping = $total_shipping + $data->shipping_cost;
-                $discount = $discount + (($data->price * $data->quantity) - ($data->offer_price * $data->quantity)) + $data->offer_discount;
-                $coupon_code = $data->coupon_code;
-                $coupon_applied = $data->coupon_applied;
-                if($data->coupon_applied == 1){
-                    $total_coupon_discount += $data->discount;
+                // print_r($data->product->stocks);
+                $prodStock = $data->product->stocks->first();
+                if($prodStock){
+                    $availableQuantity = $prodStock->qty;
+                    if($data->quantity > $availableQuantity){
+                        $outStock++;
+                    }
                 }
-                $orderItems[] = [
-                    'order_id' => $order->id,
-                    'product_id' => $data->product_id,
-                    'variation' => $data->variation,
-                    'og_price' => $data->price,
-                    'tax' => $data->tax,
-                    'shipping_cost' => $data->shipping_cost,
-                    'offer_price' => $data->offer_price,
-                    'price' => $data->offer_price * $data->quantity,
-                    'quantity' => $data->quantity,
-                ];
-                $productQuantities[$data->product_id] = $data->quantity;
-
-                $product = Product::find($data->product_id);
-                $product->num_of_sale += $data->quantity;
-                $product->save();
             }
-            OrderDetail::insert($orderItems);
-            $grand_total = ($sub_total + $total_tax + round($total_shipping))  - ($discount + $total_coupon_discount);
+           
+            if($outStock == 0){
+                $combined_order = CombinedOrder::create([
+                    'user_id' => $user_id,
+                    'shipping_address' => $shipping_address_json,
+                    'grand_total' => 0,
+                ]);
+                $sub_total = $discount = $coupon_applied = $total_coupon_discount = $grand_total = $total_shipping = $total_tax = 0;
+                $coupon_code = '';
 
-            $combined_order->grand_total = $grand_total;
-            $combined_order->save();
-
-            $order->grand_total         = $grand_total;
-            $order->sub_total           = $sub_total;
-            $order->offer_discount      = $discount;
-            $order->tax                 = $total_tax;
-            $order->shipping_cost       = round($total_shipping);
-            $order->shipping_type       = ($total_shipping == 0) ? 'free_shipping' : 'flat_rate';
-            $order->coupon_discount     = $total_coupon_discount;
-            $order->coupon_code         = $coupon_code;
-            $order->save();
-
-            if($coupon_code != ''){
-                $coupon_usage = new CouponUsage;
-                $coupon_usage->user_id = $user_id;
-                $coupon_usage->coupon_id = Coupon::where('code', $coupon_code)->first()->id;
-                $coupon_usage->save();
-            }
-            if($request->payment_method == 'cash_on_delivery'){
-                reduceProductQuantity($productQuantities);
-                Cart::where('user_id', $user_id)->delete();
-
-                NotificationUtility::sendOrderPlacedNotification($order);
-                NotificationUtility::sendNotification($order, 'created');
-                $message = getOrderStatusMessageTest($order->user->name, $order->code);
-                $userPhone = $order->user->phone ?? '';
-                if($userPhone != '' && $message['order_placed'] != ''){
-                    SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
+                $order_success = 0;
+                if($request->payment_method == 'cash_on_delivery'){
+                    $order_success = 1;
                 }
-            
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Your order has been placed successfully',
-                    'data' => array(
+
+                $order = Order::create([
+                    'user_id' => $user_id,
+                    'guest_id' => NULL,
+                    'seller_id' =>  0,
+                    'order_success' => $order_success,
+                    'combined_order_id' => $combined_order->id,
+                    'shipping_address' => $shipping_address_json,
+                    'billing_address' => $billing_address_json,
+                    'order_notes' => $request->order_notes ?? '',
+                    'shipping_type' => 'free_shipping',
+                    'shipping_cost' => 0,
+                    'pickup_point_id' => 0,
+                    'delivery_status' => 'pending',
+                    'payment_type' => $request->payment_method ?? '',
+                    'payment_status' => 'un_paid',
+                    'grand_total' =>  0,
+                    'tax' => 0,
+                    'sub_total' => 0,
+                    'offer_discount' => 0,
+                    'coupon_discount' => 0,
+                    'code' => date('Ymd-His') . rand(10, 99),
+                    'date' => strtotime('now'),
+                    'delivery_viewed' => 0
+                ]);
+
+                $track = new OrderTracking;
+                $track->order_id = $order->id;
+                $track->status = 'pending';
+                $track->description = "The order has been placed successfully";
+                $track->status_date = date('Y-m-d H:i:s');
+                $track->save();
+
+                $orderItems = $productQuantities = [];
+
+                foreach($carts as $data){
+                    $sub_total = $sub_total + ($data->price * $data->quantity);
+                    $total_tax = $total_tax + $data->tax;
+                    $total_shipping = $total_shipping + $data->shipping_cost;
+                    $discount = $discount + (($data->price * $data->quantity) - ($data->offer_price * $data->quantity)) + $data->offer_discount;
+                    $coupon_code = $data->coupon_code;
+                    $coupon_applied = $data->coupon_applied;
+                    if($data->coupon_applied == 1){
+                        $total_coupon_discount += $data->discount;
+                    }
+                    $orderItems[] = [
                         'order_id' => $order->id,
-                        'order_code' => $order->code,
-                        'grand_total' => $grand_total,
-                        'payment_type' => 'cash_on_delivery',
-                        'url' => '',
-                        'tracking_id' => '',
-                        'request_hash' => ''
-                    )
-                    ], 200);
-            }else{
-                $cardAmount = $amount = $grand_total;
-                if($request->wallet == 1){
-                    $userData = User::find($user_id);
-                    $userWallet = $userData->wallet;
-                    if($userWallet >= $amount){
-                        $amountBal = $userWallet - $amount;
-                        $cardAmount = 0;
-                        $userData->wallet = $amountBal;
-                        $userData->save();
-                        $order->wallet_deduction = $amount;
-                    }else{
-                        $amountBal = $amount - $userWallet;
-                        $cardAmount = $amountBal;
-                        // $userData->wallet = 0;
-                        $order->wallet_deduction = $userWallet;
-                    }
+                        'product_id' => $data->product_id,
+                        'variation' => $data->variation,
+                        'og_price' => $data->price,
+                        'tax' => $data->tax,
+                        'shipping_cost' => $data->shipping_cost,
+                        'offer_price' => $data->offer_price,
+                        'price' => $data->offer_price * $data->quantity,
+                        'quantity' => $data->quantity,
+                    ];
+                    $productQuantities[$data->product_id] = $data->quantity;
 
-                    // $userData->save();
-                    $order->payment_type = 'card_wallet';
-                    $order->save();
+                    $product = Product::find($data->product_id);
+                    $product->num_of_sale += $data->quantity;
+                    $product->save();
                 }
-                
-                if($cardAmount != 0){
-                    $working_key = env('CCA_WORKING_KEY'); // config('cc-avenue.working_key'); //Shared by CCAVENUES
-                    $access_code = env('CCA_ACCESS_CODE'); // config('cc-avenue.access_code'); //Shared by CCAVENUES
+                OrderDetail::insert($orderItems);
+                $grand_total = ($sub_total + $total_tax + round($total_shipping))  - ($discount + $total_coupon_discount);
 
-                    $tracking_id = $requestHash = $url = ''; 
-                    if($platform == 'mob'){
-                        $payment['amount'] = $cardAmount;
-                        $payment['order_id'] = $order->code;
-                        $payment['currency'] = "AED";
-                        $payment['tid'] = "";
-                        $payment['merchant_id'] = env('CCA_MERCHANT_ID');
-                        $merchant_data = json_encode($payment);
-                        
-                        $encrypted_data = encryptCC($merchant_data, $working_key);
-                        
-                        $post_field = [
-                            'encRequest' => $encrypted_data,
-                            'access_code' => $access_code
-                        ];
-                      
-                        $response = Http::timeout(300)->withHeaders(array('Content-Type:application/json'))->post(env('CCA_URL_MOB').'?command=generateTrackingId', $post_field);
-                        $result = $response->getBody()->getContents();
-                
-                        $resultData = json_decode($result);
+                $combined_order->grand_total = $grand_total;
+                $combined_order->save();
 
-                        $encResp = '';
-                        if(isset($resultData->status)){
-                            if($resultData->status == 'success'){
-                                $encResp = $resultData->data->encResp;
-                            }
-                        }
-                        $responseTracking = [];
-                        $paymentAmount = '';
-                        if($encResp != ''){
-                            $responseTracking = decryptCC($encResp,$working_key);
-                            $responseTracking = json_decode($responseTracking);
-                            $tracking_id = $responseTracking->tracking_id;
-                            $paymentAmount = $responseTracking->amount;
-                        }
-                       
-                        if($tracking_id != ''){
-                           $requestHash = hash("sha512", $tracking_id.'AED'.$paymentAmount.$working_key);
-                        }
-                    }else{
-                        $payment['amount'] = $cardAmount;
-                        $payment['order_id'] = $order->code;
-                        $payment['currency'] = "AED";
-                        $payment['redirect_url'] = route('payment-success');
-                        $payment['cancel_url'] = route('payment-cancel');
-                        $payment['language'] = "EN";
-                        $payment['merchant_id'] = env('CCA_MERCHANT_ID');
-        
-                        $payment['billing_name'] = $billing_address['name'];
-                        $payment['billing_address'] = $billing_address['address'];
-                        $payment['billing_city'] = $billing_address['city'];
-                        $payment['billing_state'] = $billing_address['state'];
-                        $payment['billing_country'] = $billing_address['country'];
-                        $payment['billing_tel'] = $billing_address['phone'];
-                        $payment['billing_email'] = $billing_address['email'];
-    
-                        $merchant_data = "";
-    
-                        foreach ($payment as $key => $value) {
-                            $merchant_data .= $key . '=' . $value . '&';
-                        }
-                    
-                        $encrypted_data = encryptCC($merchant_data, $working_key);
-                        $url = env('CCA_URL').'?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
-                    }
-                    
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Payment gateway',
-                        'data' => array(
-                            'order_id' => $order->id,
-                            'order_code' => $order->code,
-                            'grand_total' => $cardAmount,
-                            'payment_type' => 'card',
-                            'url' => $url,
-                            'tracking_id' => $tracking_id,
-                            'request_hash' => $requestHash
-                        )
-                    ], 200);
-                }else{
-                    $order->payment_status = 'paid';
-                    $order->order_success  = 1;
-                    $order->save();
+                $order->grand_total         = $grand_total;
+                $order->sub_total           = $sub_total;
+                $order->offer_discount      = $discount;
+                $order->tax                 = $total_tax;
+                $order->shipping_cost       = round($total_shipping);
+                $order->shipping_type       = ($total_shipping == 0) ? 'free_shipping' : 'flat_rate';
+                $order->coupon_discount     = $total_coupon_discount;
+                $order->coupon_code         = $coupon_code;
+                $order->save();
 
-                    $orderDetails = OrderDetail::where('order_id', $order->id)->update(['payment_status'=>'paid']);
-
+                if($coupon_code != ''){
+                    $coupon_usage = new CouponUsage;
+                    $coupon_usage->user_id = $user_id;
+                    $coupon_usage->coupon_id = Coupon::where('code', $coupon_code)->first()->id;
+                    $coupon_usage->save();
+                }
+                if($request->payment_method == 'cash_on_delivery'){
                     reduceProductQuantity($productQuantities);
                     Cart::where('user_id', $user_id)->delete();
+
                     NotificationUtility::sendOrderPlacedNotification($order);
                     NotificationUtility::sendNotification($order, 'created');
                     $message = getOrderStatusMessageTest($order->user->name, $order->code);
@@ -478,21 +354,172 @@ class CheckoutController extends Controller
                     if($userPhone != '' && $message['order_placed'] != ''){
                         SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
                     }
-
+                
                     return response()->json([
                         'status' => true,
                         'message' => 'Your order has been placed successfully',
                         'data' => array(
                             'order_id' => $order->id,
                             'order_code' => $order->code,
-                            'grand_total' => $cardAmount,
-                            'payment_type' => 'wallet',
-                            'url' =>'',
+                            'grand_total' => $grand_total,
+                            'payment_type' => 'cash_on_delivery',
+                            'url' => '',
                             'tracking_id' => '',
                             'request_hash' => ''
                         )
-                    ], 200);
+                        ], 200);
+                }else{
+                    $cardAmount = $amount = $grand_total;
+                    if($request->wallet == 1){
+                        $userData = User::find($user_id);
+                        $userWallet = $userData->wallet;
+                        if($userWallet >= $amount){
+                            $amountBal = $userWallet - $amount;
+                            $cardAmount = 0;
+                            $userData->wallet = $amountBal;
+                            $userData->save();
+                            $order->wallet_deduction = $amount;
+                        }else{
+                            $amountBal = $amount - $userWallet;
+                            $cardAmount = $amountBal;
+                            // $userData->wallet = 0;
+                            $order->wallet_deduction = $userWallet;
+                        }
+
+                        // $userData->save();
+                        $order->payment_type = 'card_wallet';
+                        $order->save();
+                    }
+                    
+                    if($cardAmount != 0){
+                        $working_key = env('CCA_WORKING_KEY'); // config('cc-avenue.working_key'); //Shared by CCAVENUES
+                        $access_code = env('CCA_ACCESS_CODE'); // config('cc-avenue.access_code'); //Shared by CCAVENUES
+
+                        $tracking_id = $requestHash = $url = ''; 
+                        if($platform == 'mob'){
+                            $payment['amount'] = $cardAmount;
+                            $payment['order_id'] = $order->code;
+                            $payment['currency'] = "AED";
+                            $payment['tid'] = "";
+                            $payment['merchant_id'] = env('CCA_MERCHANT_ID');
+                            $merchant_data = json_encode($payment);
+                            
+                            $encrypted_data = encryptCC($merchant_data, $working_key);
+                            
+                            $post_field = [
+                                'encRequest' => $encrypted_data,
+                                'access_code' => $access_code
+                            ];
+                        
+                            $response = Http::timeout(300)->withHeaders(array('Content-Type:application/json'))->post(env('CCA_URL_MOB').'?command=generateTrackingId', $post_field);
+                            $result = $response->getBody()->getContents();
+                    
+                            $resultData = json_decode($result);
+
+                            $encResp = '';
+                            if(isset($resultData->status)){
+                                if($resultData->status == 'success'){
+                                    $encResp = $resultData->data->encResp;
+                                }
+                            }
+                            $responseTracking = [];
+                            $paymentAmount = '';
+                            if($encResp != ''){
+                                $responseTracking = decryptCC($encResp,$working_key);
+                                $responseTracking = json_decode($responseTracking);
+                                $tracking_id = $responseTracking->tracking_id;
+                                $paymentAmount = $responseTracking->amount;
+                            }
+                        
+                            if($tracking_id != ''){
+                            $requestHash = hash("sha512", $tracking_id.'AED'.$paymentAmount.$working_key);
+                            }
+                        }else{
+                            $payment['amount'] = $cardAmount;
+                            $payment['order_id'] = $order->code;
+                            $payment['currency'] = "AED";
+                            $payment['redirect_url'] = route('payment-success');
+                            $payment['cancel_url'] = route('payment-cancel');
+                            $payment['language'] = "EN";
+                            $payment['merchant_id'] = env('CCA_MERCHANT_ID');
+            
+                            $payment['billing_name'] = $billing_address['name'];
+                            $payment['billing_address'] = $billing_address['address'];
+                            $payment['billing_city'] = $billing_address['city'];
+                            $payment['billing_state'] = $billing_address['state'];
+                            $payment['billing_country'] = $billing_address['country'];
+                            $payment['billing_tel'] = $billing_address['phone'];
+                            $payment['billing_email'] = $billing_address['email'];
+        
+                            $merchant_data = "";
+        
+                            foreach ($payment as $key => $value) {
+                                $merchant_data .= $key . '=' . $value . '&';
+                            }
+                        
+                            $encrypted_data = encryptCC($merchant_data, $working_key);
+                            $url = env('CCA_URL').'?command=initiateTransaction&encRequest=' . $encrypted_data . '&access_code=' . $access_code;
+                        }
+                        
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'Payment gateway',
+                            'data' => array(
+                                'order_id' => $order->id,
+                                'order_code' => $order->code,
+                                'grand_total' => $cardAmount,
+                                'payment_type' => 'card',
+                                'url' => $url,
+                                'tracking_id' => $tracking_id,
+                                'request_hash' => $requestHash
+                            )
+                        ], 200);
+                    }else{
+                        $order->payment_status = 'paid';
+                        $order->order_success  = 1;
+                        $order->save();
+
+                        $orderDetails = OrderDetail::where('order_id', $order->id)->update(['payment_status'=>'paid']);
+
+                        reduceProductQuantity($productQuantities);
+                        Cart::where('user_id', $user_id)->delete();
+                        NotificationUtility::sendOrderPlacedNotification($order);
+                        NotificationUtility::sendNotification($order, 'created');
+                        $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                        $userPhone = $order->user->phone ?? '';
+                        if($userPhone != '' && $message['order_placed'] != ''){
+                            SendSMSUtility::sendSMS($userPhone, $message['order_placed']);
+                        }
+
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'Your order has been placed successfully',
+                            'data' => array(
+                                'order_id' => $order->id,
+                                'order_code' => $order->code,
+                                'grand_total' => $cardAmount,
+                                'payment_type' => 'wallet',
+                                'url' =>'',
+                                'tracking_id' => '',
+                                'request_hash' => ''
+                            )
+                        ], 200);
+                    }
                 }
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Some of the items in the cart is out of stock. Please remove them before checkout.',
+                    'data' => array(
+                        'order_id' => '',
+                        'order_code' => '',
+                        'grand_total' => 0,
+                        'payment_type' => '',
+                        'url' => '',
+                        'tracking_id' => '',
+                        'request_hash' => ''
+                    )
+                ], 200);
             }
         }else{
             return response()->json([
