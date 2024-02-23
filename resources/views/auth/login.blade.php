@@ -14,7 +14,7 @@
                             @else
                                 <img src="{{ static_asset('assets/img/tlogo.png') }}" class="mw-100 mb-4" height="40">
                             @endif
-                            <h1 class="h3 text-primary mb-0">Welcome to {{ env('APP_NAME') }}</h1>
+                            {{-- <h1 class="h3 text-primary mb-0">Welcome to {{ env('APP_NAME') }}</h1> --}}
                             <p>Login to your account.</p>
                         </div>
                         <form class="pad-hor" method="POST" role="form" action="{{ route('login') }}">
