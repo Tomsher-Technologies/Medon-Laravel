@@ -3961,7 +3961,7 @@ background: linear-gradient(-45deg, #e5f9ff, #e5f7ef, #fbf2ef, #dbfbfe);
 
 .aiz-side-nav-logo-wrap img {
     /* height: 31px;  100 */ 
-    height: 70px;
+    /* height: 70px; */
 }
 .aiz-side-nav-logo-wrap {
     background-color: #fff;
