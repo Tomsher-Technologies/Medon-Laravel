@@ -369,9 +369,9 @@ class CartController extends Controller
                         }
                     } else {
                         $product_stock = $product->stocks->first();
-                        if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
-                            $outStock++;
-                        }
+                        // if (($product_stock->qty < $request['quantity']) || ($product->hide_price)) {
+                        //     $outStock++;
+                        // }
                     }
     
                     $carts = Cart::where([
@@ -391,6 +391,8 @@ class CartController extends Controller
                             $carts->tax  = $tax;
                             $carts->save();
                             $added++;
+                        }else{
+                            $outStock++;
                         }
                     } else {
                         if($product_stock->qty >= $request['quantity']){
@@ -418,6 +420,8 @@ class CartController extends Controller
                             $added++;
         
                             Cart::create($data);
+                        }else{
+                            $outStock++;
                         }
                     }
                 }
