@@ -9,9 +9,9 @@ return [
          * The default configurations to be used by the meta generator.
          */
         'defaults'       => [
-            'title'        => "Industry Tech Store", // set false to total remove
+            'title'        => "Medon", // set false to total remove
             'titleBefore'  => false, // Put defaults.title before page title, like 'It's Over 9000! - Dashboard'
-            'description'  => "Industry Tech Store is recognised as one of the leading solution providers in the United Arab Emirates (UAE), Contact us now!", // set false to total remove
+            'description'  => "Medon is recognised as one of the leading solution providers in the United Arab Emirates (UAE), Contact us now!", // set false to total remove
             'separator'    => ' - ',
             'keywords'     => ['marine equipment,
             marine products,
@@ -54,8 +54,8 @@ return [
          * The default configurations to be used by the opengraph generator.
          */
         'defaults' => [
-            'title'       => "Industry Tech Store", // set false to total remove
-            'description' => "Industry Tech Store is recognised as one of the leading solution providers in the United Arab Emirates (UAE), Contact us now!", // set false to total remove
+            'title'       => "Medon", // set false to total remove
+            'description' => "Medon is recognised as one of the leading pharmacy in the United Arab Emirates (UAE), Contact us now!", // set false to total remove
             'url'         => null, // Set null for using Url::current(), set false to total remove
             'type'        => false,
             'site_name'   => false,
@@ -76,8 +76,8 @@ return [
          * The default configurations to be used by the json-ld generator.
          */
         'defaults' => [
-            'title'       => "Industry Tech Store", // set false to total remove
-            'description' => "Industry Tech Store is recognised as one of the leading solution providers in the United Arab Emirates (UAE), Contact us now!", // set false to total remove, // set false to total remove
+            'title'       => "Medon", // set false to total remove
+            'description' => "Medon is recognised as one of the leading pharmacy in the United Arab Emirates (UAE), Contact us now!", // set false to total remove, // set false to total remove
             'url'         => 'full', // Set to null or 'full' to use Url::full(), set to 'current' to use Url::current(), set false to total remove
             'type'        => 'WebPage',
             'images'      => [],

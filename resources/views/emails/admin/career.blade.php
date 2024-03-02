@@ -210,7 +210,7 @@
                                                 <td align="center" valign="middle">
                                                     <a href="{{ route('home') }}">
                                                         <img src="{{ frontendAsset('img/logo_new.webp') }}"
-                                                            height="54" alt="Industry Tech Store"></a>
+                                                            height="54" alt="Medon"></a>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -383,7 +383,7 @@
                                                         <tr>
                                                             <td align="center"
                                                                 style="font:11px Helvetica,  Arial, sans-serif; color:#ffffff;">
-                                                                &copy; <?= date('Y') ?>, ITS All Rights Reserved
+                                                                &copy; <?= date('Y') ?>, Medon All Rights Reserved
                                                             </td>
                                                         </tr>
                                                         <tr>

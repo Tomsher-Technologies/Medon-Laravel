@@ -118,6 +118,30 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-10">
+                                    <label class="col-from-label">Order Return Requests</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="permissions[]" class="form-control demo-sw"
+                                            value="4" {{ in_array(4, $permissions) ? 'checked' : '' }}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <label class="col-from-label">Order Cancel Requests</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="permissions[]" class="form-control demo-sw"
+                                            value="5" {{ in_array(5, $permissions) ? 'checked' : '' }}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row d-none">
+                                <div class="col-md-10">
                                     <label class="col-from-label">Product Enquiry</label>
                                 </div>
                                 <div class="col-md-2">
@@ -128,6 +152,20 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <label class="col-from-label">Contact Enquiries</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="permissions[]" class="form-control demo-sw"
+                                            value="29" {{ in_array(29, $permissions) ? 'checked' : '' }}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-10">
                                     <label class="col-from-label">Customers</label>
@@ -214,6 +252,33 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <label class="col-from-label">Prescriptions</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="permissions[]" class="form-control demo-sw"
+                                            value="23" {{ in_array(23, $permissions) ? 'checked' : '' }}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <label class="col-from-label">Manage Shops</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" name="permissions[]" class="form-control demo-sw"
+                                            value="21" {{ in_array(21, $permissions) ? 'checked' : '' }}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="form-group mb-0 text-right">

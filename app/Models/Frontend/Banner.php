@@ -4,6 +4,8 @@ namespace App\Models\Frontend;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Offers;
+use App\Models\Brand;
 use App\Models\Upload;
 use Cache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -51,6 +53,44 @@ class Banner extends Model
             return '#';
         }
     }
+
+    public function getBannerLink()
+    {
+        if ($this->link_ref == 'product' && $this->link_ref_id !== null) {
+            $product = Product::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
+        } elseif ($this->link_ref == 'category' && $this->link_ref_id !== null) {
+            $product = Category::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
+        } elseif ($this->link_ref == 'offer' && $this->link_ref_id !== null) {
+            $product = Offers::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
+        }  elseif ($this->link_ref == 'brand' && $this->link_ref_id !== null) {
+            $product = Brand::where('id', $this->link_ref_id)->select('slug')->first();
+            if($product){
+                return $product->slug;
+            }else{
+                return '#';
+            }
+        } elseif ($this->link_ref == 'external' && $this->link !== null) {
+            return $this->link;
+        } else {
+            return '#';
+        }
+    }
+
 
     public static function boot()
     {

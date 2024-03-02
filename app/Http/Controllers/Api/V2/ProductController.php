@@ -4,27 +4,218 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Resources\V2\ProductCollection;
 use App\Http\Resources\V2\ProductMiniCollection;
+use App\Http\Resources\V2\ProductFilterCollection;
 use App\Http\Resources\V2\ProductDetailCollection;
 use App\Http\Resources\V2\FlashDealCollection;
 use App\Models\FlashDeal;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Color;
+use App\Models\Category;
+use App\Models\Brand;
+use App\Models\Page;
 use Illuminate\Http\Request;
 use App\Utility\CategoryUtility;
 use App\Utility\SearchUtility;
 use Cache;
+use DB;
+use Auth;
 
 class ProductController extends Controller
 {
-    public function index()
+
+    public function relatedProducts(Request $request){
+        $limit = $request->limit ? $request->limit : 10;
+        $offset = $request->offset ? $request->offset : 0;
+        $category_slug = $request->category_slug ?? '';
+        $product_slug = $request->product_slug ?? '';
+
+       
+        $product_query  = Product::wherePublished(1);
+
+        if ($category_slug) {
+            $category_ids = Category::where('slug',$category_slug)->pluck('id')->toArray();
+            $product_query->whereIn('category_id', $category_ids);
+        }
+        $product_query->where('slug','!=', $product_slug)->latest();
+
+        $products = $product_query->skip($offset)->take($limit)->get();
+        
+        $response = new ProductFilterCollection($products);
+      
+        return response()->json(['success' => true,"message"=>"Success","data" => $response],200);
+    }
+    public function index(Request $request)
     {
-        return new ProductMiniCollection(Product::latest()->paginate(10));
+        $limit = $request->limit ? $request->limit : 10;
+        $offset = $request->offset ? $request->offset : 0;
+        $min_price = $request->min_price ? $request->min_price : '';
+        $max_price = $request->max_price ? $request->max_price : '';
+        $category = $request->category ? explode(',', $request->category)  : false;
+        $brand = $request->brand ? explode(',', $request->brand)  : false;
+        $offer = $request->offer ? explode(',', $request->offer)  : false;
+
+        $category_slug = $request->category_slug ? explode(',', $request->category_slug)  : false;
+        $brand_slug = $request->brand_slug ? explode(',', $request->brand_slug)  : false;
+
+        $offer_slug = $request->offer_slug ? explode(',', $request->offer_slug)  : false;
+
+        $product_query  = Product::wherePublished(1);
+        
+        $metaData = Page::where('type', 'product_listing')->select('image1','meta_title', 'meta_description', 'keywords', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_image')->first();
+        if($metaData){
+            $metaData->image1           = ($metaData->image1 != NULL) ? uploaded_asset($metaData->image1) : '';
+            $metaData->meta_image       = ($metaData->meta_image != NULL) ? uploaded_asset($metaData->meta_image) : '';
+            $metaData->footer_title     = '';
+            $metaData->footer_content   = '';
+        }
+        
+        $meta = NULL;
+        if($offer){
+            $product_ids = getOffersProductIds($offer,1);
+            $product_query->whereIn('id', $product_ids);
+        }
+
+        if($offer_slug){
+            $product_ids = getOffersProductIds($offer_slug,0);
+            $product_query->whereIn('id', $product_ids);
+        }
+
+        if ($category) {
+            $product_query->whereIn('category_id', $category);
+        }
+
+        if ($category_slug) {
+            $catids = implode(',', $category_slug);
+            $childIds = [];
+            $category_ids = Category::whereIn('slug',$category_slug)->pluck('id')->toArray();
+            $childIds[] = $category_ids;
+            if(!empty($category_ids)){
+                foreach($category_ids as $cId){
+                    $childIds[] = getChildCategoryIds($cId);
+                }
+            }
+
+            if(!empty($childIds)){
+                $childIds = array_merge(...$childIds);
+                $childIds = array_unique($childIds);
+            }
+            // print_r($childIds);
+            // die;
+            $product_query->whereIn('category_id', $childIds);
+            if(!empty($category_ids)){
+                $meta = Category::select('meta_title', 'meta_description', 'og_title', 'og_description', 'twitter_title', 'twitter_description', 'meta_keyword', 'footer_title', 'footer_content')->find($category_ids[0]);
+            }
+        }   
+
+        if ($brand) {
+            $product_query->whereIn('brand_id', $brand);
+        }
+        if ($brand_slug) {
+            $brand_ids = Brand::whereIn('slug',$brand_slug)->where('is_active', 1)->pluck('id')->toArray();
+            $product_query->whereIn('brand_id', $brand_ids);
+        }
+
+        if ($request->order_by) {
+            switch ($request->order_by) {
+                case 'latest':
+                    $product_query->latest();
+                    break;
+                case 'oldest':
+                    $product_query->oldest();
+                    break;
+                case 'name_asc':
+                    $product_query->orderBy('name', 'asc');
+                    break;
+                case 'name_desc':
+                    $product_query->orderBy('name', 'desc');
+                    break;
+                case 'price_high':
+                    $product_query->select('*', DB::raw("(SELECT MAX(price) from product_stocks WHERE product_id = products.id) as sort_price"));
+                    $product_query->orderBy('sort_price', 'desc');
+                    break;
+                case 'price_low':
+                    $product_query->select('*', DB::raw("(SELECT MIN(price) from product_stocks WHERE product_id = products.id) as sort_price"));
+                    $product_query->orderBy('sort_price', 'asc');
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+        }
+
+        if ($request->search) {
+            $sort_search = $request->search;
+            $products = $product_query
+                ->where('name', 'like', '%' . $sort_search . '%')
+                ->orWhere('tags', 'like', '%' . $sort_search . '%')
+                ->orWhereHas('stocks', function ($q) use ($sort_search) {
+                    $q->where('sku', 'like', '%' . $sort_search . '%');
+                });
+
+            SearchUtility::store($sort_search, $request);
+        }
+        if ($min_price != null && $min_price != "" && is_numeric($min_price)) {
+            $product_query->where('unit_price', '>=', $min_price);
+        }
+
+        if ($max_price != null && $max_price != "" && is_numeric($max_price)) {
+            $product_query->where('unit_price', '<=', $max_price);
+        }
+
+        $total_count = $product_query->count();
+        $products = $product_query->skip($offset)->take($limit)->get();
+        
+        $next_offset = $offset + $limit;
+      
+        $response = new ProductFilterCollection($products);
+        
+        // print_r($metaData);
+        if($meta != NULL){
+            $metaData->meta_title           = ($meta->meta_title != '') ? $meta->meta_title : $metaData->meta_title ;
+            $metaData->meta_description     = ($meta->meta_description != '') ? $meta->meta_description : $metaData->meta_description ;
+            $metaData->og_title             = ($meta->og_title != '') ? $meta->og_title : $metaData->og_title ;
+            $metaData->og_description       = ($meta->og_description != '') ? $meta->og_description : $metaData->og_description ;
+            $metaData->twitter_title        = ($meta->twitter_title != '') ? $meta->twitter_title : $metaData->twitter_title ;
+            $metaData->twitter_description  = ($meta->twitter_description != '') ? $meta->twitter_description : $metaData->twitter_description ;
+            $metaData->keywords             = ($meta->meta_keyword != '') ? $meta->meta_keyword : $metaData->keywords ;
+            $metaData->footer_title         = $meta->footer_title;
+            $metaData->footer_content       = $meta->footer_content;
+            
+        }
+  
+        return response()->json(['success' => true,"message"=>"Success","data" => $response, "total_count" => $total_count, "next_offset" => $next_offset, 'meta' => $metaData ],200);
+
     }
 
-    public function show($id)
+    public function show(Request $request)
     {
-        return new ProductDetailCollection(Product::where('id', $id)->get());
+        $product_id = $request->has('product_id') ? $request->product_id : '';
+        $product_slug = $request->has('product_slug') ? $request->product_slug : '';
+
+        $product = [];
+        if($product_id != ''){
+            $product = Product::with(['stocks','tabs','reviews','category','seo'])->where('published',1)->findOrFail($product_id);
+        }
+
+        if($product_slug != ''){
+            $product = Product::with(['stocks','tabs','reviews','category','seo'])->where('slug',$product_slug)->where('published',1)->first();
+        }
+        if(!empty($product)){
+            $product->user_id = (!empty(auth('sanctum')->user())) ? auth('sanctum')->user()->id : '';
+        }
+        
+        //    echo '<pre>';
+        //    print_r($product->stocks);
+        // //    die;
+        // // // echo auth('sanctum')->user()->id;
+        // // // print_r($request->user());
+        // die;
+        if(!empty($product)){
+            return new ProductDetailCollection($product);
+        }
+        
+        return response()->json(['status' => false,"message"=>"No data found","data" => []],200);
     }
 
     public function admin()
@@ -70,7 +261,7 @@ class ProductController extends Controller
 
     public function todaysDeal()
     {
-        return Cache::remember('app.todays_deal', 86400, function(){
+        return Cache::remember('app.todays_deal', 86400, function () {
             $products = Product::where('todays_deal', 1)->physical();
             return new ProductMiniCollection(filter_products($products)->limit(20)->latest()->get());
         });
@@ -78,7 +269,7 @@ class ProductController extends Controller
 
     public function flashDeal()
     {
-        return Cache::remember('app.flash_deals', 86400, function(){
+        return Cache::remember('app.flash_deals', 86400, function () {
             $flash_deals = FlashDeal::where('status', 1)->where('featured', 1)->where('start_date', '<=', strtotime(date('d-m-Y')))->where('end_date', '>=', strtotime(date('d-m-Y')))->get();
             return new FlashDealCollection($flash_deals);
         });
@@ -92,7 +283,7 @@ class ProductController extends Controller
 
     public function bestSeller()
     {
-        return Cache::remember('app.best_selling_products', 86400, function(){
+        return Cache::remember('app.best_selling_products', 86400, function () {
             $products = Product::orderBy('num_of_sale', 'desc')->physical();
             return new ProductMiniCollection(filter_products($products)->limit(20)->get());
         });
@@ -100,7 +291,7 @@ class ProductController extends Controller
 
     public function related($id)
     {
-        return Cache::remember("app.related_products-$id", 86400, function() use ($id){
+        return Cache::remember("app.related_products-$id", 86400, function () use ($id) {
             $product = Product::find($id);
             $products = Product::where('category_id', $product->category_id)->where('id', '!=', $id)->physical();
             return new ProductMiniCollection(filter_products($products)->limit(10)->get());
@@ -109,7 +300,7 @@ class ProductController extends Controller
 
     public function topFromSeller($id)
     {
-        return Cache::remember("app.top_from_this_seller_products-$id", 86400, function() use ($id){
+        return Cache::remember("app.top_from_this_seller_products-$id", 86400, function () use ($id) {
             $product = Product::find($id);
             $products = Product::where('user_id', $product->user_id)->orderBy('num_of_sale', 'desc')->physical();
 
@@ -161,8 +352,8 @@ class ProductController extends Controller
         if ($name != null && $name != "") {
             $products->where(function ($query) use ($name) {
                 foreach (explode(' ', trim($name)) as $word) {
-                    $query->where('name', 'like', '%'.$word.'%')->orWhere('tags', 'like', '%'.$word.'%')->orWhereHas('product_translations', function($query) use ($word){
-                        $query->where('name', 'like', '%'.$word.'%');
+                    $query->where('name', 'like', '%' . $word . '%')->orWhere('tags', 'like', '%' . $word . '%')->orWhereHas('product_translations', function ($query) use ($word) {
+                        $query->where('name', 'like', '%' . $word . '%');
                     });
                 }
             });
@@ -235,8 +426,10 @@ class ProductController extends Controller
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        } elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
@@ -259,10 +452,10 @@ class ProductController extends Controller
         return response()->json([
             'product_id' => $product->id,
             'variant' => $str,
-            'price' => (double)convert_price($price),
+            'price' => (float)convert_price($price),
             'price_string' => format_price(convert_price($price)),
             'stock' => intval($stockQuantity),
-            'image' => $product_stock->image == null ? "" : api_asset($product_stock->image) 
+            'image' => $product_stock->image == null ? "" : api_asset($product_stock->image)
         ]);
     }
 

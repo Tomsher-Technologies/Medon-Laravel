@@ -40,7 +40,7 @@ class OrderDetail extends Model
 
     public function refund_request()
     {
-        return $this->hasOne(RefundRequest::class);
+        return $this->hasOne(RefundRequest::class,'order_details_id','id');
     }
 
     public function affiliate_log()

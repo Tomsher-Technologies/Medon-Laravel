@@ -1,7 +1,7 @@
 <div class="aiz-sidebar-wrap">
     <div class="aiz-sidebar left c-scrollbar">
         <div class="aiz-side-nav-logo-wrap">
-            <a href="{{ route('admin.dashboard') }}" class="d-block text-left">
+            <a href="{{ route('admin.dashboard') }}" class="d-block text-center">
                 @if (get_setting('system_logo_white') != null)
                     <img class="mw-100" src="{{ uploaded_asset(get_setting('system_logo_white')) }}" class="brand-icon"
                         alt="{{ get_setting('site_name') }}">
@@ -45,7 +45,7 @@
                             @endif
                             @if (userHasPermision(2))
                                 <li class="aiz-side-nav-item">
-                                    <a href="{{ route('products.all') }}" class="aiz-side-nav-link">
+                                    <a href="{{ route('products.all') }}" class="aiz-side-nav-link {{ areActiveRoutes(['products.all', 'products.edit']) }}">
                                         <span class="aiz-side-nav-text">All Products</span>
                                     </a>
                                 </li>
@@ -62,12 +62,12 @@
                                         <span class="aiz-side-nav-text">Brand</span>
                                     </a>
                                 </li>
-                                <li class="aiz-side-nav-item">
+                                {{-- <li class="aiz-side-nav-item">
                                     <a href="{{ route('attributes.index') }}"
                                         class="aiz-side-nav-link {{ areActiveRoutes(['attributes.index', 'attributes.create', 'attributes.edit']) }}">
                                         <span class="aiz-side-nav-text">Attribute</span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="aiz-side-nav-item">
                                     <a href="{{ route('reviews.index') }}" class="aiz-side-nav-link">
                                         <span class="aiz-side-nav-text">Product Reviews</span>
@@ -105,16 +105,24 @@
                             @if (userHasPermision(3))
                                 <li class="aiz-side-nav-item">
                                     <a href="{{ route('all_orders.index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['all_orders.index', 'all_orders.show']) }}">
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['all_orders.index', 'all_orders.show','delivery-agents']) }}">
                                         <span class="aiz-side-nav-text">All Orders</span>
                                     </a>
                                 </li>
                             @endif
-                            @if (userHasPermision(28))
+                            @if (userHasPermision(4))
                                 <li class="aiz-side-nav-item">
-                                    <a href="{{ route('enquiries.index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['enquiries.index', 'enquiries.show']) }}">
-                                        <span class="aiz-side-nav-text">Product Enquiry</span>
+                                    <a href="{{ route('return_requests.index') }}"
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['return_requests.index', 'return_orders.show']) }}">
+                                        <span class="aiz-side-nav-text">Return Requests</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if (userHasPermision(5))
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('cancel_requests.index') }}"
+                                        class="aiz-side-nav-link {{ areActiveRoutes(['cancel_requests.index', 'cancel_orders.show']) }}">
+                                        <span class="aiz-side-nav-text">Cancel Requests</span>
                                     </a>
                                 </li>
                             @endif
@@ -148,6 +156,16 @@
                             class="aiz-side-nav-link {{ areActiveRoutes(['uploaded-files.create']) }}">
                             <i class="las la-folder-open aiz-side-nav-icon"></i>
                             <span class="aiz-side-nav-text">Uploaded Files</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if (userHasPermision(23))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('prescriptions') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['prescriptions']) }}">
+                            <i class="las la-folder-open aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Prescriptions</span>
                         </a>
                     </li>
                 @endif
@@ -192,7 +210,7 @@
                             </li>
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('abandoned-cart.index') }}"
-                                    class="aiz-side-nav-link {{ areActiveRoutes(['abandoned-cart.index']) }}">
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['abandoned-cart.index','abandoned-cart.view']) }}">
                                     <span class="aiz-side-nav-text">Abandoned Cart</span>
                                 </a>
                             </li>
@@ -200,13 +218,25 @@
                     </li>
                 @endif
 
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('career.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['career.index']) }}">
-                        <i class="las la-graduation-cap aiz-side-nav-icon"></i>
-                        <span class="aiz-side-nav-text">Careers</span>
-                    </a>
-                </li>
+                @if (userHasPermision(26))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('delivery_boy.index') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['delivery_boy.index', 'delivery_boy.create', 'delivery_boy.edit']) }}">
+                            <i class="las la-motorcycle aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Delivery Boys</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if (userHasPermision(29))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('enquiries.contact') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['enquiries.contact']) }}">
+                            <i class="las la-mail-bulk aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Contact Enquiries</span>
+                        </a>
+                    </li>
+                @endif
 
                 <!-- marketing -->
                 @if (userHasPermision(11))
@@ -245,6 +275,12 @@
                                     <span class="aiz-side-nav-text">Coupon</span>
                                 </a>
                             </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('offers.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['offers.index', 'offers.create', 'offers.edit']) }}">
+                                    <span class="aiz-side-nav-text">Offers</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 @endif
@@ -265,11 +301,11 @@
                                     <span class="aiz-side-nav-text">Header</span>
                                 </a>
                             </li>
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.menu') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Menus</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.footer', ['lang' => App::getLocale()]) }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['website.footer']) }}">
@@ -282,11 +318,11 @@
                                     <span class="aiz-side-nav-text">Pages</span>
                                 </a>
                             </li>
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.appearance') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Appearance</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('home-slider.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['home-slider.index', 'home-slider.create', 'home-slider.edit']) }}">
@@ -303,6 +339,37 @@
                     </li>
                 @endif
 
+                @if (userHasPermision(27))
+                    <li class="aiz-side-nav-item">
+                        <a href="#"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['website.footer', 'website.header', 'banners.*']) }}">
+                            <i class="las la-mobile aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">App Setup</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+                        <ul class="aiz-side-nav-list level-2">
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('splash_screen.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['splash_screen.index']) }}">
+                                    <span class="aiz-side-nav-text">Splash Sliders</span>
+                                </a>
+                            </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('app-banner.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['app-banner.index', 'app-banner.create', 'app-banner.edit']) }}">
+                                    <span class="aiz-side-nav-text">Home Sliders</span>
+                                </a>
+                            </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('app.home') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['app.home']) }}">
+                                    <span class="aiz-side-nav-text">Home Page</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
                 <!-- Setup & Configurations -->
                 @if (userHasPermision(14))
                     <li class="aiz-side-nav-item">
@@ -312,6 +379,11 @@
                             <span class="aiz-side-nav-arrow"></span>
                         </a>
                         <ul class="aiz-side-nav-list level-2">
+                             <li class="aiz-side-nav-item">
+                                <a href="{{ route('shipping_configuration.index') }}" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">Shipping and Return</span>
+                                </a>
+                            </li>
                             {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('general_setting.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">General Settings</span>
@@ -319,16 +391,16 @@
                             </li> --}}
 
 
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('currency.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Currency</span>
                                 </a>
-                            </li>
-                            <li class="aiz-side-nav-item">
+                            </li> --}}
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('smtp_settings.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">SMTP Settings</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <!--<li class="aiz-side-nav-item">-->
                             <!--    <a href="javascript:void(0);" class="aiz-side-nav-link">-->
@@ -381,7 +453,7 @@
 
 
 
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="javascript:void(0);" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">Shipping</span>
                                     <span class="aiz-side-nav-arrow"></span>
@@ -412,12 +484,21 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
+                            </li> --}}
 
                         </ul>
                     </li>
                 @endif
 
+                @if (userHasPermision(21))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('admin.shops.index') }}"
+                            class="aiz-side-nav-link {{ areActiveRoutes(['admin.shops.index','admin.shops.create','admin.shops.edit']) }}">
+                            <i class="las la-store aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">Shops</span>
+                        </a>
+                    </li>
+                @endif
 
                 <!-- Staffs -->
                 @if (userHasPermision(20))

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BusinessSetting;
 use Artisan;
+use DB;
 // use CoreComponentRepository;
 
 class BusinessSettingsController extends Controller
@@ -378,29 +379,35 @@ class BusinessSettingsController extends Controller
 
     public function update(Request $request)
     {
+        // echo '<pre>';
+        // print_r($request->all());
+        // die;
         foreach ($request->types as $key => $type) {
             if ($type == 'site_name') {
                 $this->overWriteEnvFile('APP_NAME', $request[$type]);
             }
 
             if ($type == 'home_banner') {
+               
                 if (count(array_filter($request->banner)) !== count(array_unique(array_filter($request->banner)))) {
                     return back()->withErrors([
                         $request->name => "Both banners cannot be same"
                     ]);
                 }
-
+               
+                BusinessSetting::updateOrCreate([
+                    'type' => $request->name
+                ], [
+                    'value' =>  json_encode($request->banner)
+                ]);
+                
                 BusinessSetting::updateOrCreate([
                     'type' => $request->name . '_status'
                 ], [
                     'value' =>  $request->has('status')
                 ]);
 
-                BusinessSetting::updateOrCreate([
-                    'type' => $request->name
-                ], [
-                    'value' =>  json_encode($request->banner)
-                ]);
+                
             } else if ($type == 'timezone') {
                 $this->overWriteEnvFile('APP_TIMEZONE', $request[$type]);
             } else {
@@ -544,6 +551,7 @@ class BusinessSettingsController extends Controller
 
     public function freeshipping_settings(Request $request)
     {
+       
         BusinessSetting::updateOrCreate([
             'type' => 'free_shipping_status'
         ], [
@@ -557,9 +565,23 @@ class BusinessSettingsController extends Controller
         ]);
 
         BusinessSetting::updateOrCreate([
-            'type' => 'free_shipping_max_amount'
+            'type' => 'default_shipping_amount'
         ], [
-            'value' => $request->free_shipping_max_amount ?? 0
+            'value' => $request->default_shipping_amount ?? 0
+        ]);
+
+        flash(translate('Settings updated successfully'))->success();
+
+        Artisan::call('cache:clear');
+        return back();
+    }
+
+    public function return_settings(Request $request)
+    {
+        BusinessSetting::updateOrCreate([
+            'type' => 'default_return_time'
+        ], [
+            'value' => $request->default_return_time ?? 0
         ]);
 
         flash(translate('Settings updated successfully'))->success();

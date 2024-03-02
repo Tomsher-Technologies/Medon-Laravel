@@ -1,4 +1,4 @@
-@extends('frontend.layouts.app')
+@extends('backend.layouts.layout')
 
 @section('content')
     <div class="ps-section--shopping ps-shopping-cart">
@@ -17,7 +17,7 @@
                                         have been moved or delete.</h5>
                                     <div class="mt-4 pt-2 hstack gap-2 justify-content-center">
                                         <a href="{{ route('home') }}" class="btn ps-btn btn-sm">
-											Back to home
+                                            Back to home
                                         </a>
                                     </div>
                                 </div>

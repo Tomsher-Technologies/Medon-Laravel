@@ -95,7 +95,7 @@ class HomeController extends Controller
         $trending_categories = Cache::rememberForever('trending_categories', function () {
             $categories = get_setting('home_categories');
             if ($categories) {
-                return Category::whereIn('id', json_decode($categories))
+                return Category::whereIn('id', json_decode($categories))->where('is_active', 1)
                     ->with(['icon'])
                     ->get();
             }
@@ -104,7 +104,7 @@ class HomeController extends Controller
         $section_categories = Cache::rememberForever('section_categories', function () {
             $categories = get_setting('catsection_categories');
             if ($categories) {
-                return Category::whereIn('id', json_decode($categories))
+                return Category::whereIn('id', json_decode($categories))->where('is_active', 1)
                     ->with(['icon'])
                     ->get();
             }
@@ -325,7 +325,7 @@ class HomeController extends Controller
     {
         $brands = Cache::rememberForever('home_brands', function () {
             $brand_ids = get_setting('top10_brands');
-            return Brand::whereIn('id', json_decode($brand_ids))->with('logoImage')->get();
+            return Brand::whereIn('id', json_decode($brand_ids))->where('is_active', 1)->with('logoImage')->get();
         });
         return view('frontend.partials.home.brands_section', compact('brands'));
     }
@@ -421,7 +421,7 @@ class HomeController extends Controller
     public function all_categories(Request $request)
     {
         //        $categories = Category::where('level', 0)->orderBy('name', 'asc')->get();
-        $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->get();
+        $categories = Category::where('level', 0)->orderBy('order_level', 'desc')->where('is_active', 1)->get();
         return view('frontend.all_category', compact('categories'));
     }
     public function all_brands(Request $request)
@@ -436,7 +436,7 @@ class HomeController extends Controller
         if (addon_is_activated('seller_subscription')) {
             if ($seller->seller_package && $seller->seller_package->product_upload_limit > $seller->user->products()->count()) {
                 $categories = Category::where('parent_id', 0)
-
+                    ->where('is_active', 1)
                     ->with('childrenCategories')
                     ->get();
                 return view('frontend.user.seller.product_upload', compact('categories'));
@@ -446,7 +446,7 @@ class HomeController extends Controller
             }
         }
         $categories = Category::where('parent_id', 0)
-
+            ->where('is_active', 1)
             ->with('childrenCategories')
             ->get();
         return view('frontend.user.seller.product_upload', compact('categories'));
@@ -458,7 +458,7 @@ class HomeController extends Controller
         $lang = $request->lang;
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
-
+            ->where('is_active', 1)
             ->with('childrenCategories')
             ->get();
         return view('frontend.user.seller.product_edit', compact('product', 'categories', 'tags', 'lang'));
@@ -493,7 +493,8 @@ class HomeController extends Controller
             }
         }
 
-        foreach (Brand::all() as  $brand) {
+        $brandsAll = Brand::where('is_active', 1)->get();
+        foreach ($brandsAll as  $brand) {
             if (is_array($request->top_brands) && in_array($brand->id, $request->top_brands)) {
                 $brand->top = 1;
                 $brand->save();

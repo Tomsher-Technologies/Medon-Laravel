@@ -9,28 +9,8 @@
     </div>
     <div class="d-flex justify-content-between align-items-stretch flex-grow-xl-1">
         <div class="d-flex justify-content-around align-items-center align-items-stretch">
-            <div class="d-flex justify-content-around align-items-center align-items-stretch">
-                <div class="aiz-topbar-item">
-                    <div class="d-flex align-items-center">
-                        <a class="btn btn-icon btn-circle btn-light" href="{{ route('home') }}" target="_blank"
-                            title="Browse Website">
-                            <i class="las la-globe"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @if (addon_is_activated('pos_system'))
-                <div class="d-flex justify-content-around align-items-center align-items-stretch ml-3">
-                    <div class="aiz-topbar-item">
-                        <div class="d-flex align-items-center">
-                            <a class="btn btn-icon btn-circle btn-light" href="{{ route('poin-of-sales.index') }}"
-                                target="_blank" title="POS">
-                                <i class="las la-print"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            @endif
+           
+            
             <div class="d-flex justify-content-around align-items-center align-items-stretch ml-3">
                 <div class="aiz-topbar-item">
                     <div class="d-flex align-items-center">
@@ -39,6 +19,18 @@
                             <i class="las la-hdd fs-20"></i>
                             <span class="fw-500 ml-1 mr-0 d-none d-md-block">Clear Cache</span>
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-around align-items-center align-items-stretch ml-3">
+                <div class="aiz-topbar-item">
+                    <div class="d-flex align-items-center">
+                        <div class="navbar-nav align-items-center">
+                            <div class="nav-item navbar-search-wrapper mb-0">
+                              <strong class="fs-16 text-uppercase"> {{ Auth::user()->shop->name ?? Auth::user()->name }}</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

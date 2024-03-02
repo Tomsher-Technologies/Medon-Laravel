@@ -34,10 +34,13 @@ class ProductController extends Controller
 
     public function all_products(Request $request)
     {
+       
         $col_name = null;
         $query = null;
         $seller_id = null;
         $sort_search = null;
+      
+        $category = ($request->has('category')) ? $request->category : '';
         $products = Product::orderBy('created_at', 'desc');
         if ($request->search != null) {
             $sort_search = $request->search;
@@ -61,15 +64,29 @@ class ProductController extends Controller
         }
 
         if ($request->has('category') && $request->category !== '0') {
-            $products = $products->whereHas('category', function ($q) use ($request) {
-                $q->where('id', $request->category);
+            $childIds = [];
+            $categoryfilter = $request->category;
+            $childIds[] = array($request->category);
+            
+            if($categoryfilter != ''){
+                $childIds[] = getChildCategoryIds($categoryfilter);
+            }
+
+            if(!empty($childIds)){
+                $childIds = array_merge(...$childIds);
+                $childIds = array_unique($childIds);
+            }
+            
+            $products = $products->whereHas('category', function ($q) use ($childIds) {
+                $q->whereIn('id', $childIds);
             });
         }
+       
         $products->with('category');
         $products = $products->paginate(15);
         $type = 'All';
 
-        return view('backend.product.products.index', compact('products', 'type', 'col_name', 'query', 'seller_id', 'sort_search'));
+        return view('backend.product.products.index', compact('products', 'type', 'col_name', 'query', 'seller_id', 'sort_search','category'));
     }
 
 
@@ -81,6 +98,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::where('parent_id', 0)
+            ->where('is_active', 1)
             ->with('childrenCategories')
             ->get();
 
@@ -109,13 +127,22 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         // dd($request);
+
+        $category = Category::find($request->category_id);
+        $main_category = $category->id;
+        if($category->parent_id != 0){
+            $main_category = $category->getMainCategory();
+        }
+
         $product = new Product;
         $product->name = $request->name;
+        $product->main_category = $main_category;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
 
         $product->unit = $request->unit;
         $product->min_qty = $request->min_qty;
+        $product->vat = $request->vat ?? 0;
         $product->sku = cleanSKU($request->sku);
         $product->low_stock_quantity = $request->low_stock_quantity;
         $product->stock_visibility_state = $request->stock_visibility_state;
@@ -392,6 +419,7 @@ class ProductController extends Controller
         $lang = $request->lang;
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
+            ->where('is_active', 1)
             ->with('childrenCategories')
             ->get();
         return view('backend.product.products.edit', compact('product', 'categories', 'tags', 'lang'));
@@ -413,7 +441,7 @@ class ProductController extends Controller
         $tags = json_decode($product->tags);
         // $categories = Category::all();
         $categories = Category::where('parent_id', 0)
-
+            ->where('is_active', 1)
             ->with('childrenCategories')
             ->get();
 
@@ -519,7 +547,14 @@ class ProductController extends Controller
             $gallery = $this->downloadAndResizeImage($request->file('thumbnail_image'), $product->sku, true);
             $product->thumbnail_img = $gallery;
         }
-
+        if($product->category_id != $request->category_id){
+            $category = Category::find($request->category_id);
+            $main_category = $category->id;
+            if($category->parent_id != 0){
+                $main_category = $category->getMainCategory();
+            }
+            $product->main_category       = $main_category;
+        }
 
         $product->category_id       = $request->category_id;
         $product->brand_id          = $request->brand_id;
@@ -540,6 +575,7 @@ class ProductController extends Controller
         // $product->photos                 = $request->photos;
         // $product->thumbnail_img          = $request->thumbnail_img;
         $product->min_qty                = $request->min_qty;
+        $product->vat                   = $request->vat ?? 0;
         $product->low_stock_quantity     = $request->low_stock_quantity;
         $product->stock_visibility_state = $request->stock_visibility_state;
         $product->external_link = $request->external_link;
@@ -572,6 +608,12 @@ class ProductController extends Controller
 
         if ($request->has('featured')) {
             $product->featured = 1;
+        }
+
+        if ($request->has('return_refund')) {
+            $product->return_refund = 1;
+        }else{
+            $product->return_refund = 0;
         }
 
         $product->pdf = $request->pdf;

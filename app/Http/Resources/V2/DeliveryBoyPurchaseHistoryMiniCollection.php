@@ -7,68 +7,45 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class DeliveryBoyPurchaseHistoryMiniCollection extends ResourceCollection
 {
+    public function with($request)
+    {
+        return [
+            'status' => true,
+            'message' => 'Data fetched successfully'
+        ];
+    }
+
     public function toArray($request)
     {
         return [
-            'data' => $this->collection->map(function($data) {
-                $delivery_pickup_latitude = 90.99;
-                $delivery_pickup_longitude = 180.99;
-                $store_location_available = false;
-                if($data->seller && $data->seller->delivery_pickup_latitude) {
-                    $store_location_available = true;
-                    $delivery_pickup_latitude = floatval($data->seller->delivery_pickup_latitude);
-                    $delivery_pickup_longitude = floatval($data->seller->delivery_pickup_longitude);
-                } if(!$data->seller) {
-                    $store_location_available = true;
-                    if(get_setting('delivery_pickup_latitude') && get_setting('delivery_pickup_longitude')) {
-                        $delivery_pickup_latitude = floatval(get_setting('delivery_pickup_latitude'));
-                        $delivery_pickup_longitude = floatval(get_setting('delivery_pickup_longitude'));
-                    }
-                    
+            'data' => $this->collection->map(function ($data) {
+                if(isset($data->delivery_approval)){
+                    $type = 'return';
+                }else{
+                    $type = 'order';
                 }
-                $shipping_address = json_decode($data->shipping_address,true);
-                $location_available = false;
-                $lat = 90.99;
-                $lang = 180.99;
-
-                if(isset($shipping_address['lat_lang'])){
-                    $location_available = true;
-                    $exploded_lat_lang = explode(',',$shipping_address['lat_lang']);
-                    $lat = floatval($exploded_lat_lang[0]);
-                    $lang = floatval($exploded_lat_lang[1]);
-                }
+                $shipping_address = json_decode($data->order->shipping_address ?? '', true);
+                $grand_total = $data->order->grand_total ?? null;
+                $created_at = $data->order->created_at ?? null;
                 return [
-                    'id' => $data->id,
-                    'code' => $data->code,
-                    'user_id' => intval($data->user_id),
-                    'payment_type' => ucwords(str_replace('_', ' ', $data->payment_type)) ,
-                    'payment_status' => $data->payment_status,
-                    'payment_status_string' => ucwords(str_replace('_', ' ', $data->payment_status)),
-                    'delivery_status' => $data->delivery_status,
-                    'delivery_status_string' => $data->delivery_status == 'pending'? "Order Placed" : ucwords(str_replace('_', ' ',  $data->delivery_status)),
-                    'grand_total' => format_price($data->grand_total) ,
-                    'date' => Carbon::createFromFormat('Y-m-d H:i:s',$data->delivery_history_date)->format('d-m-Y'),
-                    'cancel_request' => $data->cancel_request == 1,
-                    'delivery_history_date' => $data->delivery_history_date,
-                    'location_available' => $location_available,
-                    'lat' => $lat,
-                    'lang' => $lang,
-                    'store_location_available' => $store_location_available,
-                    'delivery_pickup_latitude' => $delivery_pickup_latitude,
-                    'delivery_pickup_longitude' => $delivery_pickup_longitude,
-                    'links' => [
-                        'details' => ""
-                    ]
+                    'id' => ($type == 'order') ? $data->order->id  : $data->id ,
+                    'code' => $data->order->code ?? '' ,
+                    'user_id' => intval($data->order->user_id ?? ''),
+                    'payment_type' => ucwords(str_replace('_', ' ', $data->order->payment_type ?? '')),
+                    'payment_status' => $data->order->payment_status ?? '',
+                    'payment_status_string' => ucwords(str_replace('_', ' ', $data->order->payment_status ?? '')),
+                    'delivery_status' => $data->order->delivery_status ?? '',
+                    'delivery_status_string' => (($data->order->delivery_status ?? '') == 'pending') ? "Order Placed" : ucwords(str_replace('_', ' ',  $data->delivery_status ?? '')),
+                    'grand_total' => ($grand_total != null) ? format_price($grand_total) : '',
+                    'date' => ($created_at != null) ? Carbon::createFromFormat('Y-m-d H:i:s', $created_at)->format('d-m-Y') : '',
+                    'shipping_address' => $shipping_address,
+                    'type' => $type,
+                    'order_notes' => $data->order->order_notes,
+                    'delivery_date' => ($type == 'order' && $data->delivery_date != NULL) ? date('d-m-Y H:i a', strtotime($data->delivery_date)) : (($type == 'return' && $data->delivery_completed_date != NULL) ? date('d-m-Y H:i a', strtotime($data->delivery_completed_date)) : '')
                 ];
             })
         ];
     }
 
-    public function with($request)
-    {
-        return [
-            'success' => true,
-            'status' => 200
-        ];
-    }
+   
 }

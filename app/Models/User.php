@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Cart;
+use App\Models\Delivery\DeliveryBoy;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\PasswordReset;
-use Auth;
+use Illuminate\Support\Facades\URL;
 
 class User extends Authenticatable
 {
@@ -35,6 +35,7 @@ class User extends Authenticatable
         'email',
         'password',
         'user_type',
+        'shop_id',
         'address',
         'city',
         'postal_code',
@@ -42,7 +43,11 @@ class User extends Authenticatable
         'country',
         'provider_id',
         'email_verified_at',
-        'verification_code'
+        'verification_code',
+        'phone_verified',
+        'eid_image_front',
+        'eid_image_back',
+        'is_active'
     ];
 
     /**
@@ -57,6 +62,16 @@ class User extends Authenticatable
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function scopeRider($query)
+    {
+        return $query->where('user_type', 'delivery_boy')->with('delivery_boy');
+    }
+
+    public function delivery_boy()
+    {
+        return $this->hasOne(DeliveryBoy::class);
     }
 
     public function customer()
@@ -86,7 +101,7 @@ class User extends Authenticatable
 
     public function shop()
     {
-        return $this->hasOne(Shop::class);
+        return $this->hasOne(Shops::class,'id','shop_id');
     }
 
     public function staff()
@@ -152,5 +167,15 @@ class User extends Authenticatable
     public function product_bids()
     {
         return $this->hasMany(AuctionProductBid::class);
+    }
+
+    public function getEidFrontImage()
+    {
+        return $this->eid_image_front ? URL::to($this->eid_image_front) : null;
+    }
+
+    public function getEidBackImage()
+    {
+        return $this->eid_image_back ? URL::to($this->eid_image_back) : null;
     }
 }

@@ -7,10 +7,10 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <meta name="robots" content="noindex">
     <!-- Favicon -->
-  	<title>{{ config('app.name', 'eCommerce') }}</title>
-
+    <title>{{ env('APP_NAME') }} | Admin Panel</title>
+      <link rel="icon" href="{{ asset('admin_assets/assets/img/favicon.ico') }}">
     <!-- google font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 
@@ -28,7 +28,7 @@
         <div class="flex-grow-1">
             @yield('content')
         </div>
-
+        <p class="mb-0">&copy; {{ env('APP_NAME') }} - Developed By <a href="https://www.tomsher.com/">Tomsher</a></p>
     </div><!-- .aiz-main-wrapper -->
     <script src="{{ static_asset('assets/js/vendors.js') }}" ></script>
     <script src="{{ static_asset('assets/js/aiz-core.js') }}" ></script>

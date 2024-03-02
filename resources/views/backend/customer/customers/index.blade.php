@@ -15,7 +15,7 @@
                     <h5 class="mb-0 h6">Customers</h5>
                 </div>
 
-                <div class="dropdown mb-2 mb-md-0">
+                {{-- <div class="dropdown mb-2 mb-md-0">
                     <button class="btn border dropdown-toggle" type="button" data-toggle="dropdown">
                         Bulk Action
                     </button>
@@ -23,7 +23,7 @@
                         <a class="dropdown-item" href="#"
                             onclick="bulk_delete()">Delete selection</a>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="col-md-3">
                     <div class="form-group mb-0">
@@ -38,8 +38,8 @@
                 <table class="table aiz-table mb-0">
                     <thead>
                         <tr>
-                            <!--<th data-breakpoints="lg">#</th>-->
-                            <th>
+                            <th data-breakpoints="lg">#</th>
+                            {{-- <th>
                                 <div class="form-group">
                                     <div class="aiz-checkbox-inline">
                                         <label class="aiz-checkbox">
@@ -48,19 +48,19 @@
                                         </label>
                                     </div>
                                 </div>
-                            </th>
+                            </th> --}}
                             <th>Name</th>
                             <th data-breakpoints="lg">Email Address</th>
                             <th data-breakpoints="lg">Phone</th>
-                            <th>Options</th>
+                            <th class="text-center">Options</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($users as $key => $user)
                             @if ($user != null)
                                 <tr>
-                                    <!--<td>{{ $key + 1 + ($users->currentPage() - 1) * $users->perPage() }}</td>-->
-                                    <td>
+                                    <td>{{ $key + 1 + ($users->currentPage() - 1) * $users->perPage() }}</td>
+                                    {{-- <td>
                                         <div class="form-group">
                                             <div class="aiz-checkbox-inline">
                                                 <label class="aiz-checkbox">
@@ -70,7 +70,7 @@
                                                 </label>
                                             </div>
                                         </div>
-                                    </td>
+                                    </td> --}}
                                     <td>
                                         @if ($user->banned == 1)
                                             <i class="las la-ban text-danger" aria-hidden="true"></i>
@@ -79,17 +79,17 @@
                                     </td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->phone }}</td>
-                                    <td class="text-right">
+                                    <td class="text-center">
                                         <a href="{{ route('customers.edit', $user->id) }}"
                                             class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                             title="Edit">
                                             <i class="las la-edit"></i>
                                         </a>
-                                        <a href="{{ route('customers.login', encrypt($user->id)) }}"
+                                        {{-- <a href="{{ route('customers.login', encrypt($user->id)) }}"
                                             class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                             title="Log in as this Customer">
                                             <i class="las la-sign-in-alt"></i>
-                                        </a>
+                                        </a> --}}
                                         @if ($user->banned != 1)
                                             <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm"
                                                 onclick="confirm_ban('{{ route('customers.ban', encrypt($user->id)) }}');"
@@ -103,12 +103,12 @@
                                                 <i class="las la-user-check"></i>
                                             </a>
                                         @endif
-                                        <a href="#"
+                                        {{-- <a href="#"
                                             class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                             data-href="{{ route('customers.destroy', $user->id) }}"
                                             title="Delete">
                                             <i class="las la-trash"></i>
-                                        </a>
+                                        </a> --}}
                                     </td>
                                 </tr>
                             @endif

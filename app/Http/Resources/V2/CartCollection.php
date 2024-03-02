@@ -12,15 +12,13 @@ class CartCollection extends ResourceCollection
             'data' => $this->collection->map(function($data) {
                 return [
                     'id' => $data->id,
-                    'seller_id' => $data->seller_id,
                     'product' => [
+                        'id' => $data->product->id,
                         'name' => $data->product->name,
-                        'image' => api_asset($data->product->thumbnail_img)
+                        'image' => get_product_image($data->product->thumbnail_img,'300')
                     ],
                     'variation' => $data->variation,
-                    'price' => (double) $data->price,
-                    'tax' => (double) $data->tax,
-                    'shipping_cost' => (double) $data->shipping_cost,
+                    'price' => format_price(convert_price($data->price)),
                     'quantity' => (integer) $data->quantity,
                     'date' => $data->created_at->diffForHumans()
                 ];

@@ -7,6 +7,7 @@ use App\Http\Controllers\OTPVerificationController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ClubPointController;
 use App\Models\Order;
+use App\Models\Shops;
 use App\Models\Cart;
 use App\Models\Address;
 use App\Models\Product;
@@ -16,19 +17,27 @@ use App\Models\Color;
 use App\Models\OrderDetail;
 use App\Models\CouponUsage;
 use App\Models\Coupon;
+use App\Models\OrderDeliveryBoys;
 use App\OtpConfiguration;
 use App\Models\User;
 use App\Models\BusinessSetting;
 use App\Models\CombinedOrder;
 use App\Models\SmsTemplate;
+use App\Models\OrderTracking;
+use App\Models\RefundRequest;
+use App\Models\ShopNotifications;
+use App\Models\LiveLocations;
 use Auth;
 use Session;
 use DB;
 use Mail;
 use App\Mail\InvoiceEmailManager;
 use App\Utility\NotificationUtility;
+use App\Mail\Admin\OrderAssign;
+use App\Mail\Admin\ReturnAssign;
 // use CoreComponentRepository;
 use App\Utility\SmsUtility;
+use App\Utility\SendSMSUtility;
 
 class OrderController extends Controller
 {
@@ -77,25 +86,34 @@ class OrderController extends Controller
     public function all_orders(Request $request)
     {
         //CoreComponentRepository::instantiateShopRepository();
+        $request->session()->put('last_url', url()->full());
 
+        $shop_search    = ($request->has('shop_search')) ? $request->shop_search : '';
+        
         $date = $request->date;
         $sort_search = null;
         $delivery_status = null;
 
-        $orders = Order::orderBy('id', 'desc');
+        $orders = Order::where('order_success', 1)->orderBy('id', 'desc');
+        if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
+            $orders->where('shop_id', Auth::user()->shop_id);
+        }
         if ($request->has('search')) {
             $sort_search = $request->search;
             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
+        }
+        if ($shop_search) {
+            $orders = $orders->where('shop_id', $shop_search);
         }
         if ($request->delivery_status != null) {
             $orders = $orders->where('delivery_status', $request->delivery_status);
             $delivery_status = $request->delivery_status;
         }
         if ($date != null) {
-            $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+            $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
         }
         $orders = $orders->paginate(15);
-        return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'delivery_status', 'date'));
+        return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'delivery_status', 'date','shop_search'));
     }
 
     public function all_orders_show($id)
@@ -105,6 +123,202 @@ class OrderController extends Controller
         return view('backend.sales.all_orders.show', compact('order'));
     }
 
+    public function return_orders_show($id)
+    {
+        $order = RefundRequest::with(['order'])->findOrFail(decrypt($id));
+        return view('backend.sales.return_orders_show', compact('order'));
+    }
+
+    public function cancel_orders_show($id)
+    {
+        $order = Order::findOrFail(decrypt($id));
+        return view('backend.sales.cancel_orders_show', compact('order'));
+    }
+
+
+     // All Orders
+     public function allReturnRequests(Request $request)
+     {
+        $request->session()->put('last_url', url()->full());
+        $date           = ($request->has('date')) ? $request->date : ''; //
+        $search         = ($request->has('search')) ? $request->search : '';
+        $shop_search    = ($request->has('shop_search')) ? $request->shop_search : '';
+        $ra_search      = ($request->has('ra_search')) ? $request->ra_search : '';
+        $da_search      = ($request->has('da_search')) ? $request->da_search : '';
+        $refund_search  = ($request->has('refund_search')) ? $request->refund_search : '';
+        $agent_search   = ($request->has('agent_search')) ? $request->agent_search : '';
+        $sort_search = null;
+        
+        $orders = RefundRequest::with(['order'])->orderBy('id', 'desc');
+
+        if(Auth::user()->user_type == 'staff' && Auth::user()->shop_id != NULL){
+            $orders->where('shop_id', Auth::user()->shop_id);
+        }
+         if ($search) {
+            $orders = $orders->whereHas('order', function ($q) use ($search) {
+                $q->where('code', 'like', '%' . $search . '%');
+            });
+         }
+
+        if ($shop_search) {
+            $orders = $orders->where('shop_id', $shop_search);
+        }
+
+        if ($agent_search) {
+            $orders = $orders->where('delivery_boy', $agent_search);
+        }
+
+        if ($ra_search) {
+            $ra_search = ($ra_search == 10) ? 0 : $ra_search;
+            $orders = $orders->where('admin_approval', $ra_search);
+        }
+
+        if ($da_search) {
+            $da_search = ($da_search == 10) ? 0 : $da_search;
+            $orders = $orders->where('delivery_approval', $da_search);
+        }
+
+        if ($refund_search) {
+            $orders = $orders->where('refund_type', $refund_search);
+        }
+         
+        if ($date != null) {
+            $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+        }
+         $orders = $orders->paginate(15);
+         return view('backend.sales.return_requests', compact('orders', 'search','shop_search','ra_search','da_search','refund_search','date','agent_search'));
+     }
+
+     public function allCancelRequests(Request $request){
+        $request->session()->put('last_url', url()->full());
+        $search         = ($request->has('search')) ? $request->search : '';
+        $ca_search      = ($request->has('ca_search')) ? $request->ca_search : '';
+        $date           = ($request->has('date')) ? $request->date : ''; //
+        $refund_search  = ($request->has('refund_search')) ? $request->refund_search : '';
+
+        $orders = Order::where('order_success', 1)->where('cancel_request',1)->orderBy('cancel_request_date','DESC');
+        if($search){
+            $orders = $orders->where('code', 'like', '%' . $search . '%');
+        }
+        if($ca_search){
+            $ca_search = ($ca_search == 10) ? 0 : $ca_search;
+            $orders = $orders->where('cancel_approval', $ca_search);
+        }
+
+        if ($date != null) {
+            $orders = $orders->whereDate('cancel_request_date', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('cancel_request_date', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+        }
+        if ($refund_search) {
+            $orders = $orders->where('cancel_refund_type', $refund_search);
+        }
+
+        $orders = $orders->paginate(15);
+        // echo '<pre>';
+        // print_r($orders);
+        // die;
+        return view("backend.sales.cancel_requests",compact('orders', 'search', 'ca_search', 'date', 'refund_search'));
+     }
+
+     public function returnRequestStatus(Request $request){
+        $id = $request->id;
+        $status = $request->status;
+        $type = $request->type;
+        
+        $refund_request = RefundRequest::findOrFail($id);
+        if($type == 'admin'){
+            $refund_request->update([
+                'admin_approval' => $status,
+            ]);
+        }elseif($type == 'delivery'){
+            $refund_request->update([
+                'delivery_approval' => $status,
+            ]);
+        }
+     }
+
+     public function cancelRequestStatus(Request $request){
+        $id = $request->id;
+        $status = $request->status;
+        
+        $cancel_request = Order::findOrFail($id);
+        if($cancel_request->cancel_request == 1 ){
+
+            $message = getOrderStatusMessageTest($cancel_request->user->name, $cancel_request->code);
+            $userPhone = $cancel_request->user->phone ?? '';
+
+            $cancel_request->cancel_approval = $status;
+            if($status == 1){
+                $cancel_request->delivery_status = 'cancelled';
+
+                foreach ($cancel_request->orderDetails as $key => $orderDetail) {
+                    $orderDetail->delivery_status = 'cancelled';
+                    $orderDetail->save();
+
+                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)->first();
+                
+                    if ($product_stock != null) {
+                        $product_stock->qty += $orderDetail->quantity;
+                        $product_stock->save();
+                    }
+                }
+
+                OrderDeliveryBoys::where('order_id',$id)->delete();
+                if($userPhone != '' && isset($message['cancelled']) && $message['cancelled'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['cancelled']);
+                }
+            }else{
+                if($userPhone != '' && isset($message['cancel_reject']) && $message['cancel_reject'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['cancel_reject']);
+                }
+            }
+            $cancel_request->cancel_approval_date = date('Y-m-d H:i:s');
+            $cancel_request->save(); 
+            
+            echo 1;
+        }else{
+            echo 0;
+        }
+     }
+
+     public function returnPaymentType(Request $request){
+        $id = $request->id;
+        $type = $request->type;
+
+        $refund_request = RefundRequest::findOrFail($id);
+        if($type == 'cash'){
+            $refund_request->update([
+                'refund_type' => $type,
+            ]);
+        }elseif($type == 'wallet'){
+            $user = User::findOrFail($refund_request->user_id);
+            if($user){
+                $user->wallet +=  $refund_request->refund_amount;
+                $user->save();
+            }
+            $refund_request->update([
+                'refund_type' => $type,
+            ]);
+        } 
+     }
+
+     public function cancelPaymentType(Request $request){
+        $id = $request->id;
+        $type = $request->type;
+
+        $order = Order::findOrFail($id);
+        if($order){
+            if($type == 'wallet'){
+                $user = User::findOrFail($order->user_id);
+                if($user){
+                    $user->wallet +=  $order->grand_total;
+                    $user->save();
+                }
+            } 
+            $order->cancel_refund_type = $type;
+            $order->cancel_refund_status = 1;
+            $order->save();
+        } 
+     }
     // Inhouse Orders
     public function admin_orders(Request $request)
     {
@@ -511,111 +725,62 @@ class OrderController extends Controller
 
     public function update_delivery_status(Request $request)
     {
+        $product_ids = $request->has('product_ids') ? $request->product_ids : [];
+       
         $order = Order::findOrFail($request->order_id);
         $order->delivery_viewed = '0';
-        $order->delivery_status = $request->status;
+        if($order->delivery_status != 'partial_delivered' && $order->delivery_status != 'partial_pick_up'){
+            $order->delivery_status = $request->status;
+        }
         $order->save();
 
-        if ($request->status == 'cancelled' && $order->payment_type == 'wallet') {
-            $user = User::where('id', $order->user_id)->first();
-            $user->balance += $order->grand_total;
-            $user->save();
-        }
-
-        if (Auth::user()->user_type == 'seller') {
-            foreach ($order->orderDetails->where('seller_id', Auth::user()->id) as $key => $orderDetail) {
-                $orderDetail->delivery_status = $request->status;
+        $track              = new OrderTracking;
+        $track->order_id    = $order->id;
+        $track->status      = $request->status;
+        $track->description = null;
+        $track->status_date = date('Y-m-d H:i:s');
+        $track->save();
+        
+        foreach ($order->orderDetails as $key => $orderDetail) {
+            if ($request->status == 'partial_pick_up' && in_array($orderDetail->id,  $product_ids)) {
+                $orderDetail->delivery_status = 'picked_up';
                 $orderDetail->save();
-
-                if ($request->status == 'cancelled') {
-                    $variant = $orderDetail->variation;
-                    if ($orderDetail->variation == null) {
-                        $variant = '';
-                    }
-
-                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
-                        ->where('variant', $variant)
-                        ->first();
-
-                    if ($product_stock != null) {
-                        $product_stock->qty += $orderDetail->quantity;
-                        $product_stock->save();
-                    }
-                }
-            }
-        } else {
-            foreach ($order->orderDetails as $key => $orderDetail) {
-
-                $orderDetail->delivery_status = $request->status;
+            }elseif ($request->status == 'partial_delivery' && in_array($orderDetail->id,  $product_ids)) {
+                $orderDetail->delivery_status = 'delivered';
                 $orderDetail->save();
-
-                if ($request->status == 'cancelled') {
-                    $variant = $orderDetail->variation;
-                    if ($orderDetail->variation == null) {
-                        $variant = '';
-                    }
-
-                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
-                        ->where('variant', $variant)
-                        ->first();
-
-                    if ($product_stock != null) {
-                        $product_stock->qty += $orderDetail->quantity;
-                        $product_stock->save();
-                    }
-                }
-
-                if (addon_is_activated('affiliate_system')) {
-                    if (($request->status == 'delivered' || $request->status == 'cancelled') &&
-                        $orderDetail->product_referral_code) {
-
-                        $no_of_delivered = 0;
-                        $no_of_canceled = 0;
-
-                        if ($request->status == 'delivered') {
-                            $no_of_delivered = $orderDetail->quantity;
-                        }
-                        if ($request->status == 'cancelled') {
-                            $no_of_canceled = $orderDetail->quantity;
-                        }
-
-                        $referred_by_user = User::where('referral_code', $orderDetail->product_referral_code)->first();
-
-                        $affiliateController = new AffiliateController;
-                        $affiliateController->processAffiliateStats($referred_by_user->id, 0, 0, $no_of_delivered, $no_of_canceled);
+            }else{
+                if($request->status != 'partial_pick_up' && $request->status != 'partial_delivery'){
+                    if($orderDetail->delivery_status != 'picked_up' && $orderDetail->delivery_status != 'delivered'){
+                        $orderDetail->delivery_status = $request->status;
+                        $orderDetail->save();
                     }
                 }
             }
-        }
-        if (addon_is_activated('otp_system') && SmsTemplate::where('identifier', 'delivery_status_change')->first()->status == 1) {
-            try {
-                SmsUtility::delivery_status_change(json_decode($order->shipping_address)->phone, $order);
-            } catch (\Exception $e) {
 
+            if ($request->status == 'cancelled') {
+                $variant = $orderDetail->variation;
+                if ($orderDetail->variation == null) {
+                    $variant = '';
+                }
+
+                $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
+                    ->where('variant', $variant)
+                    ->first();
+
+                if ($product_stock != null) {
+                    $product_stock->qty += $orderDetail->quantity;
+                    $product_stock->save();
+                }
             }
         }
-
+        
         //sends Notifications to user
         NotificationUtility::sendNotification($order, $request->status);
-        if (get_setting('google_firebase') == 1 && $order->user->device_token != null) {
-            $request->device_token = $order->user->device_token;
-            $request->title = "Order updated !";
-            $status = str_replace("_", "", $order->delivery_status);
-            $request->text = " Your order {$order->code} has been {$status}";
-
-            $request->type = "order";
-            $request->id = $order->id;
-            $request->user_id = $order->user->id;
-
-            NotificationUtility::sendFirebaseNotification($request);
-        }
-
-
-        if (addon_is_activated('delivery_boy')) {
-            if (Auth::user()->user_type == 'delivery_boy') {
-                $deliveryBoyController = new DeliveryBoyController;
-                $deliveryBoyController->store_delivery_history($order);
-            }
+        $message = getOrderStatusMessageTest($order->user->name, $order->code);
+        $userPhone = $order->user->phone ?? '';
+        
+        if($userPhone != '' && isset($message[$request->status]) && $message[$request->status] != ''){
+            SendSMSUtility::sendSMS($userPhone, $message[$request->status]);
         }
 
         return 1;
@@ -628,6 +793,15 @@ class OrderController extends Controller
 
         return 1;
    }
+
+    public function update_estimated_date(Request $request) {
+        
+        $order = Order::findOrFail($request->order_id);
+        $order->estimated_delivery = ($request->deliveryDate != '') ? date('Y-m-d', strtotime($request->deliveryDate)) : NULL;
+        $order->save();
+     
+        return 1;
+    }
 
     public function update_payment_status(Request $request)
     {
@@ -658,7 +832,7 @@ class OrderController extends Controller
 
 
         if ($order->payment_status == 'paid' && $order->commission_calculated == 0) {
-            calculateCommissionAffilationClubPoint($order);
+            // calculateCommissionAffilationClubPoint($order);
         }
 
         //sends Notifications to user
@@ -734,5 +908,200 @@ class OrderController extends Controller
         }
 
         return 1;
+    }
+
+    public function assign_shop_order(Request $request){
+        $shop_id = $request->shop_id;
+        $order_id = $request->order_id;
+
+        
+        $order = Order::find($order_id);
+        $order->shop_id = $shop_id;
+        $order->shop_assigned_date = date('Y-m-d');
+        $order->save();
+
+        if( $shop_id != ''){
+            //send notification to shop about the order
+            $shop = Shops::find($shop_id);
+    
+            $not = new ShopNotifications;
+            $not->shop_id = $shop_id;
+            $not->order_id = $order_id;
+            $not->is_read = 0;
+            $not->message ="A new order has been assigned. Order code : <b>".$order->code ?? ''."</b>";
+            $not->type = 'order_assign';
+            $not->save();
+    
+            Mail::to($shop->email)->queue(new OrderAssign($order));
+        }
+    }
+
+    public function assign_shop_refund(Request $request){
+        $shop_id = $request->shop_id;
+        $refund_id = $request->refund_id;
+        
+        $refund = RefundRequest::find($refund_id);
+        $refund->shop_id = $shop_id;
+        $refund->save();
+        if( $shop_id != ''){
+            //send notification to shop about the order
+            $shop = Shops::find($shop_id);
+
+            $not = new ShopNotifications;
+            $not->shop_id = $shop_id;
+            $not->order_id = null;
+            $not->is_read = $refund->order->id;
+            $not->message ="A new order return request has been assigned. Order code : <b>".$refund->order->code ?? ''."</b>";
+            $not->type = 'return_assign';
+            $not->save();
+
+            Mail::to($shop->email)->queue(new ReturnAssign($refund->order));
+        }
+    }
+    public function test(){
+        return view('emails.admin.order_assign');
+    }
+
+    public function getNearByDeliveryAgents($id){
+        $order_id = decrypt($id);
+        LiveLocations::where('order_id',$order_id)->delete();
+        $orderDetails = Order::find($order_id);
+        $shop_id = $orderDetails->shop_id;
+        if($shop_id){
+            $deviceTokens = User::where('user_type','delivery_boy')
+                                ->where('shop_id', $shop_id)
+                                ->where('banned',0)
+                                ->whereNotNull('device_token')->pluck('device_token')->all();
+            
+            if(!empty($deviceTokens)){
+                $data['device_tokens'] = $deviceTokens;
+                $data['title'] = 'Live Location Request';
+                $data['body'] = $orderDetails->code. ',order';
+                $report = sendPushNotification($data);
+                return view('backend.sales.assign_agent', compact('order_id'));
+            }else{
+                flash(translate('No Active Delivery Agents Found'))->error();
+                return redirect()->route('all_orders.index');
+            }             
+        }
+    }
+
+    public function getOrderDeliveryBoys(Request $request){
+        $order_id = $request->order_id;
+        $locs = LiveLocations::where('order_id',$order_id)->orderBy('distance','asc')->get();
+        
+        $rows = '';
+        foreach ($locs as $key => $loc) {
+            $checkAssigned = checkDeliveryAssigned($order_id,$loc->user_id);
+            $rows .= '<tr>
+                        <td>'. ($key+1) .'</td>
+                        <td>'. $loc->user->name .'</td>
+                        <td>'. $loc->user->phone .'</td>
+                        <td class="text-center"><span class="badge badge-inline badge-success">'. $loc->distance .' KM</span></td>
+                        <td class="text-center">';
+                        if($checkAssigned == 0){
+                            $rows .='<button class="btn btn-sm btn-success d-innline-block assignDelivery" data-agentid="'.$loc->user_id.'" data-orderid="'.$loc->order_id.'" data-status="1">Assign Delivery</button>';
+                        }else{
+                            $rows .= '<span class="text-danger">Delivery Assigned</span>';
+                        }
+                        $rows .=  '</td>
+                    </tr>';
+        }
+        
+        return $rows;
+    }
+
+    public function assignDeliveryAgent(Request $request){
+
+        $order = Order::findOrFail($request->order_id);
+        $order->assign_delivery_boy = $request->agent_id;
+        $order->save();
+
+        $check = OrderDeliveryBoys::where('order_id', $request->order_id)->where('status',0)->count();
+        if($check > 0){
+            $odb = OrderDeliveryBoys::where('order_id', $request->order_id)->where('status', 0)->delete();
+        }
+           
+        $odc = new OrderDeliveryBoys;
+        $odc->order_id = $request->order_id;
+        $odc->delivery_boy_id = $request->agent_id;
+        $odc->status = 0;
+        $odc->save();
+
+        $message = getOrderStatusMessageTest($odc->deliveryBoy->name, $odc->order->code);
+        $userPhone = $odc->deliveryBoy->phone ?? '';
+        if($userPhone != '' && $message['order_assign'] != ''){
+            SendSMSUtility::sendSMS($userPhone, $message['order_assign']);
+        }
+        
+    }
+
+    public function getNearByReturnDeliveryAgents($id){
+        $return_id = decrypt($id);
+        LiveLocations::where('return_id',$return_id)->delete();
+       
+        $deviceTokens = User::where('user_type','delivery_boy')
+                            ->where('shop_id', Auth::user()->shop_id)
+                            ->where('banned',0)
+                            ->whereNotNull('device_token')->pluck('device_token')->all();
+        
+        if(!empty($deviceTokens)){
+            $data['device_tokens'] = $deviceTokens;
+            $data['title'] = 'Live Location Request';
+            $data['body'] = (string)$return_id. ',return';
+            $report = sendPushNotification($data);
+            return view('backend.sales.assign_return_agent', compact('return_id'));
+        }else{
+            flash(translate('No Active Delivery Agents Found'))->error();
+            return redirect()->route('return_requests.index');
+        }   
+    }
+
+    public function getOrderReturnDeliveryBoys(Request $request){
+        $return_id = $request->return_id;
+        $locs = LiveLocations::where('return_id',$return_id)->orderBy('distance','asc')->get();
+        
+        $rows = '';
+        foreach ($locs as $key => $loc) {
+            $checkAssigned = checkReturnDeliveryAssigned($return_id,$loc->user_id);
+            $rows .= '<tr>
+                        <td>'. ($key+1) .'</td>
+                        <td>'. $loc->user->name .'</td>
+                        <td>'. $loc->user->phone .'</td>
+                        <td class="text-center"><span class="badge badge-inline badge-success">'. $loc->distance .' KM</span></td>
+                        <td class="text-center">';
+                        if($checkAssigned == 0){
+                            $rows .='<button class="btn btn-sm btn-success d-innline-block assignDelivery" data-agentid="'.$loc->user_id.'" data-return_id="'.$loc->return_id.'" data-status="1">Assign Delivery</button>';
+                        }else{
+                            $rows .= '<span class="text-danger">Delivery Assigned</span>';
+                        }
+                        $rows .=  '</td>
+                    </tr>';
+        }
+        
+        return $rows;
+    }
+
+    public function assignReturnDeliveryAgent(Request $request){
+
+        $refund = RefundRequest::findOrFail($request->return_id);
+        if($refund){
+            if($refund->delivery_status == 0){
+                $refund->delivery_boy = $request->agent_id;
+                $refund->delivery_assigned_date = date('Y-m-d H:i:s');
+                $refund->save();
+
+                $message = getOrderStatusMessageTest($refund->deliveryBoy->name, $refund->order->code);
+                $userPhone = $refund->deliveryBoy->phone ?? '';
+                if($userPhone != '' && $message['return_assign'] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message['return_assign']);
+                }
+                echo 1;
+            }else{
+                echo 0;
+            }
+        }else{
+            echo 2;
+        }
     }
 }

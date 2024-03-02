@@ -8,8 +8,8 @@
                     <div class="card text-left">
                         <div class="card-body">
                             <div class="mb-5 text-center">
-                                <img src="{{ static_asset('assets/img/logo.png') }}" class="mw-100 mb-4" height="40">
-                                <h1 class="h3 text-primary mb-0">Welcome to ITS</h1>
+                                <img src="{{ static_asset('assets/img/logo.png') }}" class="mw-100 mb-4" height="70">
+                                <h1 class="h3 text-primary mb-0">Welcome to Medon</h1>
                                 <p>Login to your account.</p>
                             </div>
                             <form class="pad-hor" method="POST" role="form" action="{{ route('admin.login') }}">
@@ -53,16 +53,16 @@
                                         </div>
                                     </div>
                                     @if (env('MAIL_USERNAME') != null && env('MAIL_PASSWORD') != null)
-                                        <div class="col-sm-6">
+                                        {{-- <div class="col-sm-6">
                                             <div class="text-right">
                                                 <a href="{{ route('password.request') }}"
                                                     class="text-reset fs-14">{{ translate('Forgot password ?') }}</a>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     @endif
                                 </div>
 
-                                {!! NoCaptcha::display() !!}
+                                {{-- {!! NoCaptcha::display() !!} --}}
 
                                 @if ($errors->has('g-recaptcha-response'))
                                     <span class="invalid-feedback d-block" style="font-size: 14px" role="alert">

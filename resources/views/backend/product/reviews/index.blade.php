@@ -32,12 +32,12 @@
             <table class="table aiz-table mb-0">
                 <thead>
                     <tr>
-                        <th data-breakpoints="lg">#</th>
+                        <th >#</th>
                         <th>Product</th>
-                        <th data-breakpoints="lg">Customer</th>
+                        <th >Customer</th>
                         <th>Rating</th>
-                        <th data-breakpoints="lg">Comment</th>
-                        <th data-breakpoints="lg">Published</th>
+                        <th >Comment</th>
+                        <th >Published</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,8 +46,7 @@
                             <tr>
                                 <td>{{ $key + 1 + ($reviews->currentPage() - 1) * $reviews->perPage() }}</td>
                                 <td>
-                                    <a href="{{ route('product', $review->product->slug) }}" target="_blank"
-                                        class="text-reset text-truncate-2">{{ $review->product->name }}</a>
+                                    {{ $review->product->name }}
                                 </td>
                                 <td>{{ $review->user->name }} ({{ $review->user->email }})</td>
                                 <td>{{ $review->rating }}</td>

@@ -19,6 +19,7 @@ class Category extends Model
         'featured',
         'top',
         'slug',
+        'is_active',
         'meta_title',
         'meta_description',
         'og_title',
@@ -61,6 +62,10 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id')->with('categories');
     }
+    public function child()
+    {
+        return $this->hasMany(Category::class,'parent_id')->with('child')->select('id','parent_id','name','level','slug');
+    }
 
     public function parentCategory()
     {
@@ -81,24 +86,51 @@ class Category extends Model
         return $this->hasOne(Upload::class, 'id', 'icon');
     }
 
+    public function iconImage()
+    {
+        return $this->hasOne(Upload::class, 'id', 'icon');
+    }
+   
+   
+    public function getMainCategory()
+    {
+        $parent = $this->parentCategory;
+        while($parent->parent_id != 0) {
+            $parent = $parent->parentCategory;
+        }
+        return $parent->id;
+    }
+
     public static function boot()
     {
         static::creating(function ($model) {
             Cache::forget('categories');
             Cache::forget('categoriesTree');
             Cache::forget('trending_categories');
+            Cache::forget('app.featured_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.top_categories');
         });
 
         static::updating(function ($model) {
             Cache::forget('categories');
             Cache::forget('categoriesTree');
             Cache::forget('trending_categories');
+            Cache::forget('app.featured_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.top_categories');
         });
 
         static::deleting(function ($model) {
             Cache::forget('categories');
             Cache::forget('categoriesTree');
             Cache::forget('trending_categories');
+            Cache::forget('app.featured_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.home_categories');
+            Cache::forget('app.top_categories');
         });
 
         parent::boot();

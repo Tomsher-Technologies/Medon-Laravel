@@ -7,6 +7,8 @@ use App\Models\Currency;
 use App\Models\BusinessSetting;
 use App\Models\ProductStock;
 use App\Models\Address;
+use App\Models\State;
+use App\Models\Country;
 use App\Models\CustomerPackage;
 use App\Models\Upload;
 use App\Models\Translation;
@@ -15,25 +17,35 @@ use App\Utility\CategoryUtility;
 use App\Models\Wallet;
 use App\Models\CombinedOrder;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\Offers;
 use App\Models\Addon;
+use App\Models\Shops;
+use App\Models\OrderDeliveryBoys;
 use App\Models\Attribute;
 use App\Models\Brand;
 use App\Models\Cart;
+use App\Models\Category;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Products\ProductEnquiries;
 use App\Models\Review;
 use App\Models\Shop;
 use App\Models\Wishlist;
+use App\Models\RefundRequest;
 use App\Utility\SendSMSUtility;
 use App\Utility\NotificationUtility;
-
+use App\Http\Resources\V2\WebHomeBrandCollection;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
 use Artesaos\SEOTools\Facades\JsonLd;
 use Artesaos\SEOTools\Facades\JsonLdMulti;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\RawMessageFromArray;
+use Kreait\Firebase\Contract\Messaging;
 use Carbon\Carbon;
+// use DB;
 
 use Harimayco\Menu\Facades\Menu;
 
@@ -203,6 +215,20 @@ if (!function_exists('format_price')) {
     }
 }
 
+//formats currency
+if (!function_exists('format_price_wo_currency')) {
+    function format_price_wo_currency($price)
+    {
+        if (get_setting('decimal_separator') == 1) {
+            $fomated_price = number_format($price, get_setting('no_of_decimals'));
+        } else {
+            $fomated_price = number_format($price, get_setting('no_of_decimals'), ',', ' ');
+        }
+
+        return $fomated_price;
+    }
+}
+
 //formats price to home default price with convertion
 if (!function_exists('single_price')) {
     function single_price($price)
@@ -278,19 +304,19 @@ if (!function_exists('home_price')) {
 if (!function_exists('home_discounted_price')) {
     function home_discounted_price($product, $formatted = true)
     {
-        $lowest_price = $product->unit_price;
-        $highest_price = $product->unit_price;
+        $lowest_price = $product->stocks->min('price');
+        $highest_price = $product->stocks->max('price');
 
-        if ($product->variant_product) {
-            foreach ($product->stocks as $key => $stock) {
-                if ($lowest_price > $stock->price) {
-                    $lowest_price = $stock->price;
-                }
-                if ($highest_price < $stock->price) {
-                    $highest_price = $stock->price;
-                }
-            }
-        }
+        // if ($product->variant_product) {
+        //     foreach ($product->stocks as $key => $stock) {
+        //         if ($lowest_price > $stock->price) {
+        //             $lowest_price = $stock->price;
+        //         }
+        //         if ($highest_price < $stock->price) {
+        //             $highest_price = $stock->price;
+        //         }
+        //     }
+        // }
 
         $discount_applicable = false;
 
@@ -357,8 +383,16 @@ if (!function_exists('home_base_price_by_stock_id')) {
 if (!function_exists('home_base_price')) {
     function home_base_price($product, $formatted = true)
     {
-        $price = $product->unit_price;
+        $price = $product->stocks->min('price');
         return $formatted ? format_price(convert_price($price)) : $price;
+    }
+}
+
+if (!function_exists('home_base_price_wo_currency')) {
+    function home_base_price_wo_currency($product, $formatted = true)
+    {
+        $price = $product->stocks->min('price');
+        return $formatted ? format_price_wo_currency(convert_price($price)) : $price;
     }
 }
 
@@ -404,10 +438,50 @@ if (!function_exists('home_discounted_base_price_by_stock_id')) {
 }
 
 //Shows Base Price with discount
+if (!function_exists('home_discounted_base_price_wo_currency')) {
+    function home_discounted_base_price_wo_currency($product, $formatted = true)
+    {
+        $price = $product->stocks->min('price');
+        $tax = 0;
+
+        $discount_applicable = false;
+
+        if ($product->discount_start_date == null) {
+            $discount_applicable = true;
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
+            $discount_applicable = true;
+        }
+
+        if ($discount_applicable) {
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
+                $price -= $product->discount;
+            }
+        }
+
+        // foreach ($product->taxes as $product_tax) {
+        //     if ($product_tax->tax_type == 'percent') {
+        //         $tax += ($price * $product_tax->tax) / 100;
+        //     } elseif ($product_tax->tax_type == 'amount') {
+        //         $tax += $product_tax->tax;
+        //     }
+        // }
+        // $price += $tax;
+
+        return $formatted ? format_price_wo_currency(convert_price($price)) : $price;
+    }
+}
+
+
+//Shows Base Price with discount
 if (!function_exists('home_discounted_base_price')) {
     function home_discounted_base_price($product, $formatted = true)
     {
-        $price = $product->unit_price;
+        $price = $product->stocks->min('price');
         $tax = 0;
 
         $discount_applicable = false;
@@ -580,10 +654,20 @@ if (!function_exists('app_timezone')) {
 if (!function_exists('api_asset')) {
     function api_asset($id)
     {
-        if (($asset = \App\Models\Upload::find($id)) != null) {
-            return $asset->file_name;
+        if (($asset = Upload::find($id)) != null) {
+            return 'storage/' . $asset->file_name;
         }
         return "";
+    }
+}
+
+if (!function_exists('api_upload_asset')) {
+    function api_upload_asset($id)
+    {
+        if (($asset = Upload::find($id)) != null) {
+            return app('url')->asset('storage/' . $asset->file_name);
+        }
+        return app('url')->asset('admin_assets/assets/img/placeholder.jpg');
     }
 }
 
@@ -595,7 +679,7 @@ if (!function_exists('uploaded_asset')) {
             return $asset->external_link == null ? storage_asset($asset->file_name) : $asset->external_link;
         }
 
-        return frontendAsset('img/placeholder.webp');;
+        return app('url')->asset('admin_assets/assets/img/placeholder.jpg');
     }
 }
 
@@ -731,7 +815,6 @@ if (!function_exists('get_setting')) {
     {
         $settings = Cache::remember('business_settings', 86400, function () {
             return BusinessSetting::select(['type', 'value'])->get()->keyBy('type')->toArray();
-            // return BusinessSetting::select(['type', 'value'])->get()->toArray();
         });
 
         if (isset($settings[$key])) {
@@ -739,8 +822,6 @@ if (!function_exists('get_setting')) {
         }
 
         return $default;
-        // $setting = $settings->where('type', $key)->first();
-        // return $setting == null ? $default : $setting->value;
     }
 }
 
@@ -914,12 +995,7 @@ if (!function_exists('calculateCommissionAffilationClubPoint')) {
 if (!function_exists('addon_is_activated')) {
     function addon_is_activated($identifier, $default = null)
     {
-        $addons = Cache::remember('addons', 86400, function () {
-            return Addon::all();
-        });
-
-        $activation = $addons->where('unique_identifier', $identifier)->where('activated', 1)->first();
-        return $activation == null ? false : true;
+        return false;
     }
 }
 
@@ -951,7 +1027,7 @@ if (!function_exists('get_product_image')) {
             }
         }
 
-        return frontendAsset('img/placeholder.webp');
+        return app('url')->asset('admin_assets/assets/img/placeholder.jpg');
     }
 }
 
@@ -975,7 +1051,7 @@ if (!function_exists('load_seo_tags')) {
                 ->addImage($image)
                 ->setTitle($seo->og_title)
                 ->setDescription($seo->og_description)
-                ->setSiteName(env('APP_NAME', 'Industry Tech Store'));
+                ->setSiteName(env('APP_NAME', 'Medon'));
 
             TwitterCard::setType('summary_large_image')
                 ->setImage($image)
@@ -986,12 +1062,12 @@ if (!function_exists('load_seo_tags')) {
             JsonLd::setImage($image)
                 ->setTitle($seo->meta_title)
                 ->setDescription($seo->meta_description)
-                ->setSite(env('APP_NAME', 'Industry Tech Store'));
+                ->setSite(env('APP_NAME', 'Medon'));
 
             JsonLdMulti::setImage($image)
                 ->setTitle($seo->meta_title)
                 ->setDescription($seo->meta_description)
-                ->setSite(env('APP_NAME', 'Industry Tech Store'));
+                ->setSite(env('APP_NAME', 'Medon'));
         }
     }
 }
@@ -1022,6 +1098,27 @@ function wishListCount(): int
         });
     }
 
+    return 0;
+}
+
+function userWishlistCount($user_id){
+    if($user_id != ''){
+        return Wishlist::where('user_id',$user_id)->count();
+    }
+    return 0;
+}
+
+function userOrdersCount($user_id){
+    if($user_id != ''){
+        return Order::where('order_success', 1)->where('user_id', $user_id)->count();
+    }
+    return 0;
+}
+
+function userPendingOrders($user_id){
+    if($user_id != ''){
+        return Order::where('order_success', 1)->where('delivery_status','!=','delivered')->where('user_id', $user_id)->count();
+    }
     return 0;
 }
 
@@ -1181,6 +1278,11 @@ function userHasPermision($id)
     return false;
 }
 
+function getActiveShops(){
+    $shops = Shops::where('status',1)->orderBy('name','ASC')->get();
+    return $shops;
+}
+
 function allAttributes()
 {
     return Cache::rememberForever('attributes', function () {
@@ -1205,13 +1307,12 @@ function hasStock($product)
 
 function canReview($product_id, $user_id)
 {
-
     $res = [
         'can_comment' => false,
         'has_comment' => false,
     ];
 
-    if ($user_id) {
+    if ($user_id && $product_id) {
         $review_count = Review::where('user_id', $user_id)
             ->where('product_id', $product_id)->count();
 
@@ -1223,19 +1324,14 @@ function canReview($product_id, $user_id)
         })->count();
 
         if ($purchases_count > 0) {
-            $res['can_comment'] = true;
-        }
-
-        if ($review_count == 0) {
-            $res['can_comment'] = true;
-        } else {
-            $res['can_comment'] = false;
-            $res['has_comment'] = true;
+            if ($review_count == 0) {
+                $res['can_comment'] = true;
+            } else {
+                $res['can_comment'] = false;
+                $res['has_comment'] = true;
+            }
         }
     }
-
-
-
     return $res;
 }
 
@@ -1266,3 +1362,513 @@ function whishlistHasProduct($product_id)
     }
     return false;
 }
+
+function getUser()
+{
+
+    $user = array(
+        'users_id_type' => 'temp_user_id',
+        'users_id' => null
+    );
+
+    if (auth('sanctum')->user()) {
+        $user = array(
+            'users_id_type' => 'user_id',
+            'users_id' => auth('sanctum')->user()->id
+        );
+    } else {
+        $user = array(
+            'users_id_type' => 'temp_user_id',
+            'users_id' => request()->header('UserToken')
+        );
+    }
+
+    return $user;
+}
+
+
+function checkProductOffer($product){
+    // echo '<pre>';
+    // print_r($product);
+    // die;
+    // DB::enableQueryLog();
+    $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
+    // print_r($prodOffer);
+    if(empty($prodOffer[0])){
+        // echo 'no product offer';
+        $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('category_id', $product->main_category)
+                        ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
+    }else{
+        // echo 'product offer';
+    }
+
+    // die;
+    // dd(DB::getQueryLog());
+}
+
+function getImmediateSubCategories($id){
+    // Cache::forget('header_submenus');
+    return Category::select('id','name','slug')->where('parent_id', $id)->where('is_active', 1)->get();
+}
+
+function getHeaderCategoryBrands($ids){
+    $brands = Brand::whereIn('id', json_decode($ids))->get();
+    return new WebHomeBrandCollection($brands);
+}
+
+function getOffersProductIds($offerSlugs, $isId = 1){
+    if($isId == 1){
+        $offers = Offers::whereIn('id',$offerSlugs)->select('category_id','link_type','link_id')->get()->toArray();
+    }else{
+        $offers = Offers::whereIn('slug',$offerSlugs)->select('category_id','link_type','link_id')->get()->toArray();
+    }
+
+    $products = [];
+    if($offers){
+        foreach($offers as $off){
+            $type = $off['link_type'];
+            if($type == 'product'){
+                $products[] = json_decode($off['link_id']);
+            }elseif($type == 'category'){
+                $products[] = Product::where('main_category', $off['category_id'])->whereIn('brand_id', json_decode($off['link_id']))->pluck('id')->toArray();
+            }
+        }
+       
+        if(!empty($products)){
+            $products = array_merge(...$products);
+        }
+    }
+   
+    return $products;
+}
+
+function getSidebarCategoryTree()
+{
+    $all_cats = Category::select([
+        'id',
+        'parent_id',
+        'name',
+        'level',
+        'slug',
+        'icon'
+    ])->with(['child','iconImage'])->withCount('products')->where('parent_id', 0)->where('is_active', 1)->orderBy('categories.name','ASC')->get();
+    foreach( $all_cats as $categ){
+        $categ->icon = ($categ->iconImage?->file_name) ? storage_asset($categ->iconImage->file_name) : app('url')->asset('admin_assets/assets/img/placeholder.jpg');
+        unset($categ->iconImage);
+    }
+
+    return $all_cats;
+}
+
+
+function getProductIdFromSlug($slug){
+    if($slug != null){
+        $product = Product::where('slug', $slug)->pluck('id')->first();
+        return $product;
+    }
+    return null;
+}
+function getProductIdsFromMultipleSlug($slug){
+    if($slug != null){
+        $product = Product::whereIn('slug', $slug)->pluck('id')->toArray();
+        return $product;
+    }
+    return null;
+}
+
+
+function getCountryId($countryid){
+    $country = Country::where('name','LIKE','%'.$countryid.'%')->pluck('id')->toArray();
+    if(!empty($country)){
+        return $country[0];
+    }else{
+        return NULL;
+    }
+}
+
+function getStateId($stateid){
+    $state = State::where('name','LIKE','%'.$stateid.'%')->pluck('id')->toArray();
+    if(!empty($state)){
+        return $state[0];
+    }else{
+        return NULL;
+    }
+}
+
+function userDefaultAddress($user_id){
+    if($user_id != ''){
+        $data = Address::where('user_id', $user_id)->where('set_default',1)->first();
+        $address = [];
+        if($data){
+            $address = [
+                'id'      =>(int) $data->id,
+                'user_id' =>(int) $data->user_id,
+                'type' => $data->type,
+                'name' => $data->name,
+                'address' => $data->address,
+                'country_id' => (int)  $data->country_id,
+                'state_id' =>  (int) $data->state_id,                  
+                'country' => ($data->country_id != NULL) ? $data->country->name : $data->country_name,
+                'state' => ($data->state_id != NULL) ? $data->state->name : $data->state_name,
+                'city' => $data->city,
+                'postal_code' => $data->postal_code,
+                'phone' => $data->phone,
+                'set_default' =>(int) $data->set_default,
+                'lat' => $data->latitude,
+                'lang' => $data->longitude,
+            ];
+        }
+        return $address;
+    }
+    return array();
+}
+
+function getOfferTag($offer){
+    $tag = '';
+    $offer_type = $offer->offer_type;
+    if($offer_type == 'percentage'){
+        $tag = $offer->percentage.'% OFF';
+    }elseif($offer_type == 'amount_off'){
+        $tag = 'AED '.$offer->offer_amount.' OFF';
+    }elseif($offer_type == 'buy_x_get_y'){
+        $tag = 'BUY '.$offer->buy_amount.' GET '.$offer->get_amount;
+    }
+    return  $tag;
+}
+
+function getProductOfferPrice($product){
+
+    $data["original_price"] = $product->unit_price;
+   
+
+    $discountPrice = $product->unit_price;
+    
+    // $allOffers = Offers::whereRaw('(now() between start_date and end_date)')->where('status',1)->get();
+
+    // print_r($data);
+
+    $offertag = $offer_type = $offer_id = '';
+    $x = $y = 0;
+
+    // die;
+    // DB::enableQueryLog();
+    $prodOffer = Offers::whereJsonContains('link_id', (string) $product->id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('link_type', 'product')->orderBy('id','desc')->skip(0)->take(1)->get();
+
+    if(empty($prodOffer[0])){
+        // echo 'no product offer';
+        $brandOffer = Offers::whereJsonContains('link_id', (string) $product->brand_id)
+                        ->whereRaw('(now() between start_date and end_date)')
+                        ->where('category_id', $product->main_category)
+                        ->where('link_type', 'category')->orderBy('id','desc')->skip(0)->take(1)->get();
+        // print_r($brandOffer);  die;
+        if(empty($brandOffer[0])){
+            $tax = 0;
+    
+            $discount_applicable = false;
+            if($product->discount_start_date != NULL && $product->discount_end_date != NULL){
+                if(strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date && strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+                    $discount_applicable = true;
+                }
+            }
+           
+            if ($discount_applicable) {
+                if ($product->discount_type == 'percent') {
+                    $discountPrice -= ($discountPrice * $product->discount) / 100;
+                    $offertag = $product->discount.'% OFF';
+                } elseif ($product->discount_type == 'amount') {
+                    $discountPrice -= $product->discount;
+                    $offertag = 'AED '.$product->discount.' OFF';
+                }
+                $offer_id = 0;
+            }
+            
+        }else{
+            $offer_id = $brandOffer[0]->id;
+            $offer_type = $brandOffer[0]->offer_type;
+            if($brandOffer[0]->offer_type == 'amount_off'){
+                $discountPrice -= $brandOffer[0]->offer_amount;
+                $offertag = 'AED '.$brandOffer[0]->offer_amount.' OFF';
+            }elseif($brandOffer[0]->offer_type == 'percentage'){
+                $discountPrice -= ($discountPrice * $brandOffer[0]->percentage)/100 ;
+                $offertag = $brandOffer[0]->percentage.'% OFF';
+            }elseif($brandOffer[0]->offer_type == 'buy_x_get_y'){
+                $offertag = 'BUY '.$brandOffer[0]->buy_amount.' GET '.$brandOffer[0]->get_amount;
+                $x = $brandOffer[0]->buy_amount;
+                $y = $brandOffer[0]->get_amount;
+            }
+        }            
+    }else{
+        $offer_id = $prodOffer[0]->id;
+        $offer_type = $prodOffer[0]->offer_type;
+        if($prodOffer[0]->offer_type == 'amount_off'){
+            $discountPrice -= $prodOffer[0]->offer_amount;
+            $offertag = 'AED '.$prodOffer[0]->offer_amount.' OFF';
+        }elseif($prodOffer[0]->offer_type == 'percentage'){
+            $discountPrice -= ($discountPrice * $prodOffer[0]->percentage)/100 ;
+            $offertag = $prodOffer[0]->percentage.'% OFF';
+        }elseif($prodOffer[0]->offer_type == 'buy_x_get_y'){
+            $offertag = 'BUY '.$prodOffer[0]->buy_amount.' GET '.$prodOffer[0]->get_amount;
+            $x = $prodOffer[0]->buy_amount;
+            $y = $prodOffer[0]->get_amount;
+        }
+    }
+// echo '      Price After Discount = '.$discountPrice;
+   
+    $data["discounted_price"] = $discountPrice;
+    $data["offer_tag"]  = $offertag;
+    $data["offer_id"]   = $offer_id;
+    $data["offer_type"] = $offer_type;
+    $data["x"] = $x;
+    $data["y"] = $y;
+
+    // print_r($data);
+    // die;
+    // dd(DB::getQueryLog());
+    return $data;
+}
+
+function getActiveBuyXgetYOfferProducts(){
+    $offers = Offers::whereRaw('(now() between start_date and end_date)')->where('status',1)
+                        ->where('offer_type', 'buy_x_get_y')->get();
+    $offerProducts = [];
+    if($offers){
+        foreach($offers as $off){
+            if($off->link_type == 'product'){
+                $products = json_decode($off->link_id);
+            }else{
+                $products = Product::where('main_category', $off->category_id)->whereIn('brand_id', json_decode($off->link_id))->pluck('id')->toArray();
+            }
+            $offerProducts[$off->id]['products'] = $products;
+            $offerProducts[$off->id]['x'] = $off->buy_amount;
+            $offerProducts[$off->id]['y'] = $off->get_amount;
+        }
+    }
+    return $offerProducts;
+}
+
+    function encryptCC($plainText,$key)
+	{
+		$key = hextobin(md5($key));
+		$initVector = pack("C*", 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f);
+		$openMode = openssl_encrypt($plainText, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $initVector);
+		$encryptedText = bin2hex($openMode);
+		return $encryptedText;
+	}
+
+	function decryptCC($encryptedText,$key)
+	{
+		$key = hextobin(md5($key));
+		$initVector = pack("C*", 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f);
+		$encryptedText = hextobin($encryptedText);
+		$decryptedText = openssl_decrypt($encryptedText, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $initVector);
+		return $decryptedText;
+	}
+
+    //*********** Padding Function *********************
+
+	 function pkcs5_pad ($plainText, $blockSize)
+     {
+         $pad = $blockSize - (strlen($plainText) % $blockSize);
+         return $plainText . str_repeat(chr($pad), $pad);
+     }
+ 
+     //********** Hexadecimal to Binary function for php 4.0 version ********
+ 
+     function hextobin($hexString) 
+    { 
+        $length = strlen($hexString); 
+        $binString="";   
+        $count=0; 
+        while($count<$length) 
+        {       
+            $subString =substr($hexString,$count,2);           
+            $packedString = pack("H*",$subString); 
+            if ($count==0)
+        {
+            $binString=$packedString;
+        } 
+            
+        else 
+        {
+            $binString.=$packedString;
+        } 
+            
+        $count+=2; 
+        } 
+        return $binString; 
+    } 
+
+    function reduceProductQuantity($productQuantities){
+        if(!empty($productQuantities)){
+            foreach($productQuantities as $key => $value){
+                $product_stock = ProductStock::where('product_id', $key)->first();
+                $product_stock->qty -= $value;
+                $product_stock->save();
+            }
+        }
+    }
+
+    function sendPushNotification($req){
+        $messaging = app('firebase.messaging');
+        $deviceTokens = $req['device_tokens'];
+        $message = new RawMessageFromArray([
+                        'notification' => [
+                            // https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#notification
+                            'title' => $req['title'],
+                            'body' => $req['body'],
+                        ],
+                        'data' => [
+                            'key' => 'Value',
+                        ]
+                    ]);
+
+        $sendReport = $messaging->sendMulticast($message, $deviceTokens);
+        // echo 'Successful sends: '.$sendReport->successes()->count().PHP_EOL;
+        // echo '<br>Failed sends: '.$sendReport->failures()->count().PHP_EOL;
+
+        // if ($sendReport->hasFailures()) {
+        //     foreach ($sendReport->failures()->getItems() as $failure) {
+        //         echo '<br>'. $failure->error()->getMessage().PHP_EOL;
+        //     }
+        // }
+    }
+
+    function distanceCalculator($lat1, $lon1, $lat2, $lon2, $unit) {
+        if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+            return 0;
+        }
+        else {
+            $theta = $lon1 - $lon2;
+            $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            $dist = acos($dist);
+            $dist = rad2deg($dist);
+            $miles = $dist * 60 * 1.1515;
+            $unit = strtoupper($unit);
+            
+            if ($unit == "KM") {                                     // Kilometer - km
+                return ($miles * 1.609344);
+            } else if ($unit == "NM") {                              // Nautical Mile - nm
+                return ($miles * 0.8684);
+            } else if ($unit == "M") {                               // Meter - m 
+                return ($miles * 1609.34);
+            } else {                                                 // Mile - mi
+                return $miles;
+            }
+        }
+    }
+
+    function checkDeliveryAssigned($order_id, $user_id){
+        $count = OrderDeliveryBoys::where('order_id',$order_id)->where('delivery_boy_id', $user_id)->where('status',0)->count();
+        return $count;
+    }
+
+    function checkReturnDeliveryAssigned($return_id, $user_id){
+        $count = RefundRequest::where('id',$return_id)->where('delivery_boy', $user_id)->where('delivery_status',0)->count();
+        return $count;
+    }
+
+    function getAssignedDeliveryBoy($order_id){
+        $boy = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->where('status',0)->first();
+        return $boy->deliveryBoy->name ?? '';
+    }
+
+    function getDeliveryBoy($order_id){
+        $boys = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->where('status',1)->groupBy('delivery_boy_id')->get();
+        return $boys;
+    }
+
+    function getOrderDeliveryDetails($order_id){
+        $boys = OrderDeliveryBoys::with(['deliveryBoy'])->where('order_id',$order_id)->orderBy('id','asc')->get();
+        return $boys;
+    }
+
+    function getDatePlusXDays($date, $days){
+        $result = date("Y-m-d H:i:s", strtotime($date . "+".$days." days"));
+        return $result;
+    }
+
+    function getShopDeliveryAgents($shop_id){
+        $agents = [];
+        if($shop_id){
+            $agents = User::where('user_type', 'delivery_boy')->where('shop_id', $shop_id)->select('id','name')
+                            ->orderBy('name','ASC')->get()->toArray();
+        }
+    
+        return $agents;
+    }
+
+    function getOrderStatusMessage($user, $code){
+        return [
+            'order_placed' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been placed successfully.",
+            'confirmed' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been confirmed.",
+            'picked_up' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been picked up by the delivery agent.",
+            'partial_pick_up' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been picked up by the delivery agent.",
+            'cancelled' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been cancelled.",
+            'cancel_reject' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") cancel request rejected by admin.",
+            'partial_delivery' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been delivered.",
+            'delivered' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been delivered.",
+            'order_assign' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! New order (".$code.") delivery has been assigned to you.",
+            'return_assign' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! New return order (".$code.") delivery has been assigned to you.",
+            ];
+    }
+
+    function getOrderStatusMessageTest($user, $code){
+        return [
+            'order_placed' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'confirmed' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'picked_up' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'partial_pick_up' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'cancelled' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'cancel_reject' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'partial_delivery' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'delivered' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'order_assign' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            'return_assign' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
+            ];
+    }
+
+    function calculateFreeItems($N, $X, $Y) {
+        $floorDivision = floor($N / ($X + $Y));
+        $remainder = $N % ($X + $Y);
+    
+        $totalX = $floorDivision * $X + min($remainder, $X);
+        $totalY = $floorDivision * $Y + min($remainder - min($remainder, $X), $Y);
+
+        return $totalY;
+    }
+
+    function getChildCategoryIds($parentId)
+    {
+        // Get the parent category
+        $parentCategory = Category::find($parentId);
+
+        // If the parent category doesn't exist, return an empty array or handle as needed
+        if (!$parentCategory) {
+            return [];
+        }
+
+        // Recursively get all child category IDs
+        $childIds = getChildCategoryIdsRecursive($parentCategory);
+
+        return $childIds;
+    }
+
+    function getChildCategoryIdsRecursive($category)
+    {
+        $childIds = [];
+
+        foreach ($category->child as $child) {
+            $childIds[] = $child->id;
+
+            // Recursively get child category IDs for the current child
+            $childIds = array_merge($childIds, getChildCategoryIdsRecursive($child));
+        }
+
+        return $childIds;
+    }

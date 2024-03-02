@@ -29,13 +29,13 @@
                 <div class="col-lg-6">
                     <div class="card shadow-none bg-light">
                         <div class="card-header">
-                            <h6 class="mb-0">About Widget</h6>
+                            <h6 class="mb-0">APP Links</h6>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('business_settings.update') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group">
+                                <div class="form-group d-none">
                                     <label class="form-label" for="signinSrEmail">Footer Logo</label>
                                     <div class="input-group " data-toggle="aizuploader" data-type="image">
                                         <div class="input-group-prepend">
@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="file-preview"></div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group d-none" >
                                     <label>About description (Translatable)</label>
                                     <input type="hidden" name="types[][{{ $lang }}]" value="about_us_description">
                                     <textarea class="aiz-text-editor form-control" name="about_us_description"
@@ -57,6 +57,17 @@
                                         {!! get_setting('about_us_description', null, $lang) !!}
                                     </textarea>
                                 </div>
+
+                                <div class="form-group">
+                                    <label>APP Section Title</label>
+                                    <div class="input-group form-group">
+                                        <input type="hidden" name="types[]" value="app_title">
+                                        <input type="text" class="form-control" placeholder="" name="app_title"
+                                            value="{{ get_setting('app_title') }}">
+                                        
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
                                     <label>Play Store Link</label>
                                     <input type="hidden" name="types[]" value="play_store_link">
@@ -88,14 +99,19 @@
                                 <div class="form-group">
                                     <label>Contact address</label>
                                     <input type="hidden" name="types[][{{ $lang }}]" value="contact_address">
-                                    <input type="text" class="form-control" placeholder="Address" name="contact_address"
-                                        value="{{ get_setting('contact_address', null, $lang) }}">
+                                    <textarea class="form-control" name="contact_address">{{ get_setting('contact_address', null, $lang) }}</textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Contact phone</label>
+                                    <label>Contact Phone</label>
                                     <input type="hidden" name="types[]" value="contact_phone">
                                     <input type="text" class="form-control" placeholder="Phone" name="contact_phone"
                                         value="{{ get_setting('contact_phone') }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Phone 2 (Optional)</label>
+                                    <input type="hidden" name="types[]" value="contact_phone2">
+                                    <input type="text" class="form-control" placeholder="Phone" name="contact_phone2"
+                                        value="{{ get_setting('contact_phone2') }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Contact email</label>
@@ -110,7 +126,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-12">
+                <div class="col-lg-12 d-none">
                     <div class="card shadow-none bg-light">
                         <div class="card-header">
                             <h6 class="mb-0">Link Widget One</h6>
@@ -215,12 +231,30 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card shadow-none bg-light">
+                    <div class="card-header">
+                        <h6 class="mb-0">Newsletter Widget </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Newsletter Title</label>
+                            <div class="input-group form-group">
+                                <input type="hidden" name="types[]" value="newsletter_title">
+                                <input type="text" class="form-control" placeholder="" name="newsletter_title"
+                                    value="{{ get_setting('newsletter_title') }}">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card shadow-none bg-light">
                     <div class="card-header">
                         <h6 class="mb-0">Social Link Widget </h6>
                     </div>
                     <div class="card-body">
-                        <div class="form-group row">
+                        <div class="form-group row d-none">
                             <label class="col-md-2 col-from-label">{{ translate('Show Social Links?') }}</label>
                             <div class="col-md-9">
                                 <label class="aiz-switch aiz-switch-success mb-0">
@@ -231,6 +265,17 @@
                                 </label>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label>Social Links Title</label>
+                            <div class="input-group form-group">
+                                <input type="hidden" name="types[]" value="social_title">
+                                <input type="text" class="form-control" placeholder="" name="social_title"
+                                    value="{{ get_setting('social_title') }}">
+                                
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>Social Links</label>
                             <div class="input-group form-group">
@@ -281,6 +326,16 @@
                                 <input type="text" class="form-control" placeholder="http://" name="whatsapp_link"
                                     value="{{ get_setting('whatsapp_link') }}">
                             </div>
+
+                            <div class="input-group form-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="lab la-dribbble"></i></span>
+                                </div>
+                                <input type="hidden" name="types[]" value="dribbble_link">
+                                <input type="text" class="form-control" placeholder="http://" name="dribbble_link"
+                                    value="{{ get_setting('dribbble_link') }}">
+                            </div>
+
                         </div>
                     </div>
                 </div>

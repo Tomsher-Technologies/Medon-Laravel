@@ -143,7 +143,7 @@ class SearchController extends Controller
                 'id',
                 'name',
                 'slug',
-            ])->get();
+            ])->where('is_active', 1)->get();
         });
 
         $category = Cache::rememberForever('categoriesTree', function () {
@@ -220,7 +220,7 @@ class SearchController extends Controller
             ->limit(8)
             ->get();
 
-        $categories = Category::where('name', 'like', '%' . $query . '%')->get()->take(3);
+        $categories = Category::where('name', 'like', '%' . $query . '%')->where('is_active', 1)->get()->take(3);
 
         if (sizeof($categories) > 0 || sizeof($products) > 0) {
             // return compact('products', 'categories');

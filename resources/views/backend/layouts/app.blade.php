@@ -6,14 +6,14 @@
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="admin-url" content="{{ getBaseURL() . env('ADMIN_PREFIX') }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
-
+    <meta name="robots" content="noindex">
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ frontendAsset('img/fav_icon.png') }}">
-    <title>{{ get_setting('website_name') . ' | ' . get_setting('site_motto') }}</title>
+    <link rel="icon" href="{{ asset('admin_assets/assets/img/favicon.ico') }}">
+    <title>{{ env('APP_NAME') }} | Admin Panel</title>
 
     <!-- google font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
@@ -68,7 +68,7 @@
                     @yield('content')
                 </div>
                 <div class="bg-white text-center py-3 px-15px px-lg-25px mt-auto">
-                    <p class="mb-0">&copy; {{ get_setting('site_name') }} v{{ get_setting('current_version') }}</p>
+                    <p class="mb-0">&copy; {{ env('APP_NAME') }} - Developed By <a href="https://www.tomsher.com/">Tomsher</a></p>
                 </div>
             </div><!-- .aiz-main-content -->
         </div><!-- .aiz-content-wrapper -->

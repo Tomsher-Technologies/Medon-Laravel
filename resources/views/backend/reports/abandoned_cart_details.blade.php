@@ -31,14 +31,16 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
-                                                <a href="{{ route('product', $cart->product->slug) }}" target="_blank">
+                                                {{-- <a href="{{ route('product', $cart->product->slug) }}" target="_blank"> --}}
                                                     <img height="50"
-                                                        src="{{ uploaded_asset($cart->product->thumbnail_img) }}"></a>
+                                                        src="{{ asset($cart->product->thumbnail_img) }}">
+                                                    {{-- </a> --}}
                                             </td>
                                             <td>
-                                                <strong><a href="{{ route('product', $cart->product->slug) }}"
-                                                        target="_blank"
-                                                        class="text-muted">{{ $cart->product->name }}</a></strong>
+                                                <strong>
+                                                    {{-- <a href="{{ route('product', $cart->product->slug) }}" target="_blank" class="text-muted"></a> --}}
+                                                    {{ $cart->product->name }}
+                                                </strong>
                                                 <small>{{ $cart->variation }}</small>
                                             </td>
                                             <td>{{ $cart->created_at->format('d-m-Y h:i:s A') }}</td>

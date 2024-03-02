@@ -73,20 +73,13 @@
 
 <body>
     <div>
-        @php
-            $logo = get_setting('header_logo');
-        @endphp
-        <div style="background: #eceff4;padding: 1.5rem;">
+       
+        <div style="background: #b7e3f978;padding: 1.5rem;">
             <table>
                 <tr>
                     <td>
-                        @if ($logo != null)
-                            <img loading="lazy" src="{{ uploaded_asset($logo) }}" height="40"
+                        <img loading="lazy" src="{{ asset('admin_assets/assets/img/logo.png') }}" height="40"
                                 style="display:inline-block;">
-                        @else
-                            <img loading="lazy" src="{{ static_asset('assets/img/logo.png') }}" height="40"
-                                style="display:inline-block;">
-                        @endif
                     </td>
                 </tr>
             </table>

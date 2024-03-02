@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\Product;
+use App\Models\Offers;
+use App\Models\Faqs;
+use App\Models\Contacts;
 use Cache;
 use Str;
 
@@ -82,21 +85,38 @@ class PageController extends Controller
     public function edit(Request $request, $id)
     {
         $page_name = $request->page;
-        $page = Page::where('slug', $id)->first();
+        $page = Page::where('type', $id)->first();
         if ($page != null) {
-            if ($page_name == 'home') {
+            if ($page->type == 'home_page') {
                 $banners = Banner::where('status', 1)->get();
-                $current_banners = BusinessSetting::whereIn('type', array('home_banner', 'home_ads_banner', 'home_large_banner'))->get()->keyBy('type');
+                $current_banners = BusinessSetting::whereIn('type', array('home_banner_1','home_banner_2','home_banner_3','home_banner', 'home_ads_banner', 'home_large_banner'))->get()->keyBy('type');
 
                 $categories = Cache::rememberForever('categories', function () {
-                    return Category::where('parent_id', 0)->with('childrenCategories')->get();
+                    return Category::where('parent_id', 0)->where('is_active', 1)->with('childrenCategories')->get();
                 });
 
                 $products = Product::select('id', 'name')->get();
-                $brands = Brand::all();
+                $brands = Brand::where('is_active', 1)->get();
+                $offers = Offers::select('id', 'name')->where('end_date','>',now())->get();
 
-                return view('backend.website_settings.pages.home_page_edit', compact('page', 'banners', 'current_banners', 'categories', 'brands', 'products'));
-            } else {
+                return view('backend.website_settings.pages.home_page_edit', compact('page', 'banners', 'current_banners', 'categories', 'brands', 'products','offers'));
+            } elseif($page->type == 'terms_conditions' || $page->type == 'privacy_policy' || $page->type == 'return_refund' || $page->type == 'shipping_delivery'){
+                return view('backend.website_settings.pages.edit', compact('page'));
+            } elseif ($page->type == 'store_locator') {
+                return view('backend.website_settings.pages.store_locator', compact('page'));
+            }elseif ($page->type == 'faq') {
+                $questions = Faqs::orderBy('sort_order','asc')->get();
+                return view('backend.website_settings.pages.faq', compact('page','questions'));
+            }elseif ($page->type == 'contact_us') {
+                return view('backend.website_settings.pages.contact_us', compact('page'));
+            }elseif ($page->type == 'prescriptions') {
+                return view('backend.website_settings.pages.store_locator', compact('page'));
+            }elseif ($page->type == 'offers') {
+                return view('backend.website_settings.pages.offers', compact('page'));
+            }elseif ($page->type == 'product_listing') {
+                return view('backend.website_settings.pages.product_listing', compact('page'));
+            }
+            else {
                 return view('backend.website_settings.pages.edit', compact('page'));
             }
         }
@@ -114,30 +134,53 @@ class PageController extends Controller
     {
         $page = Page::findOrFail($id);
 
+        // echo '<pre>';
+        // print_r($request->all());
+        // die;
+
         // preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug))
 
-        if (Page::where('id', '!=', $id)->where('slug', Str::slug($request->slug))->first() == null) {
+        if (Page::where('id', '!=', $id)->where('type', $request->type)->first() == null) {
             // if ($page->type == 'custom_page') {
-            $page->slug = Str::slug($request->slug);
+            // $page->slug = Str::slug($request->slug);
             // }    
 
-            $page->title          = $request->title;
-            $page->content        = $request->content;
+            $page->title                = $request->has('title') ? $request->title : NULL;
+            $page->content              = $request->has('content') ? $request->content : NULL;
+            $page->sub_title            = $request->has('sub_title') ? $request->sub_title : NULL;
+            $page->meta_title           = $request->meta_title;
+            $page->meta_description     = $request->meta_description;
+            $page->keywords             = $request->keywords;
+            $page->meta_image           = $request->meta_image;
+            $page->og_title             = $request->og_title;
+            $page->og_description       = $request->og_description;
+            $page->twitter_title        = $request->twitter_title;
+            $page->twitter_description  = $request->twitter_description;
 
-            $page->meta_title       = $request->meta_title;
-            $page->meta_description = $request->meta_description;
-            $page->keywords         = $request->keywords;
-            $page->meta_image       = $request->meta_image;
-
-            $page->og_title       = $request->og_title;
-            $page->og_description = $request->og_description;
-
-            $page->twitter_title       = $request->twitter_title;
-            $page->twitter_description = $request->twitter_description;
-
+            $page->heading1             = $request->has('heading1') ? $request->heading1 : NULL;
+            $page->heading2             = $request->has('heading2') ? $request->heading2 : NULL;
+            $page->heading3             = $request->has('heading3') ? $request->heading3 : NULL;
+            $page->heading4             = $request->has('heading4') ? $request->heading4 : NULL;
+            $page->heading5             = $request->has('heading5') ? $request->heading5 : NULL;
+            $page->image1               = $request->has('page_image') ? $request->page_image : NULL;
             $page->save();
 
-
+            if($request->type == 'faq'){
+                Faqs::truncate();
+                $data = [];
+                foreach ($request->faq as $value) {
+                    if($value['question'] != '' && $value['answer'] != ''){
+                        $data[] = array(
+                            "question" => $value['question'] ?? NULL,
+                            "answer"   => $value['answer'] ?? NULL,
+                            "sort_order" =>  $value['sort_order'] ?? NULL,
+                        );
+                    }
+                }
+                if(!empty($data)){
+                    Faqs::insert($data);
+                }
+            }
             flash(translate('Page has been updated successfully'))->success();
             return redirect()->route('website.pages');
         }
@@ -196,5 +239,12 @@ class PageController extends Controller
             return view('frontend.m_custom_page', compact('page'));
         }
         abort(404);
+    }
+
+    public function enquiries(){
+        $query = Contacts::latest();
+        $contact = $query->paginate(20);
+
+        return view('backend.contact', compact('contact'));
     }
 }

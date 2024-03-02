@@ -129,9 +129,7 @@
 
     <div class="invoice">
         <div class="invoice-header">
-            <img width="180"
-                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/assets/img/logo_new.webp'))) }}"
-                alt="Company Logo" class="invoice-logo">
+            <img width="140" src="{{ $imagePath }}" alt="Company Logo" class="invoice-logo">
             <h1>Invoice</h1>
         </div>
 
@@ -161,40 +159,26 @@
             <div class="invoice-info-left">
                 <strong>Billing Address:</strong>
                 <p>
-                    {{ $billing_address->name }} <br>
-                    {{ $billing_address->address }}<br>
-                    @if ($billing_address->city)
-                        {{ $billing_address->city }} <br>
-                    @endif
-
-                    @if ($billing_address->state)
-                        {{ \App\Models\State::find($billing_address->state)->name }} <br>
-                    @endif
-                    {{ $billing_address->postal_code }}
-                    @if ($billing_address->country)
-                        {{ \App\Models\Country::find($billing_address->country)->name }} <br>
-                    @endif
-                    {{ $billing_address->phone }} <br>
-                    {{ $billing_address->email }} <br>
+                    {{ json_decode($order->billing_address)->name }} <br>
+                    {{ json_decode($order->billing_address)->address }}<br>
+                    {{ json_decode($order->billing_address)->city }}<br>
+                    {{ json_decode($order->billing_address)->state }}<br>
+                    {{ json_decode($order->billing_address)->country }}<br>
+                    {{ json_decode($order->billing_address)->phone }}<br>
+                    {{ json_decode($order->billing_address)->email }}<br>
                 </p>
             </div>
             <div class="invoice-info-left" style="float: right; text-align:right">
                 <strong>Shipping Address:</strong>
                 <p>
-                    {{ $shipping_address->name }}<br>
-                    {{ $shipping_address->address }} <br>
-                    @if ($shipping_address->city)
-                        {{ $shipping_address->city }} <br>
-                    @endif
-                    @if ($shipping_address->state)
-                        {{ \App\Models\State::find($shipping_address->state)->name }} <br>
-                    @endif
-                    {{ $shipping_address->postal_code }} <br>
-                    @if ($shipping_address->country)
-                        {{ \App\Models\Country::find($shipping_address->country)->name }}<br>
-                    @endif
-                    {{ $shipping_address->phone }} <br>
-                    {{ $shipping_address->email }} <br>
+                    {{ json_decode($order->shipping_address)->name }}<br>
+                    {{ json_decode($order->shipping_address)->address }} <br>
+                    {{ json_decode($order->shipping_address)->city }} <br>
+                    {{ json_decode($order->shipping_address)->state }} <br>
+                    {{ json_decode($order->shipping_address)->country }} <br>
+                   
+                    {{ json_decode($order->shipping_address)->phone }} <br>
+                    {{ json_decode($order->shipping_address)->email }} <br>
                 </p>
             </div>
         </div>

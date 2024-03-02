@@ -84,6 +84,8 @@
                                     <option {{ old('link_type', $banner->link_type) == 'category' ? 'selected' : '' }}
                                         value="category">
                                         Category</option>
+                                    <option {{ old('link_type', $banner->link_type) == 'brand' ? 'selected' : '' }} value="brand">Brand</option>
+                                    <option {{ old('link_type', $banner->link_type) == 'offer' ? 'selected' : '' }} value="offer">Offer</option>
                                 </select>
                                 @error('link_type')
                                     <div class="alert alert-danger">{{ $message }}</div>

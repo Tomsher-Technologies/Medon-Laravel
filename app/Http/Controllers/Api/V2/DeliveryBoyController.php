@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Api\V2;
 
-use App\Http\Controllers\OTPVerificationController;
-use App\Http\Resources\V2\PurchaseHistoryMiniCollection;
 use App\Http\Resources\V2\DeliveryBoyPurchaseHistoryMiniCollection;
 use Illuminate\Http\Request;
-use App\Http\Resources\V2\DeliveryBoyCollection;
-use App\Http\Resources\V2\DeliveryHistoryCollection;
-use Auth;
-use App\Models\DeliveryBoy;
+use App\Models\Delivery\DeliveryBoy;
 use App\Models\DeliveryHistory;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\OrderTracking;
 use App\Models\SmsTemplate;
+use App\Models\OrderDeliveryBoys;
+use App\Models\RefundRequest;
 use App\Utility\SmsUtility;
-
+use App\Utility\SendSMSUtility;
+use Carbon\Carbon;
+use Storage;
 
 class DeliveryBoyController extends Controller
 {
@@ -27,59 +27,98 @@ class DeliveryBoyController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function dashboard_summary($id)
+    public function dashboard_summary(Request $request)
     {
-        $order_query = Order::query();
-        $order_query->where('assign_delivery_boy', $id);
+        $user_id = $request->user()->id;
 
-
-        $delivery_boy = DeliveryBoy::where('user_id', $id)->first();
-
-
-        //dummy
-        /*  return response()->json([
-              'completed_delivery' => 123,
-              'pending_delivery' => 0,
-              'total_collection' => format_price(154126.00),
-              'total_earning' => format_price(365.00),
-              'cancelled' => 5,
-              'on_the_way' => 123,
-              'picked' => 24,
-              'assigned' => 55,
-
-          ]);*/
-
+        $orders = OrderDeliveryBoys::where('delivery_boy_id', $user_id)->get();
+        $returns = RefundRequest::where('delivery_boy', $user_id)->get();
         return response()->json([
-            'completed_delivery' => Order::where('assign_delivery_boy', $id)->where('delivery_status', 'delivered')->count(),
-            'pending_delivery' => Order::where('assign_delivery_boy', $id)->where('delivery_status', '!=', 'delivered')->where('delivery_status', '!=', 'cancelled')->where('cancel_request', '0')->count(),
-            'total_collection' => format_price($delivery_boy->total_collection),
-            'total_earning' => format_price($delivery_boy->total_earning),
-            'cancelled' => Order::where('assign_delivery_boy', $id)->where('delivery_status', 'cancelled')->count(),
-            'on_the_way' => Order::where('assign_delivery_boy', $id)->where('delivery_status', 'on_the_way')->where('cancel_request', '0')->count(),
-            'picked' => Order::where('assign_delivery_boy', $id)->where('delivery_status', 'picked_up')->where('cancel_request', '0')->count(),
-            'assigned' => Order::where('assign_delivery_boy', $id)->where('delivery_status', 'pending')->where('cancel_request', '0')->count(),
-
+            'status' => true,
+            'completed_delivery' => $orders->where('status', 1)->count() ,
+            'completed_returns' => $returns->where('delivery_status', 1)->count(),
+            'assigned_delivery' => $orders->whereIn('status', 0)->count() + $returns->where('delivery_status', 0)->count()
         ]);
     }
 
-    public function assigned_delivery($id)
+    public function assigned_delivery(Request $request)
     {
-//        $order_query = Order::query();
-//        $order_query->where('delivery_status', 'pending');
-//        $order_query->where('cancel_request', '0');
+        $order = OrderDeliveryBoys::with(['order'])
+                    ->where('delivery_boy_id', $request->user()->id)
+                    ->where('status', 0)
+                    ->orderBy('id','desc')
+                    ->get();
 
-        $order_query = Order::query();
-        $order_query->where('assign_delivery_boy', $id);
-        $order_query->where(function ($order_query) {
-            $order_query->where('delivery_status', 'pending')
-                    ->where('cancel_request', '0');
-        })->orWhere(function ($order_query) {
-            $order_query->where('delivery_status', 'confirmed')
-                    ->where('cancel_request', '0');
-        });
+        $return = RefundRequest::with(['order'])
+                        ->where('delivery_boy', $request->user()->id)
+                        ->where('delivery_status', 0)
+                        ->orderBy('id','desc')
+                        ->get();
+        $orders = $order->merge($return);
+        
+       
+        if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
+            return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
+        }else {
+            return response()->json([
+                'status' => true,
+                "message" => "No Data Found!"
+                ],200);
+        }
+    }
+    public function completed_delivery(Request $request)
+    {
+        // $orders = Order::where([
+        //     'assign_delivery_boy' => $request->user()->id,
+        //     'delivery_status' => 'delivered'
+        // ])->latest()->get();
+        $start_date = $request->has('start_date') ? $request->start_date : '';
+        $end_date   = $request->has('end_date') ? $request->end_date : '';
 
-        return new DeliveryBoyPurchaseHistoryMiniCollection($order_query->latest('delivery_history_date')->paginate(10));
-//        return new DeliveryBoyPurchaseHistoryMiniCollection($order_query->where('assign_delivery_boy', $id)->latest('delivery_history_date')->paginate(10));
+        $orderQuery = OrderDeliveryBoys::with(['order'])
+                    ->where('delivery_boy_id', $request->user()->id)
+                    ->where('status', 1);
+
+        if($start_date  != '' && $end_date != ''){
+           $orderQuery->WhereDate('delivery_date','>=',$start_date)->WhereDate('delivery_date','<=',$end_date);  
+        }
+
+        $orders = $orderQuery->orderBy('id','desc')->get();
+       
+        if(isset($orders[0]['order']) && !empty($orders[0]['order'])){
+            return new DeliveryBoyPurchaseHistoryMiniCollection($orders);
+        }else {
+            return response()->json([
+                'status' => true,
+                "message" => "No Data Found!"
+                ],200);
+        }
+    }
+
+    public function completed_return_delivery(Request $request)
+    {
+        $start_date = $request->has('start_date') ? $request->start_date : '';
+        $end_date   = $request->has('end_date') ? $request->end_date : '';
+
+        $returnQuery = RefundRequest::with(['order'])
+                        ->where('delivery_boy', $request->user()->id)
+                        ->where('delivery_status', 1);
+
+        if($start_date  != '' && $end_date != ''){
+            $returnQuery->WhereDate('delivery_completed_date','>=',$start_date)->WhereDate('delivery_completed_date','<=',$end_date);  
+        }
+
+        $return = $returnQuery->orderBy('id','desc')
+                        ->get();
+       
+        if(isset($return[0]['order']) && !empty($return[0]['order'])){
+            return new DeliveryBoyPurchaseHistoryMiniCollection($return);
+        }else {
+            return response()->json([
+                'status' => true,
+                "message" => "No Data Found!"
+                ],200);
+        }
     }
 
     /**
@@ -88,28 +127,28 @@ class DeliveryBoyController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function picked_up_delivery($id)
+    public function picked_up_delivery(Request $request)
     {
-        $order_query = Order::query();
-        $order_query->where('delivery_status', 'picked_up');
-        $order_query->where('cancel_request', '0');
+        $order = Order::where([
+            'id' => $request->order_id,
+            'assign_delivery_boy' => $request->user()->id
+        ])->firstOrFail();
 
-        return new DeliveryBoyPurchaseHistoryMiniCollection($order_query->where('assign_delivery_boy', $id)->latest('delivery_history_date')->paginate(10));
-    }
+        $order->delivery_status = 'picked_up';
 
-    /**
-     * Show the list of pickup delivery by the delivery boy.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function on_the_way_delivery($id)
-    {
-        $order_query = Order::query();
-        $order_query->where('delivery_status', 'on_the_way');
-        $order_query->where('cancel_request', '0');
+        if ($order->save()) {
+            return response()->json([
+                'status' => true,
+                'order_id' => $request->order_id,
+                'message' => "Order status changed to picked up"
+            ]);
+        }
 
-        return new DeliveryBoyPurchaseHistoryMiniCollection($order_query->where('assign_delivery_boy', $id)->latest('delivery_history_date')->paginate(10));
+        return response()->json([
+            'status' => false,
+            'order_id' => $request->order_id,
+            'message' => "Somthing went wrong, please try again"
+        ]);
     }
 
     /**
@@ -118,186 +157,143 @@ class DeliveryBoyController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function completed_delivery($id)
+    public function complete_delivery(Request $request)
     {
-        $order_query = Order::query();
-        $order_query->where('delivery_status', 'delivered');
+        $order_id = $request->order_id ?? '';
+        $type = $request->type ?? '';
+        $user_id = $request->user()->id ;
+        $delivery_note = $request->delivery_note ?? '';
+        $payment_status = $request->payment_status ?? 0;
 
-        //dd(request()->date_range);
+        if($type == 'order'){
+            $deliveryOrder = OrderDeliveryBoys::with(['order'])
+                            ->where('delivery_boy_id', $user_id)
+                            ->where('status', 0)
+                            ->where('order_id', $order_id)
+                            ->firstOrFail();
 
-        if (request()->has('date_range') && request()->date_range != null &&  request()->date_range != "") {
-            $max_date = date('Y-m-d H:i:s');
-            $min_date = date('Y-m-d 00:00:00');
-            if (request()->date_range == "today") {
-                $min_date = date('Y-m-d 00:00:00');
-            } else if (request()->date_range == "this_week") {
-                //dd("hello");
-                $min_date = date('Y-m-d 00:00:00', strtotime("-7 days"));
-            } else if (request()->date_range == "this_month") {
-                $min_date = date('Y-m-d 00:00:00', strtotime("-30 days"));
+            if ($deliveryOrder) {
+                $deliveryOrder->delivery_note = $request->delivery_note;
+                $deliveryOrder->delivery_date = Carbon::now();
+                $deliveryOrder->status = 1;
+                $deliveryOrder->payment_status = $payment_status;
+
+                // Update order status as delivered
+                $order = Order::find($order_id);
+                if($order->delivery_status == 'partial_pick_up'){
+                    $order->delivery_status = 'partial_delivery';
+
+                    foreach ($order->orderDetails as $key => $orderDetail) {
+                        if ($orderDetail->delivery_status == 'picked_up') {
+                            $orderDetail->delivery_status = 'delivered';
+                            $orderDetail->delivery_by = $user_id;
+                            $orderDetail->delivery_date = date('Y-m-d H:i:s');
+                        } 
+                        
+                        if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                            $orderDetail->payment_status = 'paid';
+                        }
+
+                        $orderDetail->save();
+                    }
+
+                }elseif($order->delivery_status == 'picked_up'){
+                    $order->delivery_status = 'delivered';
+
+                    foreach ($order->orderDetails as $key => $orderDetail) {
+                        $orderDetail->delivery_status = 'delivered';
+                        $orderDetail->delivery_by = $user_id;
+                        $orderDetail->delivery_date = date('Y-m-d H:i:s');
+                        
+                        if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                            $orderDetail->payment_status = 'paid';
+                        }
+                        $orderDetail->save();
+                    }
+                }
+
+                if($order->payment_type == 'cash_on_delivery' && $payment_status == 1){
+                    $order->payment_status = 'paid';
+                }
+
+                $order->save();
+
+                $track = new OrderTracking;
+                $track->order_id = $order->id;
+                $track->status = $order->delivery_status;
+                $track->description = "";
+                $track->status_date = date('Y-m-d H:i:s');
+                $track->save();
+
+                $message = getOrderStatusMessageTest($order->user->name, $order->code);
+                $userPhone = $order->user->phone ?? '';
+                
+                if($userPhone != '' && isset($message[$order->delivery_status]) && $message[$order->delivery_status] != ''){
+                    SendSMSUtility::sendSMS($userPhone, $message[$order->delivery_status]);
+                }
+
+                $file_name = $name = NULL;
+                $path = NULL;
+                if ($request->hasFile('image')) {
+                    $file_name = time() . '_' . $request->file('image')->getClientOriginalName();
+                    $name = Storage::disk('public')->putFileAs(
+                        'delivery_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m'),
+                        $request->file('image'),
+                        $file_name
+                    );
+                }
+
+                if ($name) {
+                    $deliveryOrder->delivery_image =  Storage::url($name);
+                }
+
+                if ($deliveryOrder->save()) {
+                    return response()->json([
+                        'status' => true,
+                        'order_id' => $order_id,
+                        'message' => "Order Delivery Completed",
+                    ]);
+                }
             }
+        }elseif($type == 'return'){
+            $refund = RefundRequest::where('delivery_boy', $user_id)
+                                    ->where('delivery_status', 0)
+                                    ->where('id', $order_id)
+                                    ->firstOrFail();
+            if ($refund) {
+                $refund->delivery_note = $delivery_note;
 
-            $order_query->where('delivery_history_date','>=',$min_date)->where('delivery_history_date','<=',$max_date);
+                $file_name = $name = NULL;
+                $path = NULL;
+                if ($request->hasFile('image')) {
+                    $file_name = time() . '_' . $request->file('image')->getClientOriginalName();
+                    $name = Storage::disk('public')->putFileAs(
+                        'return_images/' . Carbon::now()->year . '/' . Carbon::now()->format('m'),
+                        $request->file('image'),
+                        $file_name
+                    );
+                }
 
-        }
+                if ($name) {
+                    $refund->delivery_image =  Storage::url($name);
+                }
 
-        if (request()->has('payment_type') && request()->payment_type != null &&  request()->payment_type != "") {
-
-            if (request()->payment_type == "cod") {
-                $order_query->where('payment_type','=','cash_on_delivery');
-            } else if (request()->payment_type == "non-cod") {
-                $order_query->where('payment_type','!=','cash_on_delivery');
+                $refund->delivery_status = 1;
+                $refund->delivery_completed_date = date('Y-m-d H:i:s');
+                
+                if ($refund->save()) {
+                    return response()->json([
+                        'status' => true,
+                        'order_id' => $order_id,
+                        'message' => "Order Return Completed",
+                    ]);
+                }
             }
-
         }
-
-        return new DeliveryBoyPurchaseHistoryMiniCollection($order_query->where('assign_delivery_boy', $id)->latest('delivery_history_date')->paginate(10));
-    }
-
-    /**
-     * Show the list of pending delivery by the delivery boy.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function pending_delivery($id)
-    {
-        $order_query = Order::query();
-        $order_query->where('delivery_status', '!=', 'delivered');
-        $order_query->where('delivery_status', '!=', 'cancelled');
-        $order_query->where('cancel_request', '0');
-
-        return new DeliveryBoyPurchaseHistoryMiniCollection($order_query->where('assign_delivery_boy', $id)->latest('delivery_history_date')->paginate(10));
-    }
-
-    /**
-     * Show the list of cancelled delivery by the delivery boy.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function cancelled_delivery($id)
-    {
-        $order_query = Order::query();
-        $order_query->where('delivery_status', 'cancelled');
-
-        if (request()->has('date_range') && request()->date_range != null &&  request()->date_range != "") {
-            $max_date = date('Y-m-d H:i:s');
-            $min_date = date('Y-m-d 00:00:00');
-            if (request()->date_range == "today") {
-                $min_date = date('Y-m-d 00:00:00');
-            } else if (request()->date_range == "this_week") {
-                //dd("hello");
-                $min_date = date('Y-m-d 00:00:00', strtotime("-7 days"));
-            } else if (request()->date_range == "this_month") {
-                $min_date = date('Y-m-d 00:00:00', strtotime("-30 days"));
-            }
-
-            $order_query->where('delivery_history_date','>=',$min_date)->where('delivery_history_date','<=',$max_date);
-
-        }
-
-        if (request()->has('payment_type') && request()->payment_type != null &&  request()->payment_type != "") {
-
-            if (request()->payment_type == "cod") {
-                $order_query->where('payment_type','=','cash_on_delivery');
-            } else if (request()->payment_type == "non-cod") {
-                $order_query->where('payment_type','!=','cash_on_delivery');
-            }
-
-        }
-
-        return new PurchaseHistoryMiniCollection($order_query->where('assign_delivery_boy', $id)->latest()->paginate(10));
-    }
-
-    /**
-     * Show the list of today's collection by the delivery boy.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function collection($id)
-    {
-        $collection_query = DeliveryHistory::query();
-        $collection_query->where('delivery_status', 'delivered');
-        $collection_query->where('payment_type', 'cash_on_delivery');
-
-        return new DeliveryHistoryCollection($collection_query->where('delivery_boy_id', $id)->latest()->paginate(10));
-    }
-
-    public function earning($id)
-    {
-        $collection_query = DeliveryHistory::query();
-        $collection_query->where('delivery_status', 'delivered');
-
-        return new DeliveryHistoryCollection($collection_query->where('delivery_boy_id', $id)->latest()->paginate(10));
-    }
-
-    public function collection_summary($id)
-    {
-        $collection_query = DeliveryHistory::query();
-        $collection_query->where('delivery_status', 'delivered');
-        $collection_query->where('payment_type', 'cash_on_delivery');
-
-
-        $today_date = date('Y-m-d');
-        $yesterday_date = date('Y-m-d', strtotime("-1 day"));
-        $today_date_formatted = date('d M, Y');
-        $yesterday_date_formatted = date('d M,Y', strtotime("-1 day"));
-
-
-        $today_collection = DeliveryHistory::where('delivery_status', 'delivered')
-            ->where('payment_type', 'cash_on_delivery')
-            ->where('delivery_boy_id', $id)
-            ->where('created_at','like',"%$today_date%")
-            ->sum('collection');
-
-        $yesterday_collection = DeliveryHistory::where('delivery_status', 'delivered')
-            ->where('payment_type', 'cash_on_delivery')
-            ->where('delivery_boy_id', $id)
-            ->where('created_at','like',"%$yesterday_date%")
-            ->sum('collection');
-
-
+    
         return response()->json([
-            'today_date' => $today_date_formatted,
-            'today_collection' => format_price($today_collection) ,
-            'yesterday_date' => $yesterday_date_formatted,
-            'yesterday_collection' => format_price($yesterday_collection) ,
-
-        ]);
-    }
-
-    public function earning_summary($id)
-    {
-        $collection_query = DeliveryHistory::query();
-        $collection_query->where('delivery_status', 'delivered');
-//        $collection_query->where('payment_type', 'cash_on_delivery');
-
-
-        $today_date = date('Y-m-d');
-        $yesterday_date = date('Y-m-d', strtotime("-1 day"));
-        $today_date_formatted = date('d M, Y');
-        $yesterday_date_formatted = date('d M,Y', strtotime("-1 day"));
-
-
-        $today_collection = DeliveryHistory::where('delivery_status', 'delivered')
-            ->where('delivery_boy_id', $id)
-            ->where('created_at','like',"%$today_date%")
-            ->sum('earning');
-
-        $yesterday_collection = DeliveryHistory::where('delivery_status', 'delivered')
-            ->where('delivery_boy_id', $id)
-            ->where('created_at','like',"%$yesterday_date%")
-            ->sum('earning');
-
-
-        return response()->json([
-            'today_date' => $today_date_formatted,
-            'today_earning' => format_price($today_collection) ,
-            'yesterday_date' => $yesterday_date_formatted,
-            'yesterday_earning' => format_price($yesterday_collection) ,
-
+            'status' => false,
+            'order_id' => "Order not found",
         ]);
     }
 
@@ -308,7 +304,8 @@ class DeliveryBoyController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function change_delivery_status(Request $request) {
+    public function change_delivery_status(Request $request)
+    {
         $order = Order::find($request->order_id);
         $order->delivery_viewed = '0';
         $order->delivery_status = $request->status;
@@ -321,17 +318,17 @@ class DeliveryBoyController extends Controller
         $delivery_history->delivery_status  = $order->delivery_status;
         $delivery_history->payment_type     = $order->payment_type;
 
-        if($order->delivery_status == 'delivered') {
+        if ($order->delivery_status == 'delivered') {
             foreach ($order->orderDetails as $key => $orderDetail) {
                 if (addon_is_activated('affiliate_system')) {
                     if ($orderDetail->product_referral_code) {
                         $no_of_delivered = 0;
                         $no_of_canceled = 0;
 
-                        if($request->status == 'delivered') {
+                        if ($request->status == 'delivered') {
                             $no_of_delivered = $orderDetail->quantity;
                         }
-                        if($request->status == 'cancelled') {
+                        if ($request->status == 'cancelled') {
                             $no_of_canceled = $orderDetail->quantity;
                         }
 
@@ -354,44 +351,66 @@ class DeliveryBoyController extends Controller
 
                 $order->payment_status = 'paid';
                 if ($order->commission_calculated == 0) {
-                    calculateCommissionAffilationClubPoint($order);
+                    // calculateCommissionAffilationClubPoint($order);
                     $order->commission_calculated = 1;
                 }
-
             }
 
             $delivery_boy->save();
+
+            $message = getOrderStatusMessageTest($order->user->name, $order->code);
+            $userPhone = $order->user->phone ?? '';
+            
+            if($userPhone != '' && isset($message['delivered']) && $message['delivered'] != ''){
+                SendSMSUtility::sendSMS($userPhone, $message['delivered']);
+            }
         }
         $order->delivery_history_date = date("Y-m-d H:i:s");
 
         $order->save();
         $delivery_history->save();
 
-        if (addon_is_activated('otp_system') && SmsTemplate::where('identifier','delivery_status_change')->first()->status == 1){
+        if (addon_is_activated('otp_system') && SmsTemplate::where('identifier', 'delivery_status_change')->first()->status == 1) {
             try {
                 SmsUtility::delivery_status_change($order->user->phone, $order);
             } catch (\Exception $e) {
-
             }
         }
 
         return response()->json([
             'result' => true,
-            'message' => translate('Delivery status changed to ').ucwords(str_replace('_',' ',$request->status))
+            'message' => translate('Delivery status changed to ') . ucwords(str_replace('_', ' ', $request->status))
         ]);
     }
 
-    public function cancel_request($id)
-    {
-        $order =  Order::find($id);
 
-        $order->cancel_request = 1;
-        $order->cancel_request_at = date('Y-m-d H:i:s');
-        $order->save();
+    public function change_status(Request $request)
+    {
+
+        $status = DeliveryBoy::where([
+            'user_id' => $request->user()->id
+        ])->update([
+            'status' => $request->status
+        ]);
+
+        if ($status) {
+            return response()->json([
+                'result' => true,
+                'message' => "Rider status changed"
+            ], 200);
+        }
 
         return response()->json([
+            'result' => false,
+            'message' => "Failed"
+        ], 404);
+    }
+
+    public function get_status(Request $request)
+    {
+        return response()->json([
             'result' => true,
-            'message' => translate('Requested for cancellation')
-        ]);
+            'message' => $request->user()->delivery_boy()->first()->status
+        ], 200);
     }
 }

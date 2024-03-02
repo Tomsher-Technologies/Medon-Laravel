@@ -1674,11 +1674,13 @@ togglePassword.on('click', function (e) {
                 var $this = $(this);
                 var content = $this.data("content");
                 var target = $this.data("target");
-
+                var max = $this.data("max") ?? 100;
                 $this.on("click", function (e) {
                     e.preventDefault();
-                    $(target).append(content);
-                    AIZ.plugins.bootstrapSelect();
+                    if ($(target).children().length <= max) {
+                        $(target).append(content);
+                        AIZ.plugins.bootstrapSelect();
+                    }
                 });
             });
         },

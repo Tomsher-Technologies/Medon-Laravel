@@ -504,7 +504,7 @@
                 <div class="tm_invoice_in">
                     <div class="tm_invoice_head tm_align_center tm_mb20">
                         <div class="tm_invoice_left">
-                            <div class="tm_logo"><img src="assets/img/logo.svg" alt="Logo"></div>
+                            <div class="tm_logo"><img src="assets/img/logo.png" alt="Logo"></div>
                         </div>
                         <div class="tm_invoice_right tm_text_right">
                             <div class="tm_primary_color tm_f50 tm_text_uppercase">Invoice</div>

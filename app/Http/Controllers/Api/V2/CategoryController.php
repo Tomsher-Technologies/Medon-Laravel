@@ -6,39 +6,40 @@ use App\Http\Resources\V2\CategoryCollection;
 use App\Models\BusinessSetting;
 use App\Models\Category;
 use Cache;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
 
-    public function index($parent_id = 0)
+    public function index(Request $request)
     {
-        if(request()->has('parent_id') && is_numeric (request()->get('parent_id'))){
-          $parent_id = request()->get('parent_id');
-        }
-        
-        return Cache::remember("app.categories-$parent_id", 86400, function() use ($parent_id){
-            return new CategoryCollection(Category::where('parent_id', $parent_id)->get());
-        });
+        $parent_id = $request->has('parent_id') ? $request->parent_id : '';
+        $limit = $request->has('limit') ? $request->limit : '';
+
+        $category_query = ($parent_id != '') ? Category::where('parent_id', $parent_id) : Category::whereNotNull('slug');
+
+        $query = ($limit != '') ? $category_query->where('is_active', 1)->paginate($limit) : $category_query->get();
+        return new CategoryCollection($query);
     }
 
     public function featured()
     {
-        return Cache::remember('app.featured_categories', 86400, function(){
+        return Cache::remember('app.featured_categories', 86400, function () {
             return new CategoryCollection(Category::where('featured', 1)->get());
         });
     }
 
     public function home()
     {
-        return Cache::remember('app.home_categories', 86400, function(){
-            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->get());
+        return Cache::remember('app.home_categories', 86400, function () {
+            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->where('is_active', 1)->get());
         });
     }
 
     public function top()
-    {   
-        return Cache::remember('app.top_categories', 86400, function(){
-            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->limit(20)->get());
+    {
+        return Cache::remember('app.top_categories', 86400, function () {
+            return new CategoryCollection(Category::whereIn('id', json_decode(get_setting('home_categories')))->where('is_active', 1)->limit(20)->get());
         });
     }
 }

@@ -4,7 +4,7 @@
     <div class="aiz-titlebar text-left mt-2 mb-3">
         <div class="row align-items-center">
             <div class="col">
-                <h1 class="h3">Edit Page Information</h1>
+                <h1 class="h3">Edit {{ $page->slug }} Page Information</h1>
             </div>
         </div>
     </div>
@@ -26,21 +26,7 @@
                     <div class="col-sm-10">
                         <input type="text" class="form-control" placeholder="{{ translate('Title') }}" name="title"
                             value="{{ $page->title }}" required>
-                    </div>
-                </div>
-
-
-                <div class="form-group row">
-                    <label class="col-sm-2 col-from-label" for="name">{{ translate('Link') }} <span
-                            class="text-danger">*</span></label>
-                    <div class="col-sm-10">
-                        <div class="input-group d-block d-md-flex">
-                            <div class="input-group-prepend "><span
-                                    class="input-group-text flex-grow-1">{{ route('home') }}/</span></div>
-                            <input type="text" class="form-control w-100 w-md-auto" placeholder="Slug" name="slug"
-                                value="{{ $page->slug }}" required>
-                        </div>
-                        <small class="form-text text-muted">Use character, number, hypen only</small>
+                            <input type="hidden" name="type" value="{{ $page->type }}">
                     </div>
                 </div>
 
@@ -134,6 +120,7 @@
 
                 <div class="text-right">
                     <button type="submit" class="btn btn-primary">Update Page</button>
+                    <button  class="btn btn-warning"><a href="{{ route('website.pages') }}">Cancel</a></button>
                 </div>
             </div>
         </form>

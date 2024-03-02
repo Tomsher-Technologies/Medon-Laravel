@@ -61,24 +61,25 @@
                         </a>
                     </div>
                 </div> --}}
-                <div class="col-md-2 ml-auto bootstrap-select">
+                <div class="col-md-3 ml-auto bootstrap-select">
+                    
                     <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" data-live-search="true"
-                        name="category" id="">
-                        <option value="0">All Categories</option>
+                    name="category" id="" data-selected={{ $category }}>
+                        <option value="0">All</option>
                         @foreach (getAllCategories()->where('parent_id', 0) as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            <option value="{{ $item->id }}" @if( $category == $item->id)  {{ 'selected' }} @endif )>{{ $item->name }}</option>
                             @if ($item->child)
                                 @foreach ($item->child as $cat)
-                                    @include('frontend.product.categories.menu_child_category', [
+                                    @include('backend.product.categories.menu_child_category', [
                                         'category' => $cat,
-                                        'selected_id' => 0,
+                                        'old_data' => $category,
                                     ])
                                 @endforeach
                             @endif
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2 ml-auto bootstrap-select">
+                <div class="col-md-3 ml-auto bootstrap-select">
                     <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" name="type"
                         id="type">
                         <option value="">Sort By</option>
@@ -116,7 +117,7 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-info w-100" type="submit">Filter</button>
+                    <button class="btn btn-warning w-100" type="submit">Filter</button>
                 </div>
             </div>
 
@@ -124,7 +125,7 @@
                 <table class="table aiz-table mb-0">
                     <thead>
                         <tr>
-                            <th>
+                            {{-- <th>
                                 <div class="form-group">
                                     <div class="aiz-checkbox-inline">
                                         <label class="aiz-checkbox">
@@ -133,22 +134,27 @@
                                         </label>
                                     </div>
                                 </div>
-                            </th>
+                            </th> --}}
+                            <th  width="10%">#</th>
                             <th>{{ translate('Name') }}</th>
-                            <th data-breakpoints="lg">Category</th>
-                            <th data-breakpoints="sm">{{ translate('Info') }}</th>
-                            <th data-breakpoints="md">{{ translate('Total Stock') }}</th>
+                            <th>Category</th>
+                            <th>{{ translate('Info') }}</th>
+                            <th >{{ translate('Total Stock') }}</th>
                             {{-- <th data-breakpoints="lg">{{translate('Todays Deal')}}</th> --}}
-                            <th data-breakpoints="lg">{{ translate('Published') }}</th>
+                            <th >{{ translate('Published') }}</th>
                             {{-- <th data-breakpoints="lg">{{translate('Featured')}}</th> --}}
-                            <th data-breakpoints="sm" class="text-right">{{ translate('Options') }}</th>
+                           
+                            <th  class="text-right">{{ translate('Options') }}</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $shops = getActiveShops();
+                        @endphp
                         @foreach ($products as $key => $product)
                             <tr>
-                                <!--<td>{{ $key + 1 + ($products->currentPage() - 1) * $products->perPage() }}</td>-->
-                                <td>
+                                <td>{{ $key + 1 + ($products->currentPage() - 1) * $products->perPage() }}</td>
+                                {{-- <td>
                                     <div class="form-group d-inline-block">
                                         <label class="aiz-checkbox">
                                             <input type="checkbox" class="check-one" name="id[]"
@@ -156,7 +162,7 @@
                                             <span class="aiz-square-check"></span>
                                         </label>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td>
                                     <div class="row gutters-5 w-200px w-md-300px mw-100">
 
@@ -176,13 +182,14 @@
                                 <td class="bread">
                                     {{ Breadcrumbs::render('product_admin', $product) }}
                                 </td>
-                                <td>
+                                <td style="word-break: break-word;">
                                     <strong>{{ translate('Num of Sale') }}:</strong> {{ $product->num_of_sale }}
                                     {{ translate('times') }} </br>
                                     <strong>{{ translate('Base Price') }}:</strong>
                                     {{ single_price($product->unit_price) }} </br>
                                     <strong>{{ translate('Rating') }}:</strong> {{ $product->rating }} </br>
                                     <strong>{{ translate('SKU') }}:</strong> {{ $product->sku }} </br>
+                                    <strong>{{ translate('VAT') }}:</strong> {{ $product->vat }} </br>
                                 </td>
                                 <td>
                                     @php
@@ -203,13 +210,13 @@
                                     @endif
                                 </td>
                                 {{-- <td>
-                            <label class="aiz-switch aiz-switch-success mb-0">
-                                <input onchange="update_todays_deal(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->todays_deal == 1) {
-                                    echo 'checked';
-                                } ?> >
-                                <span class="slider round"></span>
-                            </label>
-                        </td> --}}
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input onchange="update_todays_deal(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->todays_deal == 1) {
+                                            echo 'checked';
+                                        } ?> >
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td> --}}
                                 <td>
                                     <label class="aiz-switch aiz-switch-success mb-0">
                                         <input onchange="update_published(this)" value="{{ $product->id }}"
@@ -220,18 +227,17 @@
                                     </label>
                                 </td>
                                 {{-- <td>
-                            <label class="aiz-switch aiz-switch-success mb-0">
-                                <input onchange="update_featured(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->featured == 1) {
-                                    echo 'checked';
-                                } ?> >
-                                <span class="slider round"></span>
-                            </label>
-                        </td> --}}
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input onchange="update_featured(this)" value="{{ $product->id }}" type="checkbox" <?php if ($product->featured == 1) {
+                                            echo 'checked';
+                                        } ?> >
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td> --}}
+
+                                
                                 <td class="text-right">
-                                    <a class="btn btn-soft-success btn-icon btn-circle btn-sm"
-                                        href="{{ route('product', $product->slug) }}" target="_blank" title="View">
-                                        <i class="las la-eye"></i>
-                                    </a>
+                                  
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                         href="{{ route('products.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
                                         title="Edit">
@@ -240,10 +246,10 @@
                                     {{-- <a class="btn btn-soft-warning btn-icon btn-circle btn-sm" href="{{route('products.duplicate', ['id'=>$product->id, 'type'=>$type]  )}}" title="Duplicate">
                                 <i class="las la-copy"></i>
                             </a> --}}
-                                    <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
+                                    {{-- <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                         data-href="{{ route('products.destroy', $product->id) }}" title="Delete">
                                         <i class="las la-trash"></i>
-                                    </a>
+                                    </a> --}}
                                 </td>
                             </tr>
                         @endforeach

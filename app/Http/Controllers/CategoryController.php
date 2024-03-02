@@ -9,6 +9,7 @@ use App\Models\CategoryTranslation;
 use App\Utility\CategoryUtility;
 use Illuminate\Support\Str;
 use Cache;
+use Artisan;
 
 class CategoryController extends Controller
 {
@@ -44,7 +45,7 @@ class CategoryController extends Controller
     public function create()
     {
         $categories = Category::where('parent_id', 0)
-            ->with('childrenCategories')
+            ->with('childrenCategories')->where('is_active', 1)
             ->get();
 
         return view('backend.product.categories.create', compact('categories'));
@@ -100,7 +101,7 @@ class CategoryController extends Controller
         //     $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
         // }
 
-        $category->featured = $request->featured;
+        $category->is_active = $request->is_active;
         $category->top = $request->top;
 
         $category->slug = $request->slug;
@@ -109,6 +110,11 @@ class CategoryController extends Controller
 
         $category->attributes()->sync($request->filtering_attributes);
 
+        Cache::forget('featured_categories');
+        Cache::forget('header_submenus');
+        Cache::forget('header_menus');
+        Cache::forget('category_filter');
+        Artisan::call('cache:clear');
         flash(translate('Category has been inserted successfully'))->success();
         return redirect()->route('categories.index');
     }
@@ -175,6 +181,8 @@ class CategoryController extends Controller
 
         $previous_level = $category->level;
 
+        $old_category = $category->parent_id;
+
         if ($request->parent_id != "0") {
             $category->parent_id = $request->parent_id;
 
@@ -185,7 +193,7 @@ class CategoryController extends Controller
             $category->level = 0;
         }
 
-        $category->featured = $request->featured;
+        $category->is_active = $request->is_active;
         $category->top = $request->top;
 
         if ($category->level > $previous_level) {
@@ -206,7 +214,19 @@ class CategoryController extends Controller
 
         $category->attributes()->sync($request->filtering_attributes);
 
+        if($old_category != $request->parent_id){
+            $main_category = $category->id;
+            if($category->parent_id != 0){
+                $main_category = $category->getMainCategory();
+            }
+            Product::where('category_id',$category->id)->update(['main_category' => $main_category]);
+        }
+
         Cache::forget('featured_categories');
+        Cache::forget('header_submenus');
+        Cache::forget('header_menus');
+        Cache::forget('category_filter');
+        Artisan::call('cache:clear');
         flash(translate('Category has been updated successfully'))->success();
         return back();
     }
@@ -245,6 +265,18 @@ class CategoryController extends Controller
         $category->featured = $request->status;
         $category->save();
         Cache::forget('featured_categories');
+        Artisan::call('cache:clear');
+        return 1;
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $category = Category::findOrFail($request->id);
+        $category->is_active = $request->status;
+        $category->save();
+        $category->childrenCategories()->update(['is_active' => $request->status]);
+        // Cache::forget('featured_categories');
+        Artisan::call('cache:clear');
         return 1;
     }
 }

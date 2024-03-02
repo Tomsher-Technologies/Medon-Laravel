@@ -11,11 +11,13 @@
   |
  */
 
-use App\Http\Controllers\AddonController;
 use App\Http\Controllers\Admin\AbandonedCartController;
+use App\Http\Controllers\Admin\App\AppBannerController;
+use App\Http\Controllers\Admin\App\AppHomeController;
+use App\Http\Controllers\Admin\App\SplashScreenController;
 use App\Http\Controllers\Admin\Auth\LoginController as AuthLoginController;
+use App\Http\Controllers\Admin\Delivery\DeliveryBoyController;
 use App\Http\Controllers\Admin\Frontend\Bannercontroller;
-use App\Http\Controllers\Admin\Products\EnquiriesController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AttributeController;
@@ -48,11 +50,13 @@ use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WebsiteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Frontend\HomeSliderController;
+use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\TempImageController;
 use App\Http\Controllers\CareersController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestQuoteController;
+use App\Http\Controllers\ShopsController;
 
 Route::post('/update', [UpdateController::class, 'step0'])->name('update');
 Route::get('/update/step1', [UpdateController::class, 'step1'])->name('update.step1');
@@ -61,6 +65,8 @@ Route::get('/update/step2', [UpdateController::class, 'step2'])->name('update.st
 Route::get('/' . env('ADMIN_PREFIX'), [AdminController::class, 'admin_dashboard'])
     ->name('admin.dashboard')
     ->middleware(['auth', 'admin']);
+
+Route::get('/', [AuthLoginController::class, 'adminLoginView'])->name('home');
 
 Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['guest']], function () {
     Route::get('login', [AuthLoginController::class, 'adminLoginView'])->name('admin.login');
@@ -77,10 +83,12 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/categories/edit/{id}', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::get('/categories/destroy/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('/categories/featured', [CategoryController::class, 'updateFeatured'])->name('categories.featured');
+    Route::post('/categories/status', [CategoryController::class, 'updateStatus'])->name('categories.status');
 
     Route::resource('brands', BrandController::class);
     // Route::get('/brands/edit/{id}', [BrandController::class, 'edit'])->name('brands.edit');
     Route::get('/brands/destroy/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
+    Route::post('/brands/status', [BrandController::class, 'updateStatus'])->name('brands.status');
 
     // Route::get('/products/admin', [ProductController::class, 'admin_products'])->name('products.admin');
     // Route::get('/products/seller', [ProductController::class, 'seller_products'])->name('products.seller');
@@ -201,7 +209,23 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/languages/app-translations/key_value_store', [LanguageController::class, 'storeAppTranlsation'])->name('app-translations.store');
     Route::get('/languages/app-translations/export/{id}', [LanguageController::class, 'exportARBFile'])->name('app-translations.export');
 
+    // App setting
+    Route::group(['prefix' => 'app'], function () {
+        Route::post('/app-banner/update-status', [AppBannerController::class, 'updateStatus'])->name('app-banner.update-status');
+        Route::get('/app-banner/delete/{id}', [AppBannerController::class, 'destroy'])->name('app-banner.delete');
+        Route::resource('app-banner', AppBannerController::class);
+
+        Route::post('/app-banners', [AppHomeController::class, 'updateBanners'])->name('app-banners.update');
+        Route::get('/app-home', [AppHomeController::class, 'index'])->name('app.home');
+    });
+    
+    Route::resource('offers', OfferController::class);
+    Route::post('/offers/get-form', [OfferController::class, 'get_form'])->name('offers.get_form');
+    Route::post('/offers/get_brands', [OfferController::class, 'get_brands'])->name('offers.get_brands');
+    Route::get('/offers/destroy/{id}', [OfferController::class, 'destroy'])->name('offers.destroy');
     // website setting
+
+    Route::get('/enquiries-contact', [PageController::class, 'enquiries'])->name('enquiries.contact');
     Route::group(['prefix' => 'website'], function () {
         Route::get('/footer', [WebsiteController::class, 'footer'])->name('website.footer');
 
@@ -209,12 +233,17 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
         Route::post('/menu', [WebsiteController::class, 'menuUpdate']);
 
         Route::get('/header', [WebsiteController::class, 'header'])->name('website.header');
+        Route::post('/store-header', [WebsiteController::class, 'storeHeader'])->name('store.header');
         Route::get('/appearance', [WebsiteController::class, 'appearance'])->name('website.appearance');
         Route::get('/pages', [WebsiteController::class, 'pages'])->name('website.pages');
 
         Route::post('/home-slider/update-status', [HomeSliderController::class, 'updateStatus'])->name('home-slider.update-status');
         Route::get('/home-slider/delete/{id}', [HomeSliderController::class, 'destroy'])->name('home-slider.delete');
         Route::resource('home-slider', HomeSliderController::class);
+
+        Route::post('/splash_screen/update-status', [SplashScreenController::class, 'updateStatus'])->name('splash-screen.update-status');
+        Route::get('/splash_screen/delete/{id}', [SplashScreenController::class, 'destroy'])->name('splash-screen.delete');
+        Route::resource('splash_screen', SplashScreenController::class)->except('show');
 
         Route::resource('custom-pages', PageController::class);
         Route::get('/custom-pages/edit/{id}', [PageController::class, 'edit'])->name('custom-pages.edit');
@@ -235,16 +264,38 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::get('/all_orders', [OrderController::class, 'all_orders'])->name('all_orders.index');
     Route::get('/all_orders/{id}/show', [OrderController::class, 'all_orders_show'])->name('all_orders.show');
 
-    Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
+    Route::get('/prescriptions', [WebsiteController::class, 'prescriptions'])->name('prescriptions');
+    Route::get('/delivery-agents/{id}', [OrderController::class, 'getNearByDeliveryAgents'])->name('delivery-agents');
 
-    Route::get('/enquiries/{id}/delete', [EnquiriesController::class, 'destroy'])->name('enquiries.destroy');
-    Route::resource('enquiries', EnquiriesController::class)->only('index', 'show');
+    Route::resource('shops', ShopsController::class, ['as' => 'admin']);
+    Route::post('/shops/delete/', [ShopsController::class, 'delete'])->name('admin.shops.delete');
+    Route::get('/shops/edit/{id}', [ShopsController::class, 'edit'])->name('admin.shops.edit');
+    Route::post('/shops/update/{id}', [ShopsController::class, 'update'])->name('admin.shops.update');
+
+    Route::get('/cancel_requests', [OrderController::class, 'allCancelRequests'])->name('cancel_requests.index');
+    Route::post('/cancel-request-status', [OrderController::class, 'cancelRequestStatus'])->name('cancel-request-status');
+    Route::post('/cancel-payment-type', [OrderController::class, 'cancelPaymentType'])->name('cancel-payment-type');
+    Route::get('/cancel_orders/{id}/show', [OrderController::class, 'cancel_orders_show'])->name('cancel_orders.show');
+
+    Route::get('/return_requests', [OrderController::class, 'allReturnRequests'])->name('return_requests.index');
+    Route::get('/return_orders/{id}/show', [OrderController::class, 'return_orders_show'])->name('return_orders.show');
+    Route::post('/return-request-status', [OrderController::class, 'returnRequestStatus'])->name('return-request-status');
+    Route::post('/return-payment-type', [OrderController::class, 'returnPaymentType'])->name('return-payment-type');
+
+    Route::get('/return-delivery/{id}', [OrderController::class, 'getNearByReturnDeliveryAgents'])->name('return-delivery');
+
+    Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
 
     Route::post('/bulk-order-status', [OrderController::class, 'bulk_order_status'])->name('bulk-order-status');
 
     Route::get('/orders/destroy/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::post('/bulk-order-delete', [OrderController::class, 'bulk_order_delete'])->name('bulk-order-delete');
 
+    Route::post('/assign-shop-order', [OrderController::class, 'assign_shop_order'])->name('assign-shop-order');
+
+    Route::post('/assign-shop-refund', [OrderController::class, 'assign_shop_refund'])->name('assign-shop-refund');
+    
+    Route::get('/test', [OrderController::class, 'test'])->name('test');
     //Reports
     Route::get('/stock_report', [ReportController::class, 'stock_report'])->name('stock_report.index');
     Route::get('/in_house_sa le_report', [ReportController::class, 'in_house_sale_report'])->name('in_house_sale_report.index');
@@ -288,9 +339,10 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
     Route::post('/classified_products/published', [CustomerProductController::class, 'updatePublished'])->name('classified_products.published');
 
     //Shipping Configuration
-    Route::get('/shipping_configuration', [BusinessSettingsController::class, 'shipping_configuration'])->name('shipping_configuration.index');
-    Route::post('/shipping_configuration/update', [BusinessSettingsController::class, 'shipping_configuration_update'])->name('shipping_configuration.update');
+    Route::get('/configuration', [BusinessSettingsController::class, 'shipping_configuration'])->name('shipping_configuration.index');
+    Route::post('/configuration/update', [BusinessSettingsController::class, 'shipping_configuration_update'])->name('shipping_configuration.update');
     Route::post('/shipping_configuration/free_shipping', [BusinessSettingsController::class, 'freeshipping_settings'])->name('shipping_configuration.free_shipping');
+    Route::post('/configuration/return', [BusinessSettingsController::class, 'return_settings'])->name('configuration.return_settings');
 
     Route::resource('countries', CountryController::class);
     Route::post('/countries/status', [CountryController::class, 'updateStatus'])->name('countries.status');
@@ -336,4 +388,24 @@ Route::group(['prefix' => env('ADMIN_PREFIX'), 'middleware' => ['auth', 'admin']
 
     // Cache
     Route::get('/cache-cache/{type?}', [AdminController::class, 'clearCache'])->name('cache.clear');
+
+
+    // Delivery Boy
+    Route::resource('delivery_boy', DeliveryBoyController::class)->except('show');
+
+
+    Route::resource('orders', OrderController::class);
+    Route::get('/orders/destroy/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::post('/orders/details', [OrderController::class, 'order_details'])->name('orders.details');
+    Route::post('/orders/update_delivery_status', [OrderController::class, 'update_delivery_status'])->name('orders.update_delivery_status');
+    Route::post('/orders/update_payment_status', [OrderController::class, 'update_payment_status'])->name('orders.update_payment_status');
+    Route::post('/orders/update_tracking_code', [OrderController::class, 'update_tracking_code'])->name('orders.update_tracking_code');
+
+    Route::post('/orders/update_estimated_date', [OrderController::class, 'update_estimated_date'])->name('orders.update_estimated_date');
+
+    Route::get('get-order-delivery-boys', [OrderController::class, 'getOrderDeliveryBoys'])->name('get-order-delivery-boys');
+    Route::post('assign-delivery-boy', [OrderController::class, 'assignDeliveryAgent'])->name('assign-delivery-boy');
+
+    Route::get('get-order-return-delivery-boys', [OrderController::class, 'getOrderReturnDeliveryBoys'])->name('get-order-return-delivery-boys');
+    Route::post('assign-return-delivery-boy', [OrderController::class, 'assignReturnDeliveryAgent'])->name('assign-return-delivery-boy');
 });

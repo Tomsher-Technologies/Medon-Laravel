@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Frontend\Banner;
 use App\Models\Product;
+use App\Models\Offers;
 use Cache;
 use Illuminate\Http\Request;
 
@@ -43,7 +45,6 @@ class Bannercontroller extends Controller
         $request->validate([
             'name' => 'required',
             'banner' => 'required',
-            'mobile_banner' => 'required',
             'link_type' => 'required',
             'status' => 'required',
             'link' => 'nullable|required_if:link_type,external',
@@ -104,7 +105,7 @@ class Bannercontroller extends Controller
         $request->validate([
             'name' => 'required',
             'banner' => 'required',
-            'mobile_banner' => 'required',
+            // 'mobile_banner' => 'required',
             'link_type' => 'required',
             'status' => 'required',
             'link' => 'nullable|required_if:link_type,external',
@@ -153,9 +154,16 @@ class Bannercontroller extends Controller
             return view('partials.banners.banner_form_product', compact('products', 'old_data'));
         } elseif ($request->link_type == "category") {
             $categories = Category::where('parent_id', 0)
+                ->where('is_active', 1)
                 ->with('childrenCategories')
                 ->get();
             return view('partials.banners.banner_form_category', compact('categories', 'old_data'));
+        } elseif ($request->link_type == "brand") {
+            $brands = Brand::select(['id', 'name'])->where('is_active', 1)->get();
+            return view('partials.banners.banner_form_brand', compact('old_data', 'brands'));
+        } elseif ($request->link_type == "offer") {
+            $offers = Offers::select(['id', 'name'])->get();
+            return view('partials.banners.banner_form_offer', compact('old_data', 'offers'));
         } else {
             return view('partials.banners.banner_form', compact('old_data'));
         }
