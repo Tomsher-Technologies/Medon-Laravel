@@ -95,6 +95,7 @@ class CommonController extends Controller
             // if ($category->banner) {
             //     $temp['banner'] = api_asset($category->banner);
             // }
+            $temp['slug'] = $category->slug ?? '';
             $temp['banner'] = api_upload_asset($category->banner);
             $temp['image'] = api_upload_asset($category->icon);
             $res_category[] = $temp;
