@@ -42,7 +42,7 @@
                                                                 <tr>
                                                                     <td class="text-header right"
                                                                         style="color:#000000; font-family:'Fira Mono', Arial,sans-serif; font-size:12px; line-height:16px; text-align:right;">
-                                                                        <a href="{{ env('APP_URL') }}" target="_blank"
+                                                                        <a href="{{ env('WEB_URL') }}" target="_blank"
                                                                             class="link"
                                                                             style="color:#000001; text-decoration:none;"><span
                                                                                 class="link"
