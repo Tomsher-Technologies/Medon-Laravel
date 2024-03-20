@@ -1807,7 +1807,7 @@ function getActiveBuyXgetYOfferProducts(){
         return [
             'order_placed' => "Hi ".$user.", Greetings from ".env('APP_NAME')."! Your order (".$code.") has been placed successfully.",
 
-            'confirmed' => "Hi ".$user.",  Greetings from Medon Pharmacy! Order Is Confirmed. Order ID is ".$code."",
+            'confirmed' => "Hi ".$user.",  Greetings from Medon Pharmacy! Order Is Confirmed. Order ID is #".$code."",
             
             'picked_up' => "Hi ".$user.", Greetings from Medon Pharmacy! Your Order is out for Delivery . Order ID is #.".$code."",
             
@@ -1831,7 +1831,7 @@ function getActiveBuyXgetYOfferProducts(){
         return [
             'order_placed' => "Hi $user, Greetings from Farook! Your OTP: ".$code." Treat this as confidential. Sharing this with anyone gives them full access to your Farook Account.",
 
-            'confirmed' => "Hi ".$user.",  Greetings from Medon Pharmacy! Order Is Confirmed. Order ID is ".$code."",
+            'confirmed' => "Hi ".$user.",  Greetings from Medon Pharmacy! Order Is Confirmed. Order ID is #".$code."",
 
             'picked_up' => "Hi ".$user.", Greetings from Medon Pharmacy! Your Order is out for Delivery . Order ID is #.".$code."",
 
