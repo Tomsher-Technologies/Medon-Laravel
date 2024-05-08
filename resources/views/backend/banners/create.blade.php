@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-lg-8 mx-auto">
+        <div class="col-lg-10 mx-auto">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0 h6">Create Banner</h5>
@@ -23,7 +23,7 @@
 
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">
-                                Banner
+                                Banner <span style="color:#808080b3;">(Please upload an image with size less than 500 KB and dimensions 1469x585 pixels)</span>
                             </label>
                             <div class="col-md-9">
                                 <div class="input-group" data-toggle="aizuploader" data-type="image">
@@ -46,7 +46,7 @@
 
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">
-                                Mobile Banner
+                                Mobile Banner <span style="color:#808080b3;">(Please upload an image with size less than 500 KB and dimensions 1053X512 pixels)</span>
                             </label>
                             <div class="col-md-9">
                                 <div class="input-group" data-toggle="aizuploader" data-type="image">
