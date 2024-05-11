@@ -46,5 +46,7 @@ Breadcrumbs::for('product', function (BreadcrumbTrail $trail, Product $product) 
 
 // Product
 Breadcrumbs::for('product_admin', function (BreadcrumbTrail $trail, Product $product) {
-    $trail->parent('category_no_home', $product->category);
+    if($product->category){
+        $trail->parent('category_no_home', $product->category);
+    }
 });
